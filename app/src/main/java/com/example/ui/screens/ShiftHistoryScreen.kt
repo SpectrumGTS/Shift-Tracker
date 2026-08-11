@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
@@ -66,31 +67,85 @@ fun ShiftHistoryScreen(
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var isFilterVisible by remember { mutableStateOf(false) }
-    var startDateFilter by remember { mutableStateOf<String?>(null) }
+    val initialStartDate = remember {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.DAY_OF_MONTH, 1)
+        val fmt = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        fmt.format(calendar.time)
+    }
+    var startDateFilter by remember { mutableStateOf<String?>(initialStartDate) }
     var endDateFilter by remember { mutableStateOf<String?>(null) }
     var activeDatePickerFor by remember { mutableStateOf<String?>(null) } // "start", "end", or null
 
+    val validationError = remember(startDateFilter, endDateFilter) {
+        if (!startDateFilter.isNullOrBlank() && !endDateFilter.isNullOrBlank()) {
+            val fmt = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            try {
+                val startDate = fmt.parse(startDateFilter!!)
+                val endDate = fmt.parse(endDateFilter!!)
+                if (startDate != null && endDate != null) {
+                    if (endDate.before(startDate)) {
+                        "End date cannot be earlier than start date."
+                    } else {
+                        val diffMs = endDate.time - startDate.time
+                        val diffDays = (diffMs + 12 * 60 * 60 * 1000) / (24 * 60 * 60 * 1000)
+                        if (diffDays > 367) {
+                            "Selected range cannot exceed 367 days."
+                        } else {
+                            null
+                        }
+                    }
+                } else {
+                    null
+                }
+            } catch (e: Exception) {
+                null
+            }
+        } else {
+            null
+        }
+    }
+
     val isFilterActive = startDateFilter != null || endDateFilter != null
 
-    val filteredShifts = remember(shifts, searchQuery, startDateFilter, endDateFilter) {
-        shifts.filter { shift ->
-            val matchesSearch = if (searchQuery.isBlank()) {
-                true
-            } else {
-                shift.date.contains(searchQuery, ignoreCase = true) ||
-                        shift.notes.contains(searchQuery, ignoreCase = true)
+    val currentYear = remember {
+        Calendar.getInstance().get(Calendar.YEAR).toString()
+    }
+
+    val filteredShifts = remember(shifts, searchQuery, startDateFilter, endDateFilter, validationError) {
+        if (validationError != null) {
+            emptyList()
+        } else if (startDateFilter.isNullOrBlank() && endDateFilter.isNullOrBlank()) {
+            shifts.filter { shift ->
+                val matchesSearch = if (searchQuery.isBlank()) {
+                    true
+                } else {
+                    shift.date.contains(searchQuery, ignoreCase = true) ||
+                            shift.notes.contains(searchQuery, ignoreCase = true)
+                }
+                val matchesYear = shift.date.startsWith(currentYear)
+                matchesSearch && matchesYear
             }
-            val matchesStartDate = if (startDateFilter.isNullOrBlank()) {
-                true
-            } else {
-                shift.date >= startDateFilter!!
+        } else {
+            shifts.filter { shift ->
+                val matchesSearch = if (searchQuery.isBlank()) {
+                    true
+                } else {
+                    shift.date.contains(searchQuery, ignoreCase = true) ||
+                            shift.notes.contains(searchQuery, ignoreCase = true)
+                }
+                val matchesStartDate = if (startDateFilter.isNullOrBlank()) {
+                    true
+                } else {
+                    shift.date >= startDateFilter!!
+                }
+                val matchesEndDate = if (endDateFilter.isNullOrBlank()) {
+                    true
+                } else {
+                    shift.date <= endDateFilter!!
+                }
+                matchesSearch && matchesStartDate && matchesEndDate
             }
-            val matchesEndDate = if (endDateFilter.isNullOrBlank()) {
-                true
-            } else {
-                shift.date <= endDateFilter!!
-            }
-            matchesSearch && matchesStartDate && matchesEndDate
         }
     }
 
@@ -258,6 +313,27 @@ fun ShiftHistoryScreen(
                                     }
                                 }
                             }
+                            if (validationError != null) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    modifier = Modifier.padding(top = 4.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Warning,
+                                        contentDescription = "Error",
+                                        tint = MaterialTheme.colorScheme.error,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Text(
+                                        text = validationError,
+                                        color = MaterialTheme.colorScheme.error,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        fontWeight = FontWeight.Medium,
+                                        modifier = Modifier.testTag("filter_validation_error")
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -277,11 +353,19 @@ fun ShiftHistoryScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = "Matching Logs: ${filteredShifts.size}",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.SemiBold
-                        )
+                        Column {
+                            Text(
+                                text = "Matching Logs: ${filteredShifts.size}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Total Logs: ${shifts.size}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                            )
+                        }
                         Text(
                             text = "Total Extra: ${OvertimeCalculator.formatDurationMinutes(totalExtraMinutes)}",
                             style = MaterialTheme.typography.bodyMedium,
@@ -310,16 +394,23 @@ fun ShiftHistoryScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Icon(
-                                imageVector = Icons.Default.History,
+                                imageVector = if (validationError != null) Icons.Default.Warning else Icons.Default.History,
                                 contentDescription = null,
                                 modifier = Modifier.size(48.dp),
-                                tint = MaterialTheme.colorScheme.outline
+                                tint = if (validationError != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = if (searchQuery.isNotBlank()) "No Matching Shift Logs Found" else "No Shift History Recorded",
+                                text = if (validationError != null) {
+                                    validationError
+                                } else if (searchQuery.isNotBlank()) {
+                                    "No Matching Shift Logs Found"
+                                } else {
+                                    "No Shift History Recorded"
+                                },
                                 style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                color = if (validationError != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }
