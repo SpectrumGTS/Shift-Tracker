@@ -90,6 +90,33 @@ fun AddEditShiftDialog(
     var showDatePicker by remember { mutableStateOf(false) }
     var showSaveConfirmDialog by remember { mutableStateOf(false) }
     var showFutureDateWarningDialog by remember { mutableStateOf(false) }
+    var showCutoffWarningDialog by remember { mutableStateOf(false) }
+
+    val proceedSaveFlow = {
+        val todayStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
+        val isFutureDate = inputState.date > todayStr
+
+        if (inputState.isEditing) {
+            showSaveConfirmDialog = true
+        } else if (isFutureDate) {
+            showFutureDateWarningDialog = true
+        } else {
+            onSave()
+        }
+    }
+
+    val handleSaveClick = {
+        val isExceedingCutoff = isClockOutExceedingCutoff(
+            clockInMinutes = inputState.clockInMinutes,
+            clockOutMinutes = inputState.clockOutMinutes,
+            cutoffTimeMinutes = appSettings.cutoffTimeMinutes
+        )
+        if (isExceedingCutoff) {
+            showCutoffWarningDialog = true
+        } else {
+            proceedSaveFlow()
+        }
+    }
 
     // Calculate live preview
     val calcSummary = OvertimeCalculator.calculate(
@@ -113,18 +140,7 @@ fun AddEditShiftDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(
-                onClick = {
-                    val todayStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
-                    val isFutureDate = inputState.date > todayStr
-
-                    if (inputState.isEditing) {
-                        showSaveConfirmDialog = true
-                    } else if (isFutureDate) {
-                        showFutureDateWarningDialog = true
-                    } else {
-                        onSave()
-                    }
-                },
+                onClick = handleSaveClick,
                 modifier = Modifier.testTag("save_shift_button")
             ) {
                 Text(stringResource(R.string.save_shift), fontWeight = FontWeight.Bold)
@@ -459,12 +475,27 @@ fun AddEditShiftDialog(
                 }
 
                 // Notes Field
+                val notesText = inputState.notes
+                val wordCount = remember(notesText) {
+                    if (notesText.isBlank()) 0
+                    else notesText.trim().split("\\s+".toRegex()).filter { it.isNotEmpty() }.size
+                }
+
                 OutlinedTextField(
-                    value = inputState.notes,
+                    value = notesText,
                     onValueChange = { newNotes ->
-                        onTimesUpdated(null, null, null, null, null, null, null, newNotes)
+                        val trimmed = if (newNotes.length > 32) newNotes.substring(0, 32) else newNotes
+                        onTimesUpdated(null, null, null, null, null, null, null, trimmed)
                     },
                     label = { Text(stringResource(R.string.notes_label)) },
+                    supportingText = {
+                        Text(
+                            text = stringResource(R.string.notes_limit_counter, notesText.length, wordCount),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = if (notesText.length >= 32) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.testTag("notes_word_count_text")
+                        )
+                    },
                     leadingIcon = {
                         Icon(Icons.Default.Notes, contentDescription = null)
                     },
@@ -497,6 +528,53 @@ fun AddEditShiftDialog(
                     TimePickerType.CLOCK_OUT -> onTimesUpdated(null, null, null, selectedMinutes, null, null, null, null)
                 }
                 activeTimePicker = null
+            }
+        )
+    }
+
+    if (showCutoffWarningDialog) {
+        val formattedClockOut = OvertimeCalculator.formatMinutesToTime(inputState.clockOutMinutes)
+        val formattedCutoff = OvertimeCalculator.formatMinutesToTime(appSettings.cutoffTimeMinutes)
+
+        AlertDialog(
+            onDismissRequest = { showCutoffWarningDialog = false },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(end = 8.dp)
+                    )
+                    Text(stringResource(R.string.cutoff_warning_title))
+                }
+            },
+            text = {
+                Text(stringResource(R.string.cutoff_warning_desc, formattedClockOut, formattedCutoff))
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showCutoffWarningDialog = false
+                        onTimesUpdated(null, null, null, appSettings.cutoffTimeMinutes, null, null, null, null)
+                        proceedSaveFlow()
+                    },
+                    modifier = Modifier.testTag("confirm_adjust_cutoff_button")
+                ) {
+                    Text(
+                        stringResource(R.string.cutoff_warning_confirm),
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showCutoffWarningDialog = false },
+                    modifier = Modifier.testTag("cancel_adjust_cutoff_button")
+                ) {
+                    Text(stringResource(R.string.cancel_btn))
+                }
             }
         )
     }
@@ -625,4 +703,32 @@ private fun TimeSelectorCard(
             }
         }
     }
+}
+
+private fun isClockOutExceedingCutoff(
+    clockInMinutes: Int,
+    clockOutMinutes: Int,
+    cutoffTimeMinutes: Int
+): Boolean {
+    val cutoffLimit = cutoffTimeMinutes
+    val effectiveClockOut = if (clockInMinutes > cutoffLimit) {
+        if (clockOutMinutes <= cutoffLimit || clockOutMinutes < clockInMinutes) {
+            clockOutMinutes + 1440
+        } else {
+            clockOutMinutes
+        }
+    } else {
+        if (clockOutMinutes < clockInMinutes) {
+            clockOutMinutes + 1440
+        } else {
+            clockOutMinutes
+        }
+    }
+    val effectiveCutoff = if (clockInMinutes > cutoffLimit) {
+        cutoffLimit + 1440
+    } else {
+        cutoffLimit
+    }
+
+    return effectiveClockOut > effectiveCutoff
 }

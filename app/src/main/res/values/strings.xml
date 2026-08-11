@@ -162,4 +162,10 @@
     <string name="dashboard_tap_plus_hint">Tap the \'+\' button below to log a shift.</string>
     <string name="dashboard_view_all">View All (%1$d)</string>
     <string name="confirm_btn_text">Confirm</string>
+
+    <!-- Cutoff Warning & Notes Counter -->
+    <string name="cutoff_warning_title">Overtime Cutoff Exceeded</string>
+    <string name="cutoff_warning_desc">Actual clock out time (%1$s) exceeds the overnight cutoff time (%2$s). Discard the exceeded portion and change clock out time back to %2$s?</string>
+    <string name="cutoff_warning_confirm">Discard &amp; Set to Cutoff</string>
+    <string name="notes_limit_counter">%1$d/32 chars (%2$d words)</string>
 </resources>
