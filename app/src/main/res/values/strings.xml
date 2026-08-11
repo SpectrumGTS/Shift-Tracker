@@ -168,4 +168,58 @@
     <string name="cutoff_warning_desc">Actual clock out time (%1$s) exceeds the overnight cutoff time (%2$s). Discard the exceeded portion and change clock out time back to %2$s?</string>
     <string name="cutoff_warning_confirm">Discard &amp; Set to Cutoff</string>
     <string name="notes_limit_counter">%1$d/32 chars (%2$d words)</string>
+
+    <!-- Mental Wellbeing Screen -->
+    <string name="menu_mental_wellbeing">Mental Wellbeing</string>
+    <string name="title_mental_wellbeing">Mental Wellbeing</string>
+    <string name="wellbeing_headline">Workplace Mental Wellbeing</string>
+    <string name="wellbeing_subtitle">Read-only healthiness assessment based on monthly overtime strain and occupational health resources.</string>
+    <string name="wellbeing_select_month">Select Month</string>
+    <string name="wellbeing_monthly_overtime_label">MONTHLY OVERTIME STRAIN (%1$s)</string>
+    <string name="wellbeing_readonly_badge">Read-Only Analytics</string>
+    
+    <!-- Healthiness Ratings -->
+    <string name="wellbeing_rating_optimal">Optimal Balance</string>
+    <string name="wellbeing_rating_moderate">Moderate Strain</string>
+    <string name="wellbeing_rating_high">Elevated Fatigue Risk</string>
+    <string name="wellbeing_rating_critical">Critical Burnout Warning</string>
+
+    <string name="wellbeing_desc_optimal">Low monthly overtime strain (%1$s). Your work-rest balance is within a healthy, sustainable range. Continue prioritizing regular downtime.</string>
+    <string name="wellbeing_desc_moderate">Noticeable overtime accumulated (%1$s). Keep an eye on workload levels and ensure you take adequate micro-breaks during long shifts.</string>
+    <string name="wellbeing_desc_high">Significant overtime logged (%1$s). You are experiencing heightened strain. Consider discussing workload bounds with your supervisor to prevent exhaustion.</string>
+    <string name="wellbeing_desc_critical">Extreme overtime load (%1$s). Prolonged overtime at this level poses a high risk of burnout and chronic fatigue. Immediate recovery rest is strongly advised.</string>
+
+    <!-- Mental Health Materials Sections -->
+    <string name="wellbeing_section_resources">Workplace Health &amp; Wellbeing Resources</string>
+    
+    <!-- Material 1: Burnout Signs -->
+    <string name="wellbeing_mat_burnout_title">Recognizing Early Burnout &amp; Fatigue Signs</string>
+    <string name="wellbeing_mat_burnout_desc">Overtime fatigue can build up subtly before impacting daily mental health. Watch for these physical and psychological warning signs:</string>
+    <string name="wellbeing_mat_burnout_item1">• Chronic Physical Exhaustion: Persistent fatigue even after a night of sleep.</string>
+    <string name="wellbeing_mat_burnout_item2">• Cognitive Fog: Reduced focus, increased errors, or delayed decision-making.</string>
+    <string name="wellbeing_mat_burnout_item3">• Emotional Detachment: Feeling cynicism, irritability, or loss of work fulfillment.</string>
+    <string name="wellbeing_mat_burnout_item4">• Sleep Disruption: Difficulty falling asleep due to work-related stress or late clock-outs.</string>
+
+    <!-- Material 2: Shift Work Strategies -->
+    <string name="wellbeing_mat_strategies_title">Strategies for Overtime Recovery</string>
+    <string name="wellbeing_mat_strategies_desc">Actionable micro-habits to protect mental clarity when working extended hours:</string>
+    <string name="wellbeing_mat_strategies_item1">• Micro-Break Cadence: Take 3–5 minute breathing breaks every 90 minutes of focused work.</string>
+    <string name="wellbeing_mat_strategies_item2">• Digital Off-Switch: Set strict boundaries against checking work emails or chats after clock-out.</string>
+    <string name="wellbeing_mat_strategies_item3">• Post-Shift Wind-down: Engage in a non-screen transition routine (e.g. walk, light stretch) before sleep.</string>
+    <string name="wellbeing_mat_strategies_item4">• Hydration &amp; Nutrition: Sustained energy requires steady hydration and balanced meals during night shifts.</string>
+
+    <!-- Material 3: Stress Reduction Techniques -->
+    <string name="wellbeing_mat_breathing_title">Instant Stress Reduction: Box Breathing Method</string>
+    <string name="wellbeing_mat_breathing_desc">Use the 4-4-4-4 Box Breathing technique when feeling overwhelmed on shift:</string>
+    <string name="wellbeing_mat_breathing_step1">1. Inhale through your nose slowly for 4 seconds.</string>
+    <string name="wellbeing_mat_breathing_step2">2. Hold your breath for 4 seconds.</string>
+    <string name="wellbeing_mat_breathing_step3">3. Exhale smoothly through your mouth for 4 seconds.</string>
+    <string name="wellbeing_mat_breathing_step4">4. Pause and hold empty for 4 seconds before the next breath.</string>
+
+    <!-- Material 4: Professional Support -->
+    <string name="wellbeing_mat_support_title">When to Seek Support</string>
+    <string name="wellbeing_mat_support_desc">If work-related stress affects your personal health or relationships, reach out to professional resources:</string>
+    <string name="wellbeing_mat_support_item1">• Employee Assistance Program (EAP): Confidential counseling provided by many employers.</string>
+    <string name="wellbeing_mat_support_item2">• Occupational Health Services: Workplace health advisors specializing in shift-work safety.</string>
+    <string name="wellbeing_mat_support_item3">• Healthcare Professionals: Consult your general practitioner for mental health support.</string>
 </resources>

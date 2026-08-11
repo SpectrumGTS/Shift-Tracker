@@ -58,6 +58,7 @@ enum class ScreenDestination {
     SETTINGS,
     HISTORY,
     INSIGHTS,
+    MENTAL_WELLBEING,
     BACKUP_RESTORE,
     ABOUT
 }

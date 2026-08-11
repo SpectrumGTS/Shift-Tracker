@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.MoreTime
+import androidx.compose.material.icons.filled.SelfImprovement
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Storage
@@ -139,6 +140,17 @@ fun AppNavigationDrawerSheet(
                 testTag = "drawer_item_insights",
                 onClick = {
                     onDestinationSelected(ScreenDestination.INSIGHTS)
+                    onCloseDrawer()
+                }
+            )
+
+            DrawerMenuItem(
+                label = stringResource(R.string.menu_mental_wellbeing),
+                icon = Icons.Default.SelfImprovement,
+                isSelected = currentDestination == ScreenDestination.MENTAL_WELLBEING,
+                testTag = "drawer_item_mental_wellbeing",
+                onClick = {
+                    onDestinationSelected(ScreenDestination.MENTAL_WELLBEING)
                     onCloseDrawer()
                 }
             )

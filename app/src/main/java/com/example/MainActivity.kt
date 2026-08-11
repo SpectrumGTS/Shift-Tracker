@@ -29,6 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.res.stringResource
 import com.example.ui.navigation.AppNavigationDrawerSheet
 import com.example.ui.screens.AboutScreen
 import com.example.ui.screens.AddEditShiftDialog
@@ -36,6 +37,7 @@ import com.example.ui.screens.BackupRestoreScreen
 import com.example.ui.screens.DashboardScreen
 import com.example.ui.screens.DefaultScheduleScreen
 import com.example.ui.screens.InsightsScreen
+import com.example.ui.screens.MentalWellbeingScreen
 import com.example.ui.screens.SettingsScreen
 import com.example.ui.screens.ShiftHistoryScreen
 import com.example.ui.theme.MyApplicationTheme
@@ -97,6 +99,7 @@ fun OvertimeTrackerApp(viewModel: OvertimeViewModel) {
                                 ScreenDestination.SETTINGS -> "Buffer Settings"
                                 ScreenDestination.HISTORY -> "Shift History"
                                 ScreenDestination.INSIGHTS -> "Yearly Insights"
+                                ScreenDestination.MENTAL_WELLBEING -> stringResource(R.string.title_mental_wellbeing)
                                 ScreenDestination.BACKUP_RESTORE -> "Backup & Restore"
                                 ScreenDestination.ABOUT -> "About This App"
                             },
@@ -173,6 +176,12 @@ fun OvertimeTrackerApp(viewModel: OvertimeViewModel) {
                     }
                     ScreenDestination.INSIGHTS -> {
                         InsightsScreen(
+                            shifts = shifts,
+                            appSettings = appSettings
+                        )
+                    }
+                    ScreenDestination.MENTAL_WELLBEING -> {
+                        MentalWellbeingScreen(
                             shifts = shifts,
                             appSettings = appSettings
                         )
