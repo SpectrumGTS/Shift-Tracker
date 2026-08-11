@@ -1,0 +1,6 @@
+{
+  "name": "Shift Tracker",
+  "description": "Manage shifts, track working hours, and maintain a healthy work-life balance and mental wellbeing with a native Material 3 UI.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

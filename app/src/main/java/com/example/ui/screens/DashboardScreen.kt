@@ -1,0 +1,328 @@
+package com.example.ui.screens
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddAlarm
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.MoreTime
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.example.data.model.AppSettings
+import com.example.data.model.DayDefaultSchedule
+import com.example.data.model.OvertimeCalculator
+import com.example.data.model.ShiftLog
+import com.example.ui.components.ShiftCard
+import com.example.ui.viewmodel.getDayOfWeekForDate
+import com.example.ui.viewmodel.getTodayDateString
+
+@Composable
+fun DashboardScreen(
+    shifts: List<ShiftLog>,
+    defaultSchedules: List<DayDefaultSchedule>,
+    appSettings: AppSettings,
+    onLogNewShift: () -> Unit,
+    onEditShift: (ShiftLog) -> Unit,
+    onDeleteShift: (ShiftLog) -> Unit,
+    onNavigateToHistory: () -> Unit
+) {
+    val currentMonthPrefix = remember {
+        java.text.SimpleDateFormat("yyyy-MM", java.util.Locale.getDefault()).format(java.util.Date())
+    }
+    val currentMonthName = remember {
+        java.text.SimpleDateFormat("MMMM yyyy", java.util.Locale.getDefault()).format(java.util.Date())
+    }
+
+    val currentMonthShifts = remember(shifts, currentMonthPrefix) {
+        shifts.filter { it.date.startsWith(currentMonthPrefix) }
+    }
+
+    // Calculate total overtime across shifts in current month ONLY
+    val totalOvertimeMinutes = currentMonthShifts.sumOf { shift ->
+        OvertimeCalculator.calculate(
+            workStartMinutes = shift.workStartMinutes,
+            workEndMinutes = shift.workEndMinutes,
+            clockInMinutes = shift.clockInMinutes,
+            clockOutMinutes = shift.clockOutMinutes,
+            bufferBeforeMinutes = shift.bufferBeforeMinutes,
+            bufferAfterMinutes = shift.bufferAfterMinutes,
+            isWorkDay = shift.isWorkDay,
+            cutoffTimeMinutes = appSettings.cutoffTimeMinutes
+        ).totalOvertimeMinutes
+    }
+
+    val todayDateStr = getTodayDateString()
+    val todayDayOfWeek = getDayOfWeekForDate(todayDateStr)
+    val todaySchedule = defaultSchedules.find { it.dayOfWeek == todayDayOfWeek }
+
+    val currentWeekShifts = remember(shifts) {
+        val cal = java.util.Calendar.getInstance()
+        cal.firstDayOfWeek = java.util.Calendar.SUNDAY
+        cal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+        cal.set(java.util.Calendar.MINUTE, 0)
+        cal.set(java.util.Calendar.SECOND, 0)
+        cal.set(java.util.Calendar.MILLISECOND, 0)
+        cal.set(java.util.Calendar.DAY_OF_WEEK, cal.firstDayOfWeek)
+        val startOfWeek = cal.timeInMillis
+        cal.add(java.util.Calendar.DAY_OF_WEEK, 7)
+        val endOfWeek = cal.timeInMillis
+
+        val fmt = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+        shifts.filter { shift ->
+            try {
+                val d = fmt.parse(shift.date)
+                d != null && d.time in startOfWeek until endOfWeek
+            } catch (e: Exception) {
+                false
+            }
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .testTag("dashboard_screen"),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 88.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Hero Metric Cards
+            item {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("overtime_hero_card"),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    ),
+                    shape = RoundedCornerShape(20.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(20.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Surface(
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(40.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        imageVector = Icons.Default.Speed,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onPrimary
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = "EXTRA TIME ($currentMonthName)",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                                )
+                                Text(
+                                    text = OvertimeCalculator.formatDurationMinutes(totalOvertimeMinutes),
+                                    style = MaterialTheme.typography.headlineLarge,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            Text(
+                                text = "Shifts This Month: ${currentMonthShifts.size}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Today's Default Schedule Info Card
+            item {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("today_schedule_card"),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.CalendarMonth,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "Today (${OvertimeCalculator.getDayOfWeekName(todayDayOfWeek)})",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
+                            if (todaySchedule != null && todaySchedule.isWorkDay) {
+                                Text(
+                                    text = "Scheduled: ${OvertimeCalculator.formatMinutesToTime(todaySchedule.workStartMinutes)} - ${OvertimeCalculator.formatMinutesToTime(todaySchedule.workEndMinutes)}",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            } else {
+                                Text(
+                                    text = "Scheduled: Non-working day / Off",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Section Header: Recent Shifts
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Recent Shifts (This Week)",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    if (shifts.isNotEmpty()) {
+                        Button(
+                            onClick = onNavigateToHistory,
+                            modifier = Modifier.testTag("view_all_history_btn"),
+                            colors = ButtonDefaults.textButtonColors()
+                        ) {
+                            Text("View All (${shifts.size})")
+                        }
+                    }
+                }
+            }
+
+
+
+            // List of Recent Shifts
+            if (currentWeekShifts.isEmpty()) {
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        ),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Schedule,
+                                contentDescription = null,
+                                modifier = Modifier.size(56.dp),
+                                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                text = "No Shifts Logged This Week",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "Tap the '+' button below to log a shift.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            } else {
+                items(currentWeekShifts, key = { it.id }) { shift ->
+                    ShiftCard(
+                        shift = shift,
+                        onEdit = { onEditShift(shift) },
+                        onDelete = { onDeleteShift(shift) }
+                    )
+                }
+            }
+        }
+
+        // Floating Action Button
+        ExtendedFloatingActionButton(
+            onClick = onLogNewShift,
+            icon = { Icon(Icons.Default.Add, contentDescription = "Log Shift") },
+            text = { Text("Log Shift") },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(24.dp)
+                .testTag("fab_add_shift"),
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        )
+    }
+}
