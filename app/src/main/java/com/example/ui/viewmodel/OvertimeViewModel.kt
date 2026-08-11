@@ -107,7 +107,17 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = AppSettings(id = 1, bufferBeforeMinutes = 15, bufferAfterMinutes = 15, cutoffTimeMinutes = 300)
+            initialValue = AppSettings(
+                id = 1,
+                bufferBeforeMinutes = 15,
+                bufferAfterMinutes = 15,
+                cutoffTimeMinutes = 300,
+                ignoreEarlyClockIns = false,
+                lunchStartMinutes = 720,
+                lunchEndMinutes = 750,
+                subtractLunchWorkDays = false,
+                subtractLunchOffDays = false
+            )
         )
 
     private val _currentScreen = MutableStateFlow(ScreenDestination.DASHBOARD)
@@ -317,7 +327,16 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun saveAppSettings(bufferBefore: Int, bufferAfter: Int, cutoffTime: Int = 300, ignoreEarlyClockIns: Boolean = false) {
+    fun saveAppSettings(
+        bufferBefore: Int,
+        bufferAfter: Int,
+        cutoffTime: Int = 300,
+        ignoreEarlyClockIns: Boolean = false,
+        lunchStart: Int = 720,
+        lunchEnd: Int = 750,
+        subtractLunchWorkDays: Boolean = false,
+        subtractLunchOffDays: Boolean = false
+    ) {
         viewModelScope.launch {
             repository.saveAppSettings(
                 AppSettings(
@@ -325,7 +344,11 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
                     bufferBeforeMinutes = bufferBefore,
                     bufferAfterMinutes = bufferAfter,
                     cutoffTimeMinutes = cutoffTime,
-                    ignoreEarlyClockIns = ignoreEarlyClockIns
+                    ignoreEarlyClockIns = ignoreEarlyClockIns,
+                    lunchStartMinutes = lunchStart,
+                    lunchEndMinutes = lunchEnd,
+                    subtractLunchWorkDays = subtractLunchWorkDays,
+                    subtractLunchOffDays = subtractLunchOffDays
                 )
             )
         }

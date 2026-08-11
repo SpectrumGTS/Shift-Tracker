@@ -1,6 +1,7 @@
 package com.example.ui.screens
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -52,7 +53,11 @@ fun InsightsScreen(
                     bufferAfterMinutes = shift.bufferAfterMinutes,
                     isWorkDay = shift.isWorkDay,
                     cutoffTimeMinutes = appSettings.cutoffTimeMinutes,
-                    ignoreEarlyClockIns = appSettings.ignoreEarlyClockIns
+                    ignoreEarlyClockIns = appSettings.ignoreEarlyClockIns,
+                    lunchStartMinutes = appSettings.lunchStartMinutes,
+                    lunchEndMinutes = appSettings.lunchEndMinutes,
+                    subtractLunchWorkDays = appSettings.subtractLunchWorkDays,
+                    subtractLunchOffDays = appSettings.subtractLunchOffDays
                 ).totalOvertimeMinutes
             }
             val monthDisplayName = try {
@@ -173,45 +178,61 @@ fun InsightsScreen(
 
                     val primaryColor = MaterialTheme.colorScheme.primary
 
-                    Box(
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(180.dp)
+                            .height(200.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Bottom
                     ) {
-                        Canvas(modifier = Modifier.fillMaxSize()) {
-                            val canvasWidth = size.width
-                            val canvasHeight = size.height - 24.dp.toPx()
-                            val barWidth = canvasWidth / (monthlyData.size * 2f)
-                            val spacing = barWidth / 2f
-
-                            monthlyData.forEachIndexed { index, (_, mins) ->
-                                val left = index * (barWidth + spacing) + spacing
-                                val ratio = if (maxMonthMinutes > 0) mins.toFloat() / maxMonthMinutes.toFloat() else 0f
-                                val barHeight = (canvasHeight * ratio).coerceAtLeast(4f)
-                                val top = canvasHeight - barHeight
-
-                                drawRoundRect(
-                                    color = primaryColor,
-                                    topLeft = Offset(left, top),
-                                    size = Size(barWidth, barHeight),
-                                    cornerRadius = CornerRadius(4.dp.toPx(), 4.dp.toPx())
+                        monthlyData.forEach { (monthName, mins) ->
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Bottom
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxWidth(),
+                                    contentAlignment = Alignment.BottomCenter
+                                ) {
+                                    val ratio = if (maxMonthMinutes > 0) mins.toFloat() / maxMonthMinutes.toFloat() else 0f
+                                    if (mins > 0) {
+                                        val barHeightFraction = ratio.coerceAtLeast(0.05f).coerceAtMost(1f)
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth(0.4f)
+                                                .widthIn(max = 16.dp)
+                                                .fillMaxHeight(barHeightFraction)
+                                                .background(
+                                                    color = primaryColor,
+                                                    shape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp)
+                                                )
+                                        )
+                                    } else {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth(0.4f)
+                                                .widthIn(max = 16.dp)
+                                                .height(4.dp)
+                                                .background(
+                                                    color = primaryColor.copy(alpha = 0.15f),
+                                                    shape = RoundedCornerShape(2.dp)
+                                                )
+                                        )
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = monthName,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1
                                 )
                             }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        monthlyData.forEach { (monthName, _) ->
-                            Text(
-                                text = monthName,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
                         }
                     }
                 }

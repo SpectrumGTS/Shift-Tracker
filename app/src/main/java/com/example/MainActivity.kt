@@ -157,8 +157,8 @@ fun OvertimeTrackerApp(viewModel: OvertimeViewModel) {
                         SettingsScreen(
                             appSettings = appSettings,
                             defaultSchedules = defaultSchedules,
-                            onSaveSettings = { bufferBefore, bufferAfter, cutoffTime, ignoreEarly ->
-                                viewModel.saveAppSettings(bufferBefore, bufferAfter, cutoffTime, ignoreEarly)
+                            onSaveSettings = { bufferBefore, bufferAfter, cutoffTime, ignoreEarly, lunchStart, lunchEnd, subWork, subOff ->
+                                viewModel.saveAppSettings(bufferBefore, bufferAfter, cutoffTime, ignoreEarly, lunchStart, lunchEnd, subWork, subOff)
                             }
                         )
                     }
@@ -168,7 +168,7 @@ fun OvertimeTrackerApp(viewModel: OvertimeViewModel) {
                             onLogNewShift = { viewModel.openNewShiftDialog() },
                             onEditShift = { shift -> viewModel.openEditShiftDialog(shift) },
                             onDeleteShift = { shift -> viewModel.deleteShift(shift) },
-                            cutoffTimeMinutes = appSettings.cutoffTimeMinutes
+                            appSettings = appSettings
                         )
                     }
                     ScreenDestination.INSIGHTS -> {
@@ -212,7 +212,7 @@ fun OvertimeTrackerApp(viewModel: OvertimeViewModel) {
                         },
                         onDismiss = { viewModel.dismissShiftDialog() },
                         onSave = { viewModel.saveCurrentShift() },
-                        cutoffTimeMinutes = appSettings.cutoffTimeMinutes
+                        appSettings = appSettings
                     )
                 }
             }

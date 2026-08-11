@@ -38,6 +38,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.data.model.AppSettings
 import com.example.data.model.OvertimeCalculator
 import com.example.data.model.ShiftLog
 
@@ -47,7 +48,7 @@ fun ShiftCard(
     onEdit: () -> Unit,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier,
-    cutoffTimeMinutes: Int = 300
+    appSettings: AppSettings = AppSettings()
 ) {
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
 
@@ -59,7 +60,12 @@ fun ShiftCard(
         bufferBeforeMinutes = shift.bufferBeforeMinutes,
         bufferAfterMinutes = shift.bufferAfterMinutes,
         isWorkDay = shift.isWorkDay,
-        cutoffTimeMinutes = cutoffTimeMinutes
+        cutoffTimeMinutes = appSettings.cutoffTimeMinutes,
+        ignoreEarlyClockIns = appSettings.ignoreEarlyClockIns,
+        lunchStartMinutes = appSettings.lunchStartMinutes,
+        lunchEndMinutes = appSettings.lunchEndMinutes,
+        subtractLunchWorkDays = appSettings.subtractLunchWorkDays,
+        subtractLunchOffDays = appSettings.subtractLunchOffDays
     )
 
     val dayOfWeekInt = try {

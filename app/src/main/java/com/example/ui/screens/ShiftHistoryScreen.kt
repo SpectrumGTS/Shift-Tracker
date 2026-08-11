@@ -47,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.data.model.AppSettings
 import com.example.data.model.OvertimeCalculator
 import com.example.data.model.ShiftLog
 import com.example.ui.components.ShiftCard
@@ -61,7 +62,7 @@ fun ShiftHistoryScreen(
     onLogNewShift: () -> Unit,
     onEditShift: (ShiftLog) -> Unit,
     onDeleteShift: (ShiftLog) -> Unit,
-    cutoffTimeMinutes: Int = 300
+    appSettings: AppSettings = AppSettings()
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var isFilterVisible by remember { mutableStateOf(false) }
@@ -102,7 +103,12 @@ fun ShiftHistoryScreen(
             bufferBeforeMinutes = shift.bufferBeforeMinutes,
             bufferAfterMinutes = shift.bufferAfterMinutes,
             isWorkDay = shift.isWorkDay,
-            cutoffTimeMinutes = cutoffTimeMinutes
+            cutoffTimeMinutes = appSettings.cutoffTimeMinutes,
+            ignoreEarlyClockIns = appSettings.ignoreEarlyClockIns,
+            lunchStartMinutes = appSettings.lunchStartMinutes,
+            lunchEndMinutes = appSettings.lunchEndMinutes,
+            subtractLunchWorkDays = appSettings.subtractLunchWorkDays,
+            subtractLunchOffDays = appSettings.subtractLunchOffDays
         ).totalOvertimeMinutes
     }
 
@@ -324,7 +330,7 @@ fun ShiftHistoryScreen(
                         shift = shift,
                         onEdit = { onEditShift(shift) },
                         onDelete = { onDeleteShift(shift) },
-                        cutoffTimeMinutes = cutoffTimeMinutes
+                        appSettings = appSettings
                     )
                 }
             }

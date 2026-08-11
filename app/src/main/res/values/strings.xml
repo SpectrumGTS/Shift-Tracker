@@ -1,3 +1,82 @@
 <resources>
     <string name="app_name">Shift Tracker</string>
+
+    <!-- Settings Screen -->
+    <string name="overtime_grace_cutoff_settings">Overtime Grace &amp; Cutoff Settings</string>
+    <string name="configure_grace_buffer_desc">Configure grace buffer periods and midnight cutoff time for overnight shift overtime calculation.</string>
+    <string name="before_working_hours_buffer">Before Working Hours Buffer</string>
+    <string name="grace_period_prior_to_start">Grace period prior to scheduled work start</string>
+    <string name="mins_suffix">%1$d mins</string>
+    <string name="always_ignore_early_clock_ins">Always Ignore Early Clock-Ins</string>
+    <string name="disregard_early_work">Disregard any work done prior to official start time.</string>
+    <string name="desc_early_clockins_disabled">• Early clock-ins disabled: All early arrival time is ignored (0 early overtime).</string>
+    <string name="desc_no_buffer_early">• No buffer: ALL early arrival time counts as overtime.</string>
+    <string name="desc_buffer_early_active">• Clocking in within %1$d mins before start is treated as arrival grace time and excluded from overtime.</string>
+    <string name="after_working_hours_buffer">After Working Hours Buffer</string>
+    <string name="grace_period_after_end">Grace period after scheduled work end</string>
+    <string name="desc_no_buffer_late">• No buffer: ALL late departure time counts as overtime.</string>
+    <string name="desc_buffer_late_active">• Clocking out within %1$d mins after end is treated as departure grace time and excluded from overtime.</string>
+    <string name="overnight_shift_cutoff_time">Overnight Shift Cutoff Time</string>
+    <string name="default_cutoff_time">Default: 05:00 AM</string>
+    <string name="custom_cutoff_time">Custom Cutoff Time: %1$s</string>
+    <string name="cutoff_time_hint">• If clock out passes midnight but is earlier than or equal to %1$s, extra hours are counted into the day before midnight.</string>
+    <string name="invalid_cutoff_time">Invalid Cutoff Time</string>
+    <string name="ok_btn">OK</string>
+
+    <!-- Lunch Break Settings -->
+    <string name="lunch_break_range">Lunch Break Range</string>
+    <string name="default_lunch_break">Default: 12:00 PM to 12:30 PM</string>
+    <string name="lunch_start_prefix">Start: %1$s</string>
+    <string name="lunch_end_prefix">End: %1$s</string>
+    <string name="subtract_lunch_workdays">Subtract on Work Days</string>
+    <string name="subtract_lunch_workdays_desc">Automatically subtract lunch break from total working hours on scheduled work days.</string>
+    <string name="subtract_lunch_offdays">Subtract on Off Days</string>
+    <string name="subtract_lunch_offdays_desc">Automatically subtract lunch break from total working/overtime hours on weekends and off days.</string>
+    <string name="select_lunch_start_title">Select Lunch Break Start Time</string>
+    <string name="select_lunch_end_title">Select Lunch Break End Time</string>
+    <string name="select_cutoff_title">Select Overnight Cutoff Time</string>
+
+    <!-- Add/Edit Shift Dialog -->
+    <string name="save_shift">Save Shift</string>
+    <string name="cancel_btn">Cancel</string>
+    <string name="add_shift">Log a Shift</string>
+    <string name="edit_shift">Edit Shift Log</string>
+    <string name="work_day">Work Day</string>
+    <string name="off_day">Off Day</string>
+    <string name="scheduled_work_day">Scheduled Work Day</string>
+    <string name="scheduled_work_day_desc">Standard working schedule applies</string>
+    <string name="scheduled_off_day_desc">Non-work day (All worked time is extra)</string>
+    <string name="scheduled_working_hours">Scheduled Working Hours</string>
+    <string name="actual_clock_in_out">Actual Clock In &amp; Out</string>
+    <string name="work_start_label">Work Start</string>
+    <string name="work_end_label">Work End</string>
+    <string name="clock_in_label">Clock In</string>
+    <string name="clock_out_label">Clock Out</string>
+    <string name="date_label">Date (YYYY-MM-DD)</string>
+    <string name="scheduled_hours">Scheduled Hours</string>
+    <string name="actual_worked">Actual Worked</string>
+    <string name="net_extra_time">NET EXTRA TIME</string>
+    <string name="early_arrival_overtime">Early Arrival Overtime (-%1$dm buffer):</string>
+    <string name="late_departure_overtime">Late Departure Overtime (-%1$dm buffer):</string>
+    <string name="non_working_day_desc">Non-working day log: Entire worked duration is calculated as overtime.</string>
+    <string name="lunch_break_subtracted">Lunch Break Subtracted:</string>
+    <string name="total_worked_duration">Total Worked Duration:</string>
+    <string name="notes_label">Notes / Project / Reason (Optional)</string>
+    
+    <!-- Time Pickers -->
+    <string name="select_scheduled_start">Select Scheduled Work Start</string>
+    <string name="select_scheduled_end">Select Scheduled Work End</string>
+    <string name="select_clock_in">Select Clock In Time</string>
+    <string name="select_clock_out">Select Clock Out Time</string>
+
+    <!-- Dialog Confirmation -->
+    <string name="confirm_overwrite_title">Confirm Overwriting Existing Entry?</string>
+    <string name="confirm_save_title">Confirm Saving Shift Log?</string>
+    <string name="confirm_overwrite_desc">Are you sure you want to overwrite the existing shift log entry for %1$s?</string>
+    <string name="confirm_save_desc">Are you sure you want to save this shift log entry for %1$s?</string>
+    <string name="overwrite_btn">Overwrite</string>
+    <string name="save_btn">Save</string>
+    <string name="future_date_warning_title">Future Date Warning</string>
+    <string name="future_date_warning_desc">You are logging an overtime entry for a future date (%1$s). Are you sure you want to proceed?</string>
+    <string name="confirm_btn">Confirm</string>
 </resources>

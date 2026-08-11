@@ -47,8 +47,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.R
 import com.example.data.model.AppSettings
 import com.example.data.model.DayDefaultSchedule
 import com.example.data.model.OvertimeCalculator
@@ -58,13 +60,29 @@ import com.example.ui.components.M3TimePickerDialog
 fun SettingsScreen(
     appSettings: AppSettings,
     defaultSchedules: List<DayDefaultSchedule> = emptyList(),
-    onSaveSettings: (bufferBefore: Int, bufferAfter: Int, cutoffTime: Int, ignoreEarlyClockIns: Boolean) -> Unit
+    onSaveSettings: (
+        bufferBefore: Int,
+        bufferAfter: Int,
+        cutoffTime: Int,
+        ignoreEarlyClockIns: Boolean,
+        lunchStartMinutes: Int,
+        lunchEndMinutes: Int,
+        subtractLunchWorkDays: Boolean,
+        subtractLunchOffDays: Boolean
+    ) -> Unit
 ) {
     var bufferBefore by remember(appSettings) { mutableFloatStateOf(appSettings.bufferBeforeMinutes.toFloat()) }
     var bufferAfter by remember(appSettings) { mutableFloatStateOf(appSettings.bufferAfterMinutes.toFloat()) }
     var cutoffTime by remember(appSettings) { mutableIntStateOf(appSettings.cutoffTimeMinutes) }
     var ignoreEarlyClockIns by remember(appSettings) { mutableStateOf(appSettings.ignoreEarlyClockIns) }
+    var lunchStart by remember(appSettings) { mutableIntStateOf(appSettings.lunchStartMinutes) }
+    var lunchEnd by remember(appSettings) { mutableIntStateOf(appSettings.lunchEndMinutes) }
+    var subtractLunchWorkDays by remember(appSettings) { mutableStateOf(appSettings.subtractLunchWorkDays) }
+    var subtractLunchOffDays by remember(appSettings) { mutableStateOf(appSettings.subtractLunchOffDays) }
+
     var showCutoffTimePicker by remember { mutableStateOf(false) }
+    var showLunchStartTimePicker by remember { mutableStateOf(false) }
+    var showLunchEndTimePicker by remember { mutableStateOf(false) }
 
     val minWorkStart = remember(defaultSchedules) {
         val workDays = defaultSchedules.filter { it.isWorkDay }
@@ -89,8 +107,17 @@ fun SettingsScreen(
         }
     }
 
-    LaunchedEffect(bufferBefore, bufferAfter, cutoffTime, ignoreEarlyClockIns) {
-        onSaveSettings(bufferBefore.toInt(), bufferAfter.toInt(), cutoffTime, ignoreEarlyClockIns)
+    LaunchedEffect(bufferBefore, bufferAfter, cutoffTime, ignoreEarlyClockIns, lunchStart, lunchEnd, subtractLunchWorkDays, subtractLunchOffDays) {
+        onSaveSettings(
+            bufferBefore.toInt(),
+            bufferAfter.toInt(),
+            cutoffTime,
+            ignoreEarlyClockIns,
+            lunchStart,
+            lunchEnd,
+            subtractLunchWorkDays,
+            subtractLunchOffDays
+        )
     }
 
     LazyColumn(
@@ -124,13 +151,13 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
-                            text = "Overtime Grace & Cutoff Settings",
+                            text = stringResource(R.string.overtime_grace_cutoff_settings),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text = "Configure grace buffer periods and midnight cutoff time for overnight shift overtime calculation.",
+                            text = stringResource(R.string.configure_grace_buffer_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -161,12 +188,12 @@ fun SettingsScreen(
                     ) {
                         Column {
                             Text(
-                                text = "Before Working Hours Buffer",
+                                text = stringResource(R.string.before_working_hours_buffer),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "Grace period prior to scheduled work start",
+                                text = stringResource(R.string.grace_period_prior_to_start),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -176,7 +203,7 @@ fun SettingsScreen(
                             color = MaterialTheme.colorScheme.primary
                         ) {
                             Text(
-                                text = "${bufferBefore.toInt()} mins",
+                                text = stringResource(R.string.mins_suffix, bufferBefore.toInt()),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onPrimary,
@@ -212,11 +239,11 @@ fun SettingsScreen(
 
                     Text(
                         text = if (ignoreEarlyClockIns)
-                            "• Early clock-ins disabled: All early arrival time is ignored (0 early overtime)."
+                            stringResource(R.string.desc_early_clockins_disabled)
                         else if (bufferBefore.toInt() == 0)
-                            "• No buffer: ALL early arrival time counts as overtime."
+                            stringResource(R.string.desc_no_buffer_early)
                         else
-                            "• Clocking in within ${bufferBefore.toInt()} mins before start is treated as arrival grace time and excluded from overtime.",
+                            stringResource(R.string.desc_buffer_early_active, bufferBefore.toInt()),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -232,12 +259,12 @@ fun SettingsScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Always Ignore Early Clock-Ins",
+                                text = stringResource(R.string.always_ignore_early_clock_ins),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "Disregard any work done prior to official start time.",
+                                text = stringResource(R.string.disregard_early_work),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -275,12 +302,12 @@ fun SettingsScreen(
                     ) {
                         Column {
                             Text(
-                                text = "After Working Hours Buffer",
+                                text = stringResource(R.string.after_working_hours_buffer),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "Grace period after scheduled work end",
+                                text = stringResource(R.string.grace_period_after_end),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -290,7 +317,7 @@ fun SettingsScreen(
                             color = MaterialTheme.colorScheme.primary
                         ) {
                             Text(
-                                text = "${bufferAfter.toInt()} mins",
+                                text = stringResource(R.string.mins_suffix, bufferAfter.toInt()),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onPrimary,
@@ -326,9 +353,9 @@ fun SettingsScreen(
 
                     Text(
                         text = if (bufferAfter.toInt() == 0)
-                            "• No buffer: ALL late departure time counts as overtime."
+                            stringResource(R.string.desc_no_buffer_late)
                         else
-                            "• Clocking out within ${bufferAfter.toInt()} mins after end is treated as departure grace time and excluded from overtime.",
+                            stringResource(R.string.desc_buffer_late_active, bufferAfter.toInt()),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -366,12 +393,12 @@ fun SettingsScreen(
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
                                 Text(
-                                    text = "Overnight Shift Cutoff Time",
+                                    text = stringResource(R.string.overnight_shift_cutoff_time),
                                     style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    text = "Default: 05:00 AM",
+                                    text = stringResource(R.string.default_cutoff_time),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -398,11 +425,11 @@ fun SettingsScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         listOf(
-                            180 to "3 AM",
-                            240 to "4 AM",
-                            300 to "5 AM (Default)",
-                            360 to "6 AM",
-                            420 to "7 AM"
+                            180 to "03:00 AM",
+                            240 to "04:00 AM",
+                            300 to "05:00 AM (Default)",
+                            360 to "06:00 AM",
+                            420 to "07:00 AM"
                         ).forEach { (presetMins, label) ->
                             FilterChip(
                                 selected = cutoffTime == presetMins,
@@ -426,11 +453,11 @@ fun SettingsScreen(
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Custom Cutoff Time: ${OvertimeCalculator.formatMinutesToTime(cutoffTime)}")
+                        Text(stringResource(R.string.custom_cutoff_time, OvertimeCalculator.formatMinutesToTime(cutoffTime)))
                     }
 
                     Text(
-                        text = "• If clock out passes midnight but is earlier than or equal to ${OvertimeCalculator.formatMinutesToTime(cutoffTime)}, extra hours are counted into the day before midnight.",
+                        text = stringResource(R.string.cutoff_time_hint, OvertimeCalculator.formatMinutesToTime(cutoffTime)),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -438,12 +465,194 @@ fun SettingsScreen(
             }
         }
 
+        // Lunch Break Settings Card
+        item {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("lunch_break_settings_card"),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Schedule,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(
+                                    text = stringResource(R.string.lunch_break_range),
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = stringResource(R.string.default_lunch_break),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
 
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.primary
+                        ) {
+                            Text(
+                                text = "${OvertimeCalculator.formatMinutesToTime(lunchStart)} - ${OvertimeCalculator.formatMinutesToTime(lunchEnd)}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedButton(
+                            onClick = { showLunchStartTimePicker = true },
+                            modifier = Modifier
+                                .weight(1f)
+                                .testTag("lunch_start_time_btn"),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.AccessTime,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = stringResource(R.string.lunch_start_prefix, OvertimeCalculator.formatMinutesTo24H(lunchStart)),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+
+                        OutlinedButton(
+                            onClick = { showLunchEndTimePicker = true },
+                            modifier = Modifier
+                                .weight(1f)
+                                .testTag("lunch_end_time_btn"),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.AccessTime,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = stringResource(R.string.lunch_end_prefix, OvertimeCalculator.formatMinutesTo24H(lunchEnd)),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
+
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+                    // Option to subtract for Work Days
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.subtract_lunch_workdays),
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = stringResource(R.string.subtract_lunch_workdays_desc),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Switch(
+                            checked = subtractLunchWorkDays,
+                            onCheckedChange = { subtractLunchWorkDays = it },
+                            modifier = Modifier.testTag("subtract_lunch_workdays_switch")
+                        )
+                    }
+
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+                    // Option to subtract for Off Days
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.subtract_lunch_offdays),
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = stringResource(R.string.subtract_lunch_offdays_desc),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Switch(
+                            checked = subtractLunchOffDays,
+                            onCheckedChange = { subtractLunchOffDays = it },
+                            modifier = Modifier.testTag("subtract_lunch_offdays_switch")
+                        )
+                    }
+                }
+            }
+        }
+
+
+    }
+
+    if (showLunchStartTimePicker) {
+        M3TimePickerDialog(
+            title = stringResource(R.string.select_lunch_start_title),
+            initialMinutesFromMidnight = lunchStart,
+            onDismissRequest = { showLunchStartTimePicker = false },
+            onTimeSelected = { selectedMins ->
+                lunchStart = selectedMins
+                showLunchStartTimePicker = false
+            }
+        )
+    }
+
+    if (showLunchEndTimePicker) {
+        M3TimePickerDialog(
+            title = stringResource(R.string.select_lunch_end_title),
+            initialMinutesFromMidnight = lunchEnd,
+            onDismissRequest = { showLunchEndTimePicker = false },
+            onTimeSelected = { selectedMins ->
+                lunchEnd = selectedMins
+                showLunchEndTimePicker = false
+            }
+        )
     }
 
     if (showCutoffTimePicker) {
         M3TimePickerDialog(
-            title = "Select Cutoff Time for Overnight Shifts",
+            title = stringResource(R.string.select_cutoff_title),
             initialMinutesFromMidnight = cutoffTime,
             onDismissRequest = { showCutoffTimePicker = false },
             onTimeSelected = { selectedMins ->
@@ -456,11 +665,11 @@ fun SettingsScreen(
     if (showCutoffErrorDialog) {
         AlertDialog(
             onDismissRequest = { showCutoffErrorDialog = false },
-            title = { Text("Invalid Cutoff Time") },
+            title = { Text(stringResource(R.string.invalid_cutoff_time)) },
             text = { Text(cutoffErrorMessage) },
             confirmButton = {
                 TextButton(onClick = { showCutoffErrorDialog = false }) {
-                    Text("OK", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.ok_btn), fontWeight = FontWeight.Bold)
                 }
             }
         )

@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 
 @Database(
     entities = [ShiftLog::class, DayDefaultSchedule::class, AppSettings::class],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -65,7 +65,12 @@ abstract class AppDatabase : RoomDatabase() {
                         id = 1,
                         bufferBeforeMinutes = 15,
                         bufferAfterMinutes = 15,
-                        cutoffTimeMinutes = 300
+                        cutoffTimeMinutes = 300,
+                        ignoreEarlyClockIns = false,
+                        lunchStartMinutes = 720,
+                        lunchEndMinutes = 750,
+                        subtractLunchWorkDays = false,
+                        subtractLunchOffDays = false
                     )
                 )
 

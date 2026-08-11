@@ -8,7 +8,8 @@ data class OvertimeSummary(
     val earlyOvertimeMinutes: Int,
     val lateOvertimeMinutes: Int,
     val totalOvertimeMinutes: Int,
-    val isWorkDay: Boolean
+    val isWorkDay: Boolean,
+    val lunchSubtractedMinutes: Int = 0
 )
 
 object OvertimeCalculator {
@@ -22,19 +23,40 @@ object OvertimeCalculator {
         bufferAfterMinutes: Int,
         isWorkDay: Boolean,
         cutoffTimeMinutes: Int = 300,
-        ignoreEarlyClockIns: Boolean = false
+        ignoreEarlyClockIns: Boolean = false,
+        lunchStartMinutes: Int = 720,
+        lunchEndMinutes: Int = 750,
+        subtractLunchWorkDays: Boolean = false,
+        subtractLunchOffDays: Boolean = false
     ): OvertimeSummary {
-        val actualWorked = maxOf(0, calculateDuration(clockInMinutes, clockOutMinutes, cutoffTimeMinutes))
+        val actualWorkedRaw = maxOf(0, calculateDuration(clockInMinutes, clockOutMinutes, cutoffTimeMinutes))
+
+        // Calculate overlap with lunch break
+        val effectiveLunchEnd = if (lunchEndMinutes < lunchStartMinutes) lunchEndMinutes + 1440 else lunchEndMinutes
+        val effectiveClockOut = if (clockOutMinutes < clockInMinutes || (clockOutMinutes <= cutoffTimeMinutes && clockInMinutes > cutoffTimeMinutes)) {
+            clockOutMinutes + 1440
+        } else {
+            clockOutMinutes
+        }
+        val overlap1 = calculateOverlap(clockInMinutes, effectiveClockOut, lunchStartMinutes, effectiveLunchEnd)
+        val overlap2 = calculateOverlap(clockInMinutes, effectiveClockOut, lunchStartMinutes + 1440, effectiveLunchEnd + 1440)
+        val totalLunchOverlap = overlap1 + overlap2
+
+        val shouldSubtractLunch = if (isWorkDay) subtractLunchWorkDays else subtractLunchOffDays
+        val lunchMinutesToSubtract = if (shouldSubtractLunch) totalLunchOverlap else 0
+
+        val actualWorked = maxOf(0, actualWorkedRaw - lunchMinutesToSubtract)
         
         if (!isWorkDay) {
-            // Non-work day (e.g. Weekend/Off-day): All worked time is extra/overtime
+            // Non-work day (e.g. Weekend/Off-day): All worked time (minus lunch if enabled) is extra/overtime
             return OvertimeSummary(
                 scheduledMinutes = 0,
                 actualWorkedMinutes = actualWorked,
                 earlyOvertimeMinutes = 0,
                 lateOvertimeMinutes = 0,
                 totalOvertimeMinutes = actualWorked,
-                isWorkDay = false
+                isWorkDay = false,
+                lunchSubtractedMinutes = lunchMinutesToSubtract
             )
         }
 
@@ -60,7 +82,8 @@ object OvertimeCalculator {
             earlyOvertimeMinutes = earlyOvertime,
             lateOvertimeMinutes = lateOvertime,
             totalOvertimeMinutes = totalOvertime,
-            isWorkDay = true
+            isWorkDay = true,
+            lunchSubtractedMinutes = lunchMinutesToSubtract
         )
     }
 
@@ -115,5 +138,11 @@ object OvertimeCalculator {
             7 -> "Sunday"
             else -> "Day $dayOfWeek"
         }
+    }
+
+    fun calculateOverlap(startA: Int, endA: Int, startB: Int, endB: Int): Int {
+        val maxStart = maxOf(startA, startB)
+        val minEnd = minOf(endA, endB)
+        return maxOf(0, minEnd - maxStart)
     }
 }

@@ -48,8 +48,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.R
+import com.example.data.model.AppSettings
 import com.example.data.model.OvertimeCalculator
 import com.example.ui.components.M3TimePickerDialog
 import com.example.ui.viewmodel.ShiftInputState
@@ -81,7 +84,7 @@ fun AddEditShiftDialog(
     ) -> Unit,
     onDismiss: () -> Unit,
     onSave: () -> Unit,
-    cutoffTimeMinutes: Int = 300
+    appSettings: AppSettings = AppSettings()
 ) {
     var activeTimePicker by remember { mutableStateOf<TimePickerType?>(null) }
     var showDatePicker by remember { mutableStateOf(false) }
@@ -97,7 +100,12 @@ fun AddEditShiftDialog(
         bufferBeforeMinutes = inputState.bufferBeforeMinutes,
         bufferAfterMinutes = inputState.bufferAfterMinutes,
         isWorkDay = inputState.isWorkDay,
-        cutoffTimeMinutes = cutoffTimeMinutes
+        cutoffTimeMinutes = appSettings.cutoffTimeMinutes,
+        ignoreEarlyClockIns = appSettings.ignoreEarlyClockIns,
+        lunchStartMinutes = appSettings.lunchStartMinutes,
+        lunchEndMinutes = appSettings.lunchEndMinutes,
+        subtractLunchWorkDays = appSettings.subtractLunchWorkDays,
+        subtractLunchOffDays = appSettings.subtractLunchOffDays
     )
 
     AlertDialog(
@@ -119,7 +127,7 @@ fun AddEditShiftDialog(
                 },
                 modifier = Modifier.testTag("save_shift_button")
             ) {
-                Text("Save Shift", fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.save_shift), fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
@@ -127,7 +135,7 @@ fun AddEditShiftDialog(
                 onClick = onDismiss,
                 modifier = Modifier.testTag("cancel_shift_button")
             ) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel_btn))
             }
         },
         title = {
@@ -139,7 +147,7 @@ fun AddEditShiftDialog(
                     modifier = Modifier.padding(end = 8.dp)
                 )
                 Text(
-                    text = if (inputState.isEditing) "Edit Shift Log" else "Log a Shift",
+                    text = if (inputState.isEditing) stringResource(R.string.edit_shift) else stringResource(R.string.add_shift),
                     style = MaterialTheme.typography.titleLarge
                 )
             }
@@ -163,7 +171,7 @@ fun AddEditShiftDialog(
                         onValueChange = {},
                         readOnly = true,
                         enabled = false,
-                        label = { Text("Date (YYYY-MM-DD)") },
+                        label = { Text(stringResource(R.string.date_label)) },
                         leadingIcon = {
                             Icon(Icons.Default.CalendarToday, contentDescription = null)
                         },
@@ -209,13 +217,13 @@ fun AddEditShiftDialog(
                                     }
                                     showDatePicker = false
                                 }
-                            ) {
-                                Text("OK")
+                             ) {
+                                Text(stringResource(R.string.ok_btn))
                             }
                         },
                         dismissButton = {
                             TextButton(onClick = { showDatePicker = false }) {
-                                Text("Cancel")
+                                Text(stringResource(R.string.cancel_btn))
                             }
                         }
                     ) {
@@ -235,12 +243,12 @@ fun AddEditShiftDialog(
                 ) {
                     Column {
                         Text(
-                            text = "Scheduled Work Day",
+                            text = stringResource(R.string.scheduled_work_day),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.SemiBold
                         )
                         Text(
-                            text = if (inputState.isWorkDay) "Standard working schedule applies" else "Non-work day (All worked time is extra)",
+                            text = if (inputState.isWorkDay) stringResource(R.string.scheduled_work_day_desc) else stringResource(R.string.scheduled_off_day_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -254,11 +262,11 @@ fun AddEditShiftDialog(
                     )
                 }
 
-                // Scheduled Working Hours Section
+                 // Scheduled Working Hours Section
                 if (inputState.isWorkDay) {
                     Column {
                         Text(
-                            text = "Scheduled Working Hours",
+                            text = stringResource(R.string.scheduled_working_hours),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Bold
@@ -269,14 +277,14 @@ fun AddEditShiftDialog(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             TimeSelectorCard(
-                                label = "Work Start",
+                                label = stringResource(R.string.work_start_label),
                                 formattedTime = OvertimeCalculator.formatMinutesToTime(inputState.workStartMinutes),
                                 testTag = "work_start_time_btn",
                                 modifier = Modifier.weight(1f),
                                 onClick = { activeTimePicker = TimePickerType.WORK_START }
                             )
                             TimeSelectorCard(
-                                label = "Work End",
+                                label = stringResource(R.string.work_end_label),
                                 formattedTime = OvertimeCalculator.formatMinutesToTime(inputState.workEndMinutes),
                                 testTag = "work_end_time_btn",
                                 modifier = Modifier.weight(1f),
@@ -289,7 +297,7 @@ fun AddEditShiftDialog(
                 // Actual Clock In / Clock Out Section
                 Column {
                     Text(
-                        text = "Actual Clock In & Out",
+                        text = stringResource(R.string.actual_clock_in_out),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
@@ -300,14 +308,14 @@ fun AddEditShiftDialog(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         TimeSelectorCard(
-                            label = "Clock In",
+                            label = stringResource(R.string.clock_in_label),
                             formattedTime = OvertimeCalculator.formatMinutesToTime(inputState.clockInMinutes),
                             testTag = "clock_in_time_btn",
                             modifier = Modifier.weight(1f),
                             onClick = { activeTimePicker = TimePickerType.CLOCK_IN }
                         )
                         TimeSelectorCard(
-                            label = "Clock Out",
+                            label = stringResource(R.string.clock_out_label),
                             formattedTime = OvertimeCalculator.formatMinutesToTime(inputState.clockOutMinutes),
                             testTag = "clock_out_time_btn",
                             modifier = Modifier.weight(1f),
@@ -336,7 +344,7 @@ fun AddEditShiftDialog(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "NET EXTRA TIME",
+                                text = stringResource(R.string.net_extra_time),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.primary,
                                 fontWeight = FontWeight.Bold,
@@ -368,7 +376,7 @@ fun AddEditShiftDialog(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "Early Arrival Overtime (-${inputState.bufferBeforeMinutes}m buffer):",
+                                    text = stringResource(R.string.early_arrival_overtime, inputState.bufferBeforeMinutes),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.weight(1f).padding(end = 8.dp)
@@ -385,7 +393,7 @@ fun AddEditShiftDialog(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "Late Departure Overtime (-${inputState.bufferAfterMinutes}m buffer):",
+                                    text = stringResource(R.string.late_departure_overtime, inputState.bufferAfterMinutes),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.weight(1f).padding(end = 8.dp)
@@ -398,10 +406,36 @@ fun AddEditShiftDialog(
                             }
                         } else {
                             Text(
-                                text = "Non-working day log: Entire worked duration is calculated as overtime.",
+                                text = stringResource(R.string.non_working_day_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
+                        }
+                        
+                        val isLunchSubtractedEnabled = if (inputState.isWorkDay) appSettings.subtractLunchWorkDays else appSettings.subtractLunchOffDays
+                        if (isLunchSubtractedEnabled) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.lunch_break_subtracted),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.weight(1f).padding(end = 8.dp)
+                                )
+                                Text(
+                                    text = if (calcSummary.lunchSubtractedMinutes > 0) {
+                                        "-${OvertimeCalculator.formatDurationMinutes(calcSummary.lunchSubtractedMinutes)}"
+                                    } else {
+                                        "0m"
+                                    },
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = if (calcSummary.lunchSubtractedMinutes > 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
                         }
 
                         Row(
@@ -410,7 +444,7 @@ fun AddEditShiftDialog(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Total Worked Duration:",
+                                text = stringResource(R.string.total_worked_duration),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.weight(1f).padding(end = 8.dp)
@@ -430,7 +464,7 @@ fun AddEditShiftDialog(
                     onValueChange = { newNotes ->
                         onTimesUpdated(null, null, null, null, null, null, null, newNotes)
                     },
-                    label = { Text("Notes / Project / Reason (Optional)") },
+                    label = { Text(stringResource(R.string.notes_label)) },
                     leadingIcon = {
                         Icon(Icons.Default.Notes, contentDescription = null)
                     },
@@ -445,10 +479,10 @@ fun AddEditShiftDialog(
     // Active System M3 Time Picker Dialog
     activeTimePicker?.let { pickerType ->
         val (pickerTitle, initialVal) = when (pickerType) {
-            TimePickerType.WORK_START -> "Select Scheduled Work Start" to inputState.workStartMinutes
-            TimePickerType.WORK_END -> "Select Scheduled Work End" to inputState.workEndMinutes
-            TimePickerType.CLOCK_IN -> "Select Clock In Time" to inputState.clockInMinutes
-            TimePickerType.CLOCK_OUT -> "Select Clock Out Time" to inputState.clockOutMinutes
+            TimePickerType.WORK_START -> stringResource(R.string.select_scheduled_start) to inputState.workStartMinutes
+            TimePickerType.WORK_END -> stringResource(R.string.select_scheduled_end) to inputState.workEndMinutes
+            TimePickerType.CLOCK_IN -> stringResource(R.string.select_clock_in) to inputState.clockInMinutes
+            TimePickerType.CLOCK_OUT -> stringResource(R.string.select_clock_out) to inputState.clockOutMinutes
         }
 
         M3TimePickerDialog(
@@ -472,15 +506,15 @@ fun AddEditShiftDialog(
             onDismissRequest = { showSaveConfirmDialog = false },
             title = {
                 Text(
-                    text = if (inputState.isEditing) "Confirm Overwriting Existing Entry?" else "Confirm Saving Shift Log?"
+                    text = if (inputState.isEditing) stringResource(R.string.confirm_overwrite_title) else stringResource(R.string.confirm_save_title)
                 )
             },
             text = {
                 Text(
                     text = if (inputState.isEditing)
-                        "Are you sure you want to overwrite the existing shift log entry for ${inputState.date}?"
+                        stringResource(R.string.confirm_overwrite_desc, inputState.date)
                     else
-                        "Are you sure you want to save this shift log entry for ${inputState.date}?"
+                        stringResource(R.string.confirm_save_desc, inputState.date)
                 )
             },
             confirmButton = {
@@ -492,14 +526,14 @@ fun AddEditShiftDialog(
                     modifier = Modifier.testTag("confirm_save_shift_dialog_btn")
                 ) {
                     Text(
-                        text = if (inputState.isEditing) "Overwrite" else "Save",
+                        text = if (inputState.isEditing) stringResource(R.string.overwrite_btn) else stringResource(R.string.save_btn),
                         fontWeight = FontWeight.Bold
                     )
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showSaveConfirmDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel_btn))
                 }
             }
         )
@@ -516,11 +550,11 @@ fun AddEditShiftDialog(
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.padding(end = 8.dp)
                     )
-                    Text("Future Date Warning")
+                    Text(stringResource(R.string.future_date_warning_title))
                 }
             },
             text = {
-                Text("You are logging an overtime entry for a future date (${inputState.date}). Are you sure you want to proceed?")
+                Text(stringResource(R.string.future_date_warning_desc, inputState.date))
             },
             confirmButton = {
                 TextButton(
@@ -530,7 +564,7 @@ fun AddEditShiftDialog(
                     },
                     modifier = Modifier.testTag("confirm_future_date_button")
                 ) {
-                    Text("Confirm", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.confirm_btn), fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -538,7 +572,7 @@ fun AddEditShiftDialog(
                     onClick = { showFutureDateWarningDialog = false },
                     modifier = Modifier.testTag("cancel_future_date_button")
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel_btn))
                 }
             }
         )

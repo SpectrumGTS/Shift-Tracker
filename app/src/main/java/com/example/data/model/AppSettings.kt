@@ -9,5 +9,9 @@ data class AppSettings(
     val bufferBeforeMinutes: Int = 15,
     val bufferAfterMinutes: Int = 15,
     val cutoffTimeMinutes: Int = 300, // Default 5:00 AM (300 minutes from midnight)
-    val ignoreEarlyClockIns: Boolean = false
+    val ignoreEarlyClockIns: Boolean = false,
+    val lunchStartMinutes: Int = 720, // Default 12:00 (720 minutes)
+    val lunchEndMinutes: Int = 750,   // Default 12:30 (750 minutes)
+    val subtractLunchWorkDays: Boolean = false,
+    val subtractLunchOffDays: Boolean = false
 )

@@ -79,7 +79,12 @@ fun DashboardScreen(
             bufferBeforeMinutes = shift.bufferBeforeMinutes,
             bufferAfterMinutes = shift.bufferAfterMinutes,
             isWorkDay = shift.isWorkDay,
-            cutoffTimeMinutes = appSettings.cutoffTimeMinutes
+            cutoffTimeMinutes = appSettings.cutoffTimeMinutes,
+            ignoreEarlyClockIns = appSettings.ignoreEarlyClockIns,
+            lunchStartMinutes = appSettings.lunchStartMinutes,
+            lunchEndMinutes = appSettings.lunchEndMinutes,
+            subtractLunchWorkDays = appSettings.subtractLunchWorkDays,
+            subtractLunchOffDays = appSettings.subtractLunchOffDays
         ).totalOvertimeMinutes
     }
 
@@ -222,6 +227,24 @@ fun DashboardScreen(
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
+                                val currentMinutesSinceMidnight = remember {
+                                    val cal = java.util.Calendar.getInstance()
+                                    cal.get(java.util.Calendar.HOUR_OF_DAY) * 60 + cal.get(java.util.Calendar.MINUTE)
+                                }
+                                if (currentMinutesSinceMidnight >= todaySchedule.workStartMinutes &&
+                                    currentMinutesSinceMidnight < todaySchedule.workEndMinutes) {
+                                    val remainingMinutes = todaySchedule.workEndMinutes - currentMinutesSinceMidnight
+                                    val remainingHours = remainingMinutes / 60
+                                    val remainingMins = remainingMinutes % 60
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = "Shift ends in ${remainingHours}h ${remainingMins}m (${remainingMinutes}m)",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Medium,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.testTag("shift_ends_countdown")
+                                    )
+                                }
                             } else {
                                 Text(
                                     text = "Scheduled: Non-working day / Off",
@@ -306,7 +329,8 @@ fun DashboardScreen(
                     ShiftCard(
                         shift = shift,
                         onEdit = { onEditShift(shift) },
-                        onDelete = { onDeleteShift(shift) }
+                        onDelete = { onDeleteShift(shift) },
+                        appSettings = appSettings
                     )
                 }
             }
