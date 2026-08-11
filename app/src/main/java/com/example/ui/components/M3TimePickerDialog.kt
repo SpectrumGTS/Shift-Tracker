@@ -13,6 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import com.example.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,7 +44,7 @@ fun M3TimePickerDialog(
                 },
                 modifier = Modifier.testTag("time_picker_confirm_btn")
             ) {
-                Text("Confirm")
+                Text(stringResource(R.string.confirm_btn_text))
             }
         },
         dismissButton = {
@@ -50,7 +52,7 @@ fun M3TimePickerDialog(
                 onClick = onDismissRequest,
                 modifier = Modifier.testTag("time_picker_cancel_btn")
             ) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel_btn))
             }
         },
         title = {

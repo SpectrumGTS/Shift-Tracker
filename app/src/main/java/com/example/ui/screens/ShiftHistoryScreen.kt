@@ -1,6 +1,7 @@
 package com.example.ui.screens
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -29,6 +31,7 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,8 +49,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.R
 import com.example.data.model.AppSettings
 import com.example.data.model.OvertimeCalculator
 import com.example.data.model.ShiftLog
@@ -77,7 +82,7 @@ fun ShiftHistoryScreen(
     var endDateFilter by remember { mutableStateOf<String?>(null) }
     var activeDatePickerFor by remember { mutableStateOf<String?>(null) } // "start", "end", or null
 
-    val validationError = remember(startDateFilter, endDateFilter) {
+    val validationErrorResId = remember(startDateFilter, endDateFilter) {
         if (!startDateFilter.isNullOrBlank() && !endDateFilter.isNullOrBlank()) {
             val fmt = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             try {
@@ -85,12 +90,12 @@ fun ShiftHistoryScreen(
                 val endDate = fmt.parse(endDateFilter!!)
                 if (startDate != null && endDate != null) {
                     if (endDate.before(startDate)) {
-                        "End date cannot be earlier than start date."
+                        R.string.history_validation_error_end_before_start
                     } else {
                         val diffMs = endDate.time - startDate.time
                         val diffDays = (diffMs + 12 * 60 * 60 * 1000) / (24 * 60 * 60 * 1000)
                         if (diffDays > 367) {
-                            "Selected range cannot exceed 367 days."
+                            R.string.history_validation_error_range_too_long
                         } else {
                             null
                         }
@@ -105,6 +110,8 @@ fun ShiftHistoryScreen(
             null
         }
     }
+
+    val validationError = validationErrorResId?.let { stringResource(it) }
 
     val isFilterActive = startDateFilter != null || endDateFilter != null
 
@@ -185,7 +192,7 @@ fun ShiftHistoryScreen(
                     OutlinedTextField(
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
-                        placeholder = { Text("Search by date or notes...") },
+                        placeholder = { Text(stringResource(R.string.history_search_placeholder)) },
                         leadingIcon = {
                             Icon(Icons.Default.Search, contentDescription = null)
                         },
@@ -210,7 +217,7 @@ fun ShiftHistoryScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.FilterList,
-                            contentDescription = "Filter by date",
+                            contentDescription = stringResource(R.string.history_filter_by_date_desc),
                             tint = if (isFilterActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                         )
                     }
@@ -236,7 +243,7 @@ fun ShiftHistoryScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(
-                                text = "Filter by Date Range",
+                                text = stringResource(R.string.history_filter_by_date_range),
                                 style = MaterialTheme.typography.labelLarge,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -257,12 +264,12 @@ fun ShiftHistoryScreen(
                                 ) {
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                         Text(
-                                            text = "Start Date",
+                                            text = stringResource(R.string.history_start_date_label),
                                             style = MaterialTheme.typography.labelSmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                         Text(
-                                            text = startDateFilter ?: "Any",
+                                            text = startDateFilter ?: stringResource(R.string.history_filter_any_value),
                                             style = MaterialTheme.typography.bodyMedium,
                                             fontWeight = FontWeight.SemiBold,
                                             color = if (startDateFilter != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
@@ -281,12 +288,12 @@ fun ShiftHistoryScreen(
                                 ) {
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                         Text(
-                                            text = "End Date",
+                                            text = stringResource(R.string.history_end_date_label),
                                             style = MaterialTheme.typography.labelSmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                         Text(
-                                            text = endDateFilter ?: "Any",
+                                            text = endDateFilter ?: stringResource(R.string.history_filter_any_value),
                                             style = MaterialTheme.typography.bodyMedium,
                                             fontWeight = FontWeight.SemiBold,
                                             color = if (endDateFilter != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
@@ -307,12 +314,76 @@ fun ShiftHistoryScreen(
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Close,
-                                            contentDescription = "Clear date filters",
+                                            contentDescription = stringResource(R.string.history_clear_date_filters_desc),
                                             tint = MaterialTheme.colorScheme.error
                                         )
                                     }
                                 }
                             }
+                            // Quick Filter Chips
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .horizontalScroll(rememberScrollState()),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                val dateFormat = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
+
+                                FilterChip(
+                                    selected = false,
+                                    onClick = {
+                                        val calEnd = Calendar.getInstance()
+                                        val calStart = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -7) }
+                                        startDateFilter = dateFormat.format(calStart.time)
+                                        endDateFilter = dateFormat.format(calEnd.time)
+                                    },
+                                    label = { Text(stringResource(R.string.history_chip_last_week)) },
+                                    modifier = Modifier.testTag("chip_last_week")
+                                )
+
+                                FilterChip(
+                                    selected = false,
+                                    onClick = {
+                                        val cal = Calendar.getInstance().apply { add(Calendar.MONTH, -1) }
+                                        cal.set(Calendar.DAY_OF_MONTH, 1)
+                                        val start = dateFormat.format(cal.time)
+                                        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH))
+                                        val end = dateFormat.format(cal.time)
+                                        startDateFilter = start
+                                        endDateFilter = end
+                                    },
+                                    label = { Text(stringResource(R.string.history_chip_last_month)) },
+                                    modifier = Modifier.testTag("chip_last_month")
+                                )
+
+                                FilterChip(
+                                    selected = false,
+                                    onClick = {
+                                        val cal = Calendar.getInstance()
+                                        val month = cal.get(Calendar.MONTH)
+                                        val quarterStartMonth = (month / 3) * 3
+                                        cal.set(Calendar.MONTH, quarterStartMonth)
+                                        cal.set(Calendar.DAY_OF_MONTH, 1)
+                                        startDateFilter = dateFormat.format(cal.time)
+                                        endDateFilter = dateFormat.format(Calendar.getInstance().time)
+                                    },
+                                    label = { Text(stringResource(R.string.history_chip_this_quarter)) },
+                                    modifier = Modifier.testTag("chip_this_quarter")
+                                )
+
+                                FilterChip(
+                                    selected = false,
+                                    onClick = {
+                                        val year = Calendar.getInstance().get(Calendar.YEAR) - 1
+                                        startDateFilter = "$year-01-01"
+                                        endDateFilter = "$year-12-31"
+                                    },
+                                    label = { Text(stringResource(R.string.history_chip_last_year)) },
+                                    modifier = Modifier.testTag("chip_last_year")
+                                )
+                            }
+
                             if (validationError != null) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
@@ -321,7 +392,7 @@ fun ShiftHistoryScreen(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Warning,
-                                        contentDescription = "Error",
+                                        contentDescription = stringResource(R.string.history_icon_content_desc_error),
                                         tint = MaterialTheme.colorScheme.error,
                                         modifier = Modifier.size(16.dp)
                                     )
@@ -355,19 +426,19 @@ fun ShiftHistoryScreen(
                     ) {
                         Column {
                             Text(
-                                text = "Matching Logs: ${filteredShifts.size}",
+                                text = stringResource(R.string.history_matching_logs_label, filteredShifts.size),
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.SemiBold
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = "Total Logs: ${shifts.size}",
+                                text = stringResource(R.string.history_total_logs_label, shifts.size),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                             )
                         }
                         Text(
-                            text = "Total Extra: ${OvertimeCalculator.formatDurationMinutes(totalExtraMinutes)}",
+                            text = stringResource(R.string.history_total_extra_label, OvertimeCalculator.formatDurationMinutes(totalExtraMinutes)),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
@@ -404,9 +475,9 @@ fun ShiftHistoryScreen(
                                 text = if (validationError != null) {
                                     validationError
                                 } else if (searchQuery.isNotBlank()) {
-                                    "No Matching Shift Logs Found"
+                                    stringResource(R.string.history_no_matching_found)
                                 } else {
-                                    "No Shift History Recorded"
+                                    stringResource(R.string.history_no_history_recorded)
                                 },
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
@@ -430,8 +501,8 @@ fun ShiftHistoryScreen(
         // Floating Action Button
         ExtendedFloatingActionButton(
             onClick = onLogNewShift,
-            icon = { Icon(Icons.Default.Add, contentDescription = "Log Shift") },
-            text = { Text("Log Shift") },
+            icon = { Icon(Icons.Default.Add, contentDescription = stringResource(R.string.history_fab_log_shift_desc)) },
+            text = { Text(stringResource(R.string.history_fab_log_shift_desc)) },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(24.dp)
@@ -476,12 +547,12 @@ fun ShiftHistoryScreen(
                             activeDatePickerFor = null
                         }
                     ) {
-                        Text("OK")
+                        Text(stringResource(R.string.ok_btn))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { activeDatePickerFor = null }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel_btn))
                     }
                 }
             ) {

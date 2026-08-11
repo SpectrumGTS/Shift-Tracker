@@ -33,6 +33,10 @@ class OvertimeRepository(
 
     suspend fun deleteShiftById(id: Long) = shiftLogDao.deleteShiftById(id)
 
+    suspend fun deleteAllShifts() = shiftLogDao.deleteAllShifts()
+
+    suspend fun deleteAllDefaultSchedules() = dayDefaultScheduleDao.deleteAllDefaultSchedules()
+
     suspend fun getDefaultScheduleForDay(dayOfWeek: Int): DayDefaultSchedule {
         return dayDefaultScheduleDao.getDefaultScheduleForDay(dayOfWeek)
             ?: DayDefaultSchedule(

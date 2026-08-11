@@ -16,8 +16,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.R
 import com.example.data.model.DayDefaultSchedule
 import com.example.data.model.ShiftLog
 
@@ -33,6 +35,7 @@ fun BackupRestoreScreen(
     val context = LocalContext.current
     var snackbarMessage by remember { mutableStateOf<String?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
+    var pendingImportType by remember { mutableStateOf<String?>(null) } // "shifts", "schedules", or null
 
     LaunchedEffect(snackbarMessage) {
         snackbarMessage?.let {
@@ -47,9 +50,9 @@ fun BackupRestoreScreen(
         uri?.let {
             try {
                 onExportShifts(it)
-                snackbarMessage = "Shift logs successfully exported to CSV."
+                snackbarMessage = context.getString(R.string.backup_export_success_shifts)
             } catch (e: Exception) {
-                snackbarMessage = "Export failed: ${e.localizedMessage}"
+                snackbarMessage = context.getString(R.string.backup_export_failed, e.localizedMessage ?: "")
             }
         }
     }
@@ -60,9 +63,9 @@ fun BackupRestoreScreen(
         uri?.let {
             try {
                 onImportShifts(it)
-                snackbarMessage = "Shift logs successfully imported from CSV."
+                snackbarMessage = context.getString(R.string.backup_import_success_shifts)
             } catch (e: Exception) {
-                snackbarMessage = "Import failed: ${e.localizedMessage}"
+                snackbarMessage = context.getString(R.string.backup_import_failed, e.localizedMessage ?: "")
             }
         }
     }
@@ -73,9 +76,9 @@ fun BackupRestoreScreen(
         uri?.let {
             try {
                 onExportSchedules(it)
-                snackbarMessage = "Default schedules successfully exported to CSV."
+                snackbarMessage = context.getString(R.string.backup_export_success_schedules)
             } catch (e: Exception) {
-                snackbarMessage = "Export failed: ${e.localizedMessage}"
+                snackbarMessage = context.getString(R.string.backup_export_failed, e.localizedMessage ?: "")
             }
         }
     }
@@ -86,11 +89,55 @@ fun BackupRestoreScreen(
         uri?.let {
             try {
                 onImportSchedules(it)
-                snackbarMessage = "Default schedules successfully imported from CSV."
+                snackbarMessage = context.getString(R.string.backup_import_success_schedules)
             } catch (e: Exception) {
-                snackbarMessage = "Import failed: ${e.localizedMessage}"
+                snackbarMessage = context.getString(R.string.backup_import_failed, e.localizedMessage ?: "")
             }
         }
+    }
+
+    if (pendingImportType != null) {
+        val type = pendingImportType
+        AlertDialog(
+            onDismissRequest = { pendingImportType = null },
+            title = { Text(text = stringResource(R.string.backup_confirm_overwrite_title)) },
+            text = {
+                Text(
+                    text = if (type == "shifts") {
+                        stringResource(R.string.backup_confirm_import_shifts_msg)
+                    } else {
+                        stringResource(R.string.backup_confirm_import_schedules_msg)
+                    }
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val currentType = pendingImportType
+                        pendingImportType = null
+                        if (currentType == "shifts") {
+                            importShiftsLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "*/*"))
+                        } else if (currentType == "schedules") {
+                            importSchedulesLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "*/*"))
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    ),
+                    modifier = Modifier.testTag("confirm_import_button")
+                ) {
+                    Text(stringResource(R.string.backup_overwrite_import_btn))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { pendingImportType = null },
+                    modifier = Modifier.testTag("dismiss_import_button")
+                ) {
+                    Text(stringResource(R.string.cancel_btn))
+                }
+            }
+        )
     }
 
     Scaffold(
@@ -108,13 +155,13 @@ fun BackupRestoreScreen(
             item {
                 Column {
                     Text(
-                        text = "Database Backup & Restore",
+                        text = stringResource(R.string.backup_db_title),
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Export your shift logs and default schedules to CSV files or restore them from a previous backup.",
+                        text = stringResource(R.string.backup_db_subtitle),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -143,12 +190,12 @@ fun BackupRestoreScreen(
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
                                 Text(
-                                    text = "Shift Logs (${shifts.size} records)",
+                                    text = stringResource(R.string.backup_shifts_count_title, shifts.size),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    text = "Backup and restore your recorded working shifts.",
+                                    text = stringResource(R.string.backup_shifts_subtitle),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -168,11 +215,11 @@ fun BackupRestoreScreen(
                             ) {
                                 Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Export CSV")
+                                Text(stringResource(R.string.backup_export_csv_btn))
                             }
 
                             OutlinedButton(
-                                onClick = { importShiftsLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "*/*")) },
+                                onClick = { pendingImportType = "shifts" },
                                 modifier = Modifier
                                     .weight(1f)
                                     .testTag("import_shifts_csv_btn"),
@@ -180,7 +227,7 @@ fun BackupRestoreScreen(
                             ) {
                                 Icon(Icons.Default.Upload, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Import CSV")
+                                Text(stringResource(R.string.backup_import_csv_btn))
                             }
                         }
                     }
@@ -209,12 +256,12 @@ fun BackupRestoreScreen(
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
                                 Text(
-                                    text = "Default Schedules (${defaultSchedules.size} days)",
+                                    text = stringResource(R.string.backup_schedules_count_title, defaultSchedules.size),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    text = "Backup and restore your default working hours schedule.",
+                                    text = stringResource(R.string.backup_schedules_subtitle),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -234,11 +281,11 @@ fun BackupRestoreScreen(
                             ) {
                                 Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Export CSV")
+                                Text(stringResource(R.string.backup_export_csv_btn))
                             }
 
                             OutlinedButton(
-                                onClick = { importSchedulesLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "*/*")) },
+                                onClick = { pendingImportType = "schedules" },
                                 modifier = Modifier
                                     .weight(1f)
                                     .testTag("import_schedules_csv_btn"),
@@ -246,7 +293,7 @@ fun BackupRestoreScreen(
                             ) {
                                 Icon(Icons.Default.Upload, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Import CSV")
+                                Text(stringResource(R.string.backup_import_csv_btn))
                             }
                         }
                     }

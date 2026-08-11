@@ -36,8 +36,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.R
 import com.example.data.model.AppSettings
 import com.example.data.model.OvertimeCalculator
 import com.example.data.model.ShiftLog
@@ -232,8 +234,8 @@ fun ShiftCard(
     if (showDeleteConfirmDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirmDialog = false },
-            title = { Text("Delete Shift Log?") },
-            text = { Text("Are you sure you want to delete the shift log for ${shift.date}? This action cannot be undone.") },
+            title = { Text(stringResource(R.string.delete_shift_title)) },
+            text = { Text(stringResource(R.string.delete_shift_desc, shift.date)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -242,12 +244,12 @@ fun ShiftCard(
                     },
                     modifier = Modifier.testTag("confirm_delete_shift_btn_${shift.id}")
                 ) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.delete_btn), color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirmDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel_btn))
                 }
             }
         )

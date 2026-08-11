@@ -375,6 +375,7 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
                 BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8)).use { reader ->
                     val lines = reader.readLines()
                     if (lines.isNotEmpty()) {
+                        repository.deleteAllShifts()
                         val startIndex = if (lines[0].startsWith("id,")) 1 else 0
                         for (i in startIndex until lines.size) {
                             val line = lines[i]
@@ -402,7 +403,12 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
                             }
                             tokens.add(sb.toString())
 
-                            if (tokens.size >= 11) {
+                            if (tokens.size >= 10) {
+                                val timestampVal = if (tokens.size >= 11) {
+                                    tokens[10].toLongOrNull() ?: System.currentTimeMillis()
+                                } else {
+                                    System.currentTimeMillis()
+                                }
                                 val shift = ShiftLog(
                                     id = 0,
                                     date = tokens[1],
@@ -414,7 +420,7 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
                                     bufferAfterMinutes = tokens[7].toIntOrNull() ?: 15,
                                     isWorkDay = tokens[8].toBooleanStrictOrNull() ?: true,
                                     notes = tokens[9],
-                                    timestamp = tokens[10].toLongOrNull() ?: System.currentTimeMillis()
+                                    timestamp = timestampVal
                                 )
                                 repository.insertShift(shift)
                             }
@@ -428,10 +434,11 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
     fun exportSchedulesToUri(uri: Uri, context: android.content.Context) {
         viewModelScope.launch(Dispatchers.IO) {
             val schedules = repository.defaultSchedules.first()
+            val settings = repository.appSettings.first()
             val sb = StringBuilder()
-            sb.append("dayOfWeek,isWorkDay,workStartMinutes,workEndMinutes\n")
+            sb.append("dayOfWeek,isWorkDay,workStartMinutes,workEndMinutes,bufferBeforeMinutes,bufferAfterMinutes,cutoffTimeMinutes,ignoreEarlyClockIns,lunchStartMinutes,lunchEndMinutes,subtractLunchWorkDays,subtractLunchOffDays\n")
             for (s in schedules) {
-                sb.append("${s.dayOfWeek},${s.isWorkDay},${s.workStartMinutes},${s.workEndMinutes}\n")
+                sb.append("${s.dayOfWeek},${s.isWorkDay},${s.workStartMinutes},${s.workEndMinutes},${settings.bufferBeforeMinutes},${settings.bufferAfterMinutes},${settings.cutoffTimeMinutes},${settings.ignoreEarlyClockIns},${settings.lunchStartMinutes},${settings.lunchEndMinutes},${settings.subtractLunchWorkDays},${settings.subtractLunchOffDays}\n")
             }
             context.contentResolver.openOutputStream(uri)?.use { outputStream ->
                 outputStream.write(sb.toString().toByteArray(Charsets.UTF_8))
@@ -445,7 +452,9 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
                 BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8)).use { reader ->
                     val lines = reader.readLines()
                     if (lines.isNotEmpty()) {
+                        repository.deleteAllDefaultSchedules()
                         val startIndex = if (lines[0].startsWith("dayOfWeek,")) 1 else 0
+                        var importedSettings: AppSettings? = null
                         for (i in startIndex until lines.size) {
                             val line = lines[i]
                             if (line.isBlank()) continue
@@ -458,8 +467,33 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
                                     workEndMinutes = tokens[3].toIntOrNull() ?: 1020
                                 )
                                 repository.saveDefaultSchedule(schedule)
+
+                                if (tokens.size >= 6 && importedSettings == null) {
+                                    val currentSettings = repository.appSettings.first()
+                                    val bufBefore = tokens[4].toIntOrNull() ?: currentSettings.bufferBeforeMinutes
+                                    val bufAfter = tokens[5].toIntOrNull() ?: currentSettings.bufferAfterMinutes
+                                    val cutoff = if (tokens.size >= 7) tokens[6].toIntOrNull() ?: currentSettings.cutoffTimeMinutes else currentSettings.cutoffTimeMinutes
+                                    val ignoreEarly = if (tokens.size >= 8) tokens[7].toBooleanStrictOrNull() ?: currentSettings.ignoreEarlyClockIns else currentSettings.ignoreEarlyClockIns
+                                    val lunchStart = if (tokens.size >= 9) tokens[8].toIntOrNull() ?: currentSettings.lunchStartMinutes else currentSettings.lunchStartMinutes
+                                    val lunchEnd = if (tokens.size >= 10) tokens[9].toIntOrNull() ?: currentSettings.lunchEndMinutes else currentSettings.lunchEndMinutes
+                                    val subWork = if (tokens.size >= 11) tokens[10].toBooleanStrictOrNull() ?: currentSettings.subtractLunchWorkDays else currentSettings.subtractLunchWorkDays
+                                    val subOff = if (tokens.size >= 12) tokens[11].toBooleanStrictOrNull() ?: currentSettings.subtractLunchOffDays else currentSettings.subtractLunchOffDays
+
+                                    importedSettings = AppSettings(
+                                        id = 1,
+                                        bufferBeforeMinutes = bufBefore,
+                                        bufferAfterMinutes = bufAfter,
+                                        cutoffTimeMinutes = cutoff,
+                                        ignoreEarlyClockIns = ignoreEarly,
+                                        lunchStartMinutes = lunchStart,
+                                        lunchEndMinutes = lunchEnd,
+                                        subtractLunchWorkDays = subWork,
+                                        subtractLunchOffDays = subOff
+                                    )
+                                }
                             }
                         }
+                        importedSettings?.let { repository.saveAppSettings(it) }
                     }
                 }
             }

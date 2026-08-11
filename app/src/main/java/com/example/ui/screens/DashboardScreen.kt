@@ -379,7 +379,7 @@ fun DashboardScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Recent Shifts (This Week)",
+                        text = stringResource(R.string.dashboard_recent_shifts),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -389,7 +389,7 @@ fun DashboardScreen(
                             modifier = Modifier.testTag("view_all_history_btn"),
                             colors = ButtonDefaults.textButtonColors()
                         ) {
-                            Text("View All (${shifts.size})")
+                            Text(stringResource(R.string.dashboard_view_all, shifts.size))
                         }
                     }
                 }
@@ -423,13 +423,13 @@ fun DashboardScreen(
                             )
                             Spacer(modifier = Modifier.height(12.dp))
                             Text(
-                                text = "No Shifts Logged This Week",
+                                text = stringResource(R.string.dashboard_no_shifts_this_week),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = "Tap the '+' button below to log a shift.",
+                                text = stringResource(R.string.dashboard_tap_plus_hint),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -451,8 +451,8 @@ fun DashboardScreen(
         // Floating Action Button
         ExtendedFloatingActionButton(
             onClick = onLogNewShift,
-            icon = { Icon(Icons.Default.Add, contentDescription = "Log Shift") },
-            text = { Text("Log Shift") },
+            icon = { Icon(Icons.Default.Add, contentDescription = stringResource(R.string.history_fab_log_shift_desc)) },
+            text = { Text(stringResource(R.string.history_fab_log_shift_desc)) },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(24.dp)

@@ -21,4 +21,7 @@ interface DayDefaultScheduleDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDefaultSchedules(schedules: List<DayDefaultSchedule>)
+
+    @Query("DELETE FROM day_default_schedules")
+    suspend fun deleteAllDefaultSchedules()
 }

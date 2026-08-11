@@ -98,4 +98,68 @@
     <string name="menu_backup_restore">Backup &amp; Restore (CSV)</string>
     <string name="menu_about">About This App</string>
     <string name="menu_footer">Room Offline Persistence • M3 Native</string>
+
+    <!-- Shift History Screen Filters & Quick Chips -->
+    <string name="history_search_placeholder">Search by date or notes...</string>
+    <string name="history_filter_by_date_desc">Filter by date</string>
+    <string name="history_filter_by_date_range">Filter by Date Range</string>
+    <string name="history_start_date_label">Start Date</string>
+    <string name="history_end_date_label">End Date</string>
+    <string name="history_filter_any_value">Any</string>
+    <string name="history_clear_date_filters_desc">Clear date filters</string>
+    <string name="history_chip_last_week">Last Week</string>
+    <string name="history_chip_last_month">Last Month</string>
+    <string name="history_chip_this_quarter">This Quarter</string>
+    <string name="history_chip_last_year">Last Year</string>
+    <string name="history_validation_error_end_before_start">End date cannot be earlier than start date.</string>
+    <string name="history_validation_error_range_too_long">Selected range cannot exceed 367 days.</string>
+    <string name="history_icon_content_desc_error">Error</string>
+    <string name="history_matching_logs_label">Matching Logs: %1$d</string>
+    <string name="history_total_logs_label">Total Logs: %1$d</string>
+    <string name="history_total_extra_label">Total Extra: %1$s</string>
+    <string name="history_no_matching_found">No Matching Shift Logs Found</string>
+    <string name="history_no_history_recorded">No Shift History Recorded</string>
+    <string name="history_fab_log_shift_desc">Log Shift</string>
+
+    <!-- Backup Restore Screen -->
+    <string name="backup_confirm_overwrite_title">Confirm Overwrite</string>
+    <string name="backup_confirm_import_shifts_msg">Are you sure you want to import shift logs? This will permanently delete and overwrite all current shift log entries in your database.</string>
+    <string name="backup_confirm_import_schedules_msg">Are you sure you want to import default schedules? This will permanently delete and overwrite all current default schedule entries in your database.</string>
+    <string name="backup_overwrite_import_btn">Overwrite &amp; Import</string>
+    <string name="backup_db_title">Database Backup &amp; Restore</string>
+    <string name="backup_db_subtitle">Export your shift logs and default schedules to CSV files or restore them from a previous backup.</string>
+    <string name="backup_shifts_count_title">Shift Logs (%1$d records)</string>
+    <string name="backup_shifts_subtitle">Backup and restore your recorded working shifts.</string>
+    <string name="backup_export_csv_btn">Export CSV</string>
+    <string name="backup_import_csv_btn">Import CSV</string>
+    <string name="backup_schedules_count_title">Default Schedules &amp; Settings (%1$d days)</string>
+    <string name="backup_schedules_subtitle">Backup and restore your default working hours schedule, buffer, and grace time settings.</string>
+    <string name="backup_export_success_shifts">Shift logs successfully exported to CSV.</string>
+    <string name="backup_export_success_schedules">Default schedules and buffer settings successfully exported to CSV.</string>
+    <string name="backup_import_success_shifts">Shift logs successfully imported from CSV.</string>
+    <string name="backup_import_success_schedules">Default schedules and buffer settings successfully imported from CSV.</string>
+    <string name="backup_export_failed">Export failed: %1$s</string>
+    <string name="backup_import_failed">Import failed: %1$s</string>
+
+    <!-- Default Schedules Screen -->
+    <string name="schedule_info_title">Default Weekly Working Hours</string>
+    <string name="schedule_info_desc">Define standard shift hours for each day of week. When logging a shift, these default times will automatically pre-fill.</string>
+    <string name="schedule_apply_all_title">Apply Hours to All Working Days?</string>
+    <string name="schedule_apply_all_desc">Are you sure you want to apply %1$s – %2$s to all default working days (Monday through Friday)? Existing working day schedules will be overwritten.</string>
+    <string name="schedule_apply_overwrite_btn">Apply &amp; Overwrite</string>
+    <string name="schedule_work_start_title">%1$s: Default Work Start</string>
+    <string name="schedule_work_end_title">%1$s: Default Work End</string>
+    <string name="schedule_default_start_label">Default Start</string>
+    <string name="schedule_default_end_label">Default End</string>
+    <string name="schedule_apply_to_all_btn">Apply these hours to all working days</string>
+
+    <!-- Shift Card & General UI -->
+    <string name="delete_shift_title">Delete Shift Log?</string>
+    <string name="delete_shift_desc">Are you sure you want to delete the shift log for %1$s? This action cannot be undone.</string>
+    <string name="delete_btn">Delete</string>
+    <string name="dashboard_recent_shifts">Recent Shifts (This Week)</string>
+    <string name="dashboard_no_shifts_this_week">No Shifts Logged This Week</string>
+    <string name="dashboard_tap_plus_hint">Tap the \'+\' button below to log a shift.</string>
+    <string name="dashboard_view_all">View All (%1$d)</string>
+    <string name="confirm_btn_text">Confirm</string>
 </resources>

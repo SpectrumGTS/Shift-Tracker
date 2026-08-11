@@ -41,8 +41,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.R
 import com.example.data.model.DayDefaultSchedule
 import com.example.data.model.OvertimeCalculator
 import com.example.ui.components.M3TimePickerDialog
@@ -93,12 +95,12 @@ fun DefaultScheduleScreen(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
-                            text = "Default Weekly Working Hours",
+                            text = stringResource(R.string.schedule_info_title),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "Define standard shift hours for each day of week. When logging a shift, these default times will automatically pre-fill.",
+                            text = stringResource(R.string.schedule_info_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -156,9 +158,9 @@ fun DefaultScheduleScreen(
 
         AlertDialog(
             onDismissRequest = { pendingApplyTarget = null },
-            title = { Text("Apply Hours to All Working Days?") },
+            title = { Text(stringResource(R.string.schedule_apply_all_title)) },
             text = {
-                Text("Are you sure you want to apply $startFormatted – $endFormatted to all default working days (Monday through Friday)? Existing working day schedules will be overwritten.")
+                Text(stringResource(R.string.schedule_apply_all_desc, startFormatted, endFormatted))
             },
             confirmButton = {
                 TextButton(
@@ -168,12 +170,12 @@ fun DefaultScheduleScreen(
                     },
                     modifier = Modifier.testTag("confirm_apply_all_btn")
                 ) {
-                    Text("Apply & Overwrite", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.schedule_apply_overwrite_btn), fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { pendingApplyTarget = null }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel_btn))
                 }
             }
         )
@@ -182,7 +184,11 @@ fun DefaultScheduleScreen(
     // Active Time Picker Dialog
     activeTimePickerTarget?.let { target ->
         val dayName = OvertimeCalculator.getDayOfWeekName(target.dayOfWeek)
-        val title = if (target.isWorkStart) "$dayName: Default Work Start" else "$dayName: Default Work End"
+        val title = if (target.isWorkStart) {
+            stringResource(R.string.schedule_work_start_title, dayName)
+        } else {
+            stringResource(R.string.schedule_work_end_title, dayName)
+        }
 
         M3TimePickerDialog(
             title = title,
@@ -252,7 +258,7 @@ private fun DayScheduleCard(
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = if (schedule.isWorkDay) "Work Day" else "Off Day",
+                        text = if (schedule.isWorkDay) stringResource(R.string.work_day) else stringResource(R.string.off_day),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(end = 8.dp)
@@ -272,7 +278,7 @@ private fun DayScheduleCard(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     TimePickerButton(
-                        label = "Default Start",
+                        label = stringResource(R.string.schedule_default_start_label),
                         timeFormatted = OvertimeCalculator.formatMinutesToTime(schedule.workStartMinutes),
                         testTag = "btn_start_day_${schedule.dayOfWeek}",
                         modifier = Modifier.weight(1f),
@@ -282,7 +288,7 @@ private fun DayScheduleCard(
                         }
                     )
                     TimePickerButton(
-                        label = "Default End",
+                        label = stringResource(R.string.schedule_default_end_label),
                         timeFormatted = OvertimeCalculator.formatMinutesToTime(schedule.workEndMinutes),
                         testTag = "btn_end_day_${schedule.dayOfWeek}",
                         modifier = Modifier.weight(1f),
@@ -310,7 +316,7 @@ private fun DayScheduleCard(
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "Apply these hours to all working days",
+                            text = stringResource(R.string.schedule_apply_to_all_btn),
                             style = MaterialTheme.typography.labelMedium
                         )
                     }
