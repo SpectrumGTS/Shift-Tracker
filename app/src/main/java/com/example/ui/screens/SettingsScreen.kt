@@ -1,6 +1,8 @@
 package com.example.ui.screens
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -363,108 +365,6 @@ fun SettingsScreen(
             }
         }
 
-        // Overnight Shift Cutoff Time Card
-        item {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("cutoff_time_card"),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                ),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.NightlightRound,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column {
-                                Text(
-                                    text = stringResource(R.string.overnight_shift_cutoff_time),
-                                    style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = stringResource(R.string.default_cutoff_time),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = MaterialTheme.colorScheme.primary
-                        ) {
-                            Text(
-                                text = OvertimeCalculator.formatMinutesToTime(cutoffTime),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                            )
-                        }
-                    }
-
-                    // Cutoff presets
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        listOf(
-                            180 to "03:00 AM",
-                            240 to "04:00 AM",
-                            300 to "05:00 AM (Default)",
-                            360 to "06:00 AM",
-                            420 to "07:00 AM"
-                        ).forEach { (presetMins, label) ->
-                            FilterChip(
-                                selected = cutoffTime == presetMins,
-                                onClick = { tryUpdateCutoff(presetMins) },
-                                label = { Text(label) },
-                                modifier = Modifier.testTag("cutoff_preset_$presetMins")
-                            )
-                        }
-                    }
-
-                    OutlinedButton(
-                        onClick = { showCutoffTimePicker = true },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("custom_cutoff_time_btn"),
-                        shape = RoundedCornerShape(10.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.AccessTime,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(stringResource(R.string.custom_cutoff_time, OvertimeCalculator.formatMinutesToTime(cutoffTime)))
-                    }
-
-                    Text(
-                        text = stringResource(R.string.cutoff_time_hint, OvertimeCalculator.formatMinutesToTime(cutoffTime)),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        }
-
         // Lunch Break Settings Card
         item {
             Card(
@@ -511,13 +411,23 @@ fun SettingsScreen(
                             shape = RoundedCornerShape(8.dp),
                             color = MaterialTheme.colorScheme.primary
                         ) {
-                            Text(
-                                text = "${OvertimeCalculator.formatMinutesToTime(lunchStart)} - ${OvertimeCalculator.formatMinutesToTime(lunchEnd)}",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                            )
+                            Column(
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = OvertimeCalculator.formatMinutesToTime(lunchStart),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onPrimary
+                                )
+                                Text(
+                                    text = OvertimeCalculator.formatMinutesToTime(lunchEnd),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onPrimary
+                                )
+                            }
                         }
                     }
 
@@ -619,6 +529,110 @@ fun SettingsScreen(
                             modifier = Modifier.testTag("subtract_lunch_offdays_switch")
                         )
                     }
+                }
+            }
+        }
+
+        // Overnight Shift Cutoff Time Card
+        item {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("cutoff_time_card"),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.NightlightRound,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(
+                                    text = stringResource(R.string.overnight_shift_cutoff_time),
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = stringResource(R.string.default_cutoff_time),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.primary
+                        ) {
+                            Text(
+                                text = OvertimeCalculator.formatMinutesToTime(cutoffTime),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
+
+                    // Cutoff presets (Horizontal Scrollable to fix blank area and missing 6 am option)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        listOf(
+                            180 to "03:00 AM",
+                            240 to "04:00 AM",
+                            300 to "05:00 AM (Default)",
+                            360 to "06:00 AM",
+                            420 to "07:00 AM"
+                        ).forEach { (presetMins, label) ->
+                            FilterChip(
+                                selected = cutoffTime == presetMins,
+                                onClick = { tryUpdateCutoff(presetMins) },
+                                label = { Text(label) },
+                                modifier = Modifier.testTag("cutoff_preset_$presetMins")
+                            )
+                        }
+                    }
+
+                    OutlinedButton(
+                        onClick = { showCutoffTimePicker = true },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("custom_cutoff_time_btn"),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AccessTime,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(stringResource(R.string.custom_cutoff_time, OvertimeCalculator.formatMinutesToTime(cutoffTime)))
+                    }
+
+                    Text(
+                        text = stringResource(R.string.cutoff_time_hint, OvertimeCalculator.formatMinutesToTime(cutoffTime)),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }

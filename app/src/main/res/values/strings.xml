@@ -79,6 +79,13 @@
     <string name="future_date_warning_title">Future Date Warning</string>
     <string name="future_date_warning_desc">You are logging an entry for a future date (%1$s). Are you sure you want to proceed?</string>
     <string name="confirm_btn">Confirm</string>
+    <string name="dashboard_extra_time">EXTRA TIME (%1$s)</string>
+    <string name="dashboard_total_working_hours">TOTAL WORKING HOURS (%1$s)</string>
+    <string name="dashboard_shifts_this_month">Shifts This Month: %1$d</string>
+    <string name="dashboard_total_worked_label">Total Worked</string>
+    <string name="dashboard_extra_time_label">Extra Time</string>
+    <string name="dashboard_month_summary">%1$s Overview</string>
+
 
     <!-- Navigation Drawer Menu Items -->
     <string name="menu_subtitle">Work-Life Balance</string>

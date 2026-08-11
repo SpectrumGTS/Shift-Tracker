@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -40,6 +42,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.example.R
 import com.example.data.model.AppSettings
 import com.example.data.model.DayDefaultSchedule
 import com.example.data.model.OvertimeCalculator
@@ -88,6 +92,25 @@ fun DashboardScreen(
         ).totalOvertimeMinutes
     }
 
+    // Calculate total working hours across shifts in current month ONLY
+    val totalWorkedMinutes = currentMonthShifts.sumOf { shift ->
+        OvertimeCalculator.calculate(
+            workStartMinutes = shift.workStartMinutes,
+            workEndMinutes = shift.workEndMinutes,
+            clockInMinutes = shift.clockInMinutes,
+            clockOutMinutes = shift.clockOutMinutes,
+            bufferBeforeMinutes = shift.bufferBeforeMinutes,
+            bufferAfterMinutes = shift.bufferAfterMinutes,
+            isWorkDay = shift.isWorkDay,
+            cutoffTimeMinutes = appSettings.cutoffTimeMinutes,
+            ignoreEarlyClockIns = appSettings.ignoreEarlyClockIns,
+            lunchStartMinutes = appSettings.lunchStartMinutes,
+            lunchEndMinutes = appSettings.lunchEndMinutes,
+            subtractLunchWorkDays = appSettings.subtractLunchWorkDays,
+            subtractLunchOffDays = appSettings.subtractLunchOffDays
+        ).actualWorkedMinutes
+    }
+
     val todayDateStr = getTodayDateString()
     val todayDayOfWeek = getDayOfWeekForDate(todayDateStr)
     val todaySchedule = defaultSchedules.find { it.dayOfWeek == todayDayOfWeek }
@@ -123,7 +146,7 @@ fun DashboardScreen(
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 88.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Hero Metric Cards
+            // Consolidated Monthly Stats Card
             item {
                 Card(
                     modifier = Modifier
@@ -135,54 +158,143 @@ fun DashboardScreen(
                     shape = RoundedCornerShape(20.dp)
                 ) {
                     Column(
-                        modifier = Modifier.padding(20.dp)
+                        modifier = Modifier.padding(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
+                        // Card Header
                         Row(
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
                             Surface(
                                 shape = CircleShape,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(40.dp)
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                                modifier = Modifier.size(32.dp)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(
-                                        imageVector = Icons.Default.Speed,
+                                        imageVector = Icons.Default.CalendarMonth,
                                         contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onPrimary
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(18.dp)
                                     )
                                 }
                             }
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(
+                                text = stringResource(R.string.dashboard_month_summary, currentMonthName),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+
+                        HorizontalDivider(color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.12f))
+
+                        // Side-by-Side Metrics Row
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // Left Side: Total Worked Hours
+                            Column(
+                                modifier = Modifier.weight(1f),
+                                horizontalAlignment = Alignment.Start
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Surface(
+                                        shape = CircleShape,
+                                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f),
+                                        modifier = Modifier.size(24.dp)
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            Icon(
+                                                imageVector = Icons.Default.Schedule,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.secondary,
+                                                modifier = Modifier.size(14.dp)
+                                            )
+                                        }
+                                    }
+                                    Text(
+                                        text = stringResource(R.string.dashboard_total_worked_label),
+                                        style = MaterialTheme.typography.labelMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = "EXTRA TIME ($currentMonthName)",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                                    text = OvertimeCalculator.formatDurationMinutes(totalWorkedMinutes),
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
                                 )
+                            }
+
+                            // Thin Vertical Divider
+                            Box(
+                                modifier = Modifier
+                                    .height(45.dp)
+                                    .width(1.dp)
+                                    .background(MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.15f))
+                            )
+
+                            Spacer(modifier = Modifier.width(12.dp))
+
+                            // Right Side: Extra Time (Overtime)
+                            Column(
+                                modifier = Modifier.weight(1f),
+                                horizontalAlignment = Alignment.Start
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Surface(
+                                        shape = CircleShape,
+                                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                                        modifier = Modifier.size(24.dp)
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            Icon(
+                                                imageVector = Icons.Default.Speed,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier.size(14.dp)
+                                            )
+                                        }
+                                    }
+                                    Text(
+                                        text = stringResource(R.string.dashboard_extra_time_label),
+                                        style = MaterialTheme.typography.labelMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = OvertimeCalculator.formatDurationMinutes(totalOvertimeMinutes),
-                                    style = MaterialTheme.typography.headlineLarge,
+                                    style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.ExtraBold,
                                     color = MaterialTheme.colorScheme.onPrimaryContainer
                                 )
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        HorizontalDivider(color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.12f))
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Start
-                        ) {
-                            Text(
-                                text = "Shifts This Month: ${currentMonthShifts.size}",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                        }
+                        // Footer (Shifts Count)
+                        Text(
+                            text = stringResource(R.string.dashboard_shifts_this_month, currentMonthShifts.size),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.85f)
+                        )
                     }
                 }
             }
