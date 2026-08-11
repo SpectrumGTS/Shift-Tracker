@@ -77,6 +77,18 @@
     <string name="overwrite_btn">Overwrite</string>
     <string name="save_btn">Save</string>
     <string name="future_date_warning_title">Future Date Warning</string>
-    <string name="future_date_warning_desc">You are logging an overtime entry for a future date (%1$s). Are you sure you want to proceed?</string>
+    <string name="future_date_warning_desc">You are logging an entry for a future date (%1$s). Are you sure you want to proceed?</string>
     <string name="confirm_btn">Confirm</string>
+
+    <!-- Navigation Drawer Menu Items -->
+    <string name="menu_subtitle">Work-Life Balance</string>
+    <string name="menu_dashboard">Dashboard &amp; Log</string>
+    <string name="menu_history">Shift History</string>
+    <string name="menu_insights">Yearly Insights</string>
+    <string name="menu_section_settings">SETTINGS &amp; PREFERENCES</string>
+    <string name="menu_default_schedule">Default Schedule</string>
+    <string name="menu_buffer_grace_time">Buffer &amp; Grace Time</string>
+    <string name="menu_backup_restore">Backup &amp; Restore (CSV)</string>
+    <string name="menu_about">About This App</string>
+    <string name="menu_footer">Room Offline Persistence • M3 Native</string>
 </resources>

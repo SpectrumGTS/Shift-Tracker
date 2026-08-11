@@ -38,8 +38,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.R
 import com.example.ui.viewmodel.ScreenDestination
 
 @Composable
@@ -87,13 +89,13 @@ fun AppNavigationDrawerSheet(
                         Spacer(modifier = Modifier.width(16.dp))
                         Column {
                             Text(
-                                text = "Shift Tracker",
+                                text = stringResource(R.string.app_name),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
-                                text = "Work-Life Balance",
+                                text = stringResource(R.string.menu_subtitle),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -109,7 +111,7 @@ fun AppNavigationDrawerSheet(
 
             // Main Navigation Items
             DrawerMenuItem(
-                label = "Dashboard & Log",
+                label = stringResource(R.string.menu_dashboard),
                 icon = Icons.Default.Dashboard,
                 isSelected = currentDestination == ScreenDestination.DASHBOARD,
                 testTag = "drawer_item_dashboard",
@@ -120,7 +122,7 @@ fun AppNavigationDrawerSheet(
             )
 
             DrawerMenuItem(
-                label = "Shift History",
+                label = stringResource(R.string.menu_history),
                 icon = Icons.Default.History,
                 isSelected = currentDestination == ScreenDestination.HISTORY,
                 testTag = "drawer_item_history",
@@ -131,7 +133,7 @@ fun AppNavigationDrawerSheet(
             )
 
             DrawerMenuItem(
-                label = "Yearly Insights",
+                label = stringResource(R.string.menu_insights),
                 icon = Icons.Default.TrendingUp,
                 isSelected = currentDestination == ScreenDestination.INSIGHTS,
                 testTag = "drawer_item_insights",
@@ -147,7 +149,7 @@ fun AppNavigationDrawerSheet(
             )
 
             Text(
-                text = "SETTINGS & PREFERENCES",
+                text = stringResource(R.string.menu_section_settings),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold,
@@ -155,7 +157,7 @@ fun AppNavigationDrawerSheet(
             )
 
             DrawerMenuItem(
-                label = "Default Schedule",
+                label = stringResource(R.string.menu_default_schedule),
                 icon = Icons.Default.CalendarMonth,
                 isSelected = currentDestination == ScreenDestination.DEFAULT_SCHEDULES,
                 testTag = "drawer_item_default_schedule",
@@ -166,7 +168,7 @@ fun AppNavigationDrawerSheet(
             )
 
             DrawerMenuItem(
-                label = "Buffer & Grace Time",
+                label = stringResource(R.string.menu_buffer_grace_time),
                 icon = Icons.Default.Tune,
                 isSelected = currentDestination == ScreenDestination.SETTINGS,
                 testTag = "drawer_item_settings",
@@ -177,7 +179,7 @@ fun AppNavigationDrawerSheet(
             )
 
             DrawerMenuItem(
-                label = "Backup & Restore (CSV)",
+                label = stringResource(R.string.menu_backup_restore),
                 icon = Icons.Default.Storage,
                 isSelected = currentDestination == ScreenDestination.BACKUP_RESTORE,
                 testTag = "drawer_item_backup_restore",
@@ -188,7 +190,7 @@ fun AppNavigationDrawerSheet(
             )
 
             DrawerMenuItem(
-                label = "About This App",
+                label = stringResource(R.string.menu_about),
                 icon = Icons.Default.Info,
                 isSelected = currentDestination == ScreenDestination.ABOUT,
                 testTag = "drawer_item_about",
@@ -207,7 +209,7 @@ fun AppNavigationDrawerSheet(
                     .padding(horizontal = 24.dp, vertical = 12.dp)
             ) {
                 Text(
-                    text = "Room Offline Persistence • M3 Native",
+                    text = stringResource(R.string.menu_footer),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.outline
                 )
