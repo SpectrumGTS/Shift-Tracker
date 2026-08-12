@@ -53,8 +53,6 @@
     <string name="clock_in_label">Clock In</string>
     <string name="clock_out_label">Clock Out</string>
     <string name="date_label">Date (YYYY-MM-DD)</string>
-    <string name="scheduled_hours">Scheduled Hours</string>
-    <string name="actual_worked">Actual Worked</string>
     <string name="net_extra_time">NET EXTRA TIME</string>
     <string name="early_arrival_overtime">Early Arrival Overtime (-%1$dm buffer):</string>
     <string name="late_departure_overtime">Late Departure Overtime (-%1$dm buffer):</string>
@@ -80,7 +78,6 @@
     <string name="future_date_warning_desc">You are logging an entry for a future date (%1$s). Are you sure you want to proceed?</string>
     <string name="confirm_btn">Confirm</string>
     <string name="dashboard_extra_time">EXTRA TIME (%1$s)</string>
-    <string name="dashboard_total_working_hours">TOTAL WORKING HOURS (%1$s)</string>
     <string name="dashboard_shifts_this_month">Shifts This Month: %1$d</string>
     <string name="dashboard_total_worked_label">Total Worked</string>
     <string name="dashboard_extra_time_label">Extra Time</string>
@@ -124,33 +121,18 @@
 
     <!-- Backup Restore Screen -->
     <string name="backup_confirm_overwrite_title">Confirm Overwrite</string>
-    <string name="backup_confirm_import_shifts_msg">Are you sure you want to import shift logs? This will permanently delete and overwrite all current shift log entries in your database.</string>
-    <string name="backup_confirm_import_schedules_msg">Are you sure you want to import default schedules? This will permanently delete and overwrite all current default schedule entries in your database.</string>
     <string name="backup_overwrite_import_btn">Overwrite &amp; Restore</string>
     <string name="backup_db_title">Database Backup &amp; Restore</string>
     <string name="backup_db_subtitle">Export your shift logs and settings to JSON backup files or restore them from a previous backup.</string>
     <string name="backup_unified_title">Unified Backup File (JSON)</string>
     <string name="backup_unified_subtitle">Backup both shift logs and preferences into a single file (%1$d shifts, %2$d default schedules).</string>
-    <string name="backup_export_unified_btn">Export Full Backup (JSON)</string>
-    <string name="backup_import_file_btn">Import Backup File (JSON)</string>
-    <string name="backup_shifts_count_title">Shift Logs (%1$d records)</string>
-    <string name="backup_shifts_subtitle">Backup or restore recorded working shifts independently.</string>
-    <string name="backup_export_csv_btn">Export JSON</string>
-    <string name="backup_import_csv_btn">Import JSON</string>
     <string name="backup_export_json_btn">Export JSON</string>
     <string name="backup_import_json_btn">Import JSON</string>
-    <string name="backup_schedules_count_title">Default Schedules &amp; Settings (%1$d days)</string>
-    <string name="backup_schedules_subtitle">Backup or restore default schedule, buffer, and grace settings independently.</string>
-    <string name="backup_export_success_shifts">Shift logs successfully exported to JSON.</string>
-    <string name="backup_export_success_schedules">Default schedules and buffer settings successfully exported to JSON.</string>
     <string name="backup_export_success_unified">Unified database backup successfully exported to JSON.</string>
-    <string name="backup_import_success_shifts">Shift logs successfully imported from JSON.</string>
-    <string name="backup_import_success_schedules">Default schedules and buffer settings successfully imported from JSON.</string>
     <string name="backup_import_success_unified">Backup data successfully restored from JSON.</string>
     <string name="backup_export_failed">Export failed: %1$s</string>
     <string name="backup_import_failed">Import failed: %1$s</string>
     <string name="backup_import_checksum_failed">Backup file integrity check failed. The file has been modified or corrupted.</string>
-    <string name="backup_restore_dialog_title">Restore Backup Data</string>
     <string name="backup_restore_dialog_intro">Select which data sections you want to restore from this JSON file:</string>
     <string name="backup_restore_option_logs">Shift Logs (%1$d records)</string>
     <string name="backup_restore_option_schedules">Default Schedules (%1$d days) &amp; Settings</string>
@@ -190,7 +172,6 @@
     <string name="title_mental_wellbeing">Mental Wellbeing</string>
     <string name="wellbeing_headline">Workplace Mental Wellbeing</string>
     <string name="wellbeing_subtitle">Healthiness assessment based on monthly overtime strain and occupational health resources.</string>
-    <string name="wellbeing_select_month">Select Month</string>
     <string name="wellbeing_monthly_overtime_label">MONTHLY OVERTIME STRAIN</string>
     <string name="wellbeing_readonly_badge">Read-Only Analytics</string>
     
@@ -261,21 +242,11 @@
     <string name="about_build_info_header">Version &amp; Build Info</string>
     <string name="about_label_app_id">Application ID</string>
     <string name="about_label_version">Version</string>
-    <string name="about_label_build_type">Build Type</string>
-    <string name="about_label_target_sdk">Target SDK</string>
-    <string name="about_label_min_sdk">Min SDK</string>
-    <string name="about_label_build_date">Build Date</string>
-    <string name="about_val_target_sdk">API 36</string>
-    <string name="about_val_min_sdk">API 24</string>
-    <string name="about_val_build_date">August 10, 2026</string>
 
     <!-- Onboarding OOBE Strings -->
     <string name="onboarding_welcome_title">Welcome to Shift Tracker</string>
     <string name="onboarding_welcome_subtitle">Let\'s personalize your experience. Configure your buffer rules, default work schedule, or restore your previous data from a backup.</string>
-    <string name="onboarding_welcome_badge_title">Smart Shift &amp; Overtime Management</string>
-    <string name="onboarding_welcome_badge_desc">Track working hours, calculate automatic grace buffers, and protect your mental health with built-in wellbeing tools.</string>
     <string name="onboarding_btn_restore_backup">Restore from Backup</string>
-    <string name="onboarding_restore_success">Backup data restored successfully!</string>
     <string name="onboarding_step_1_title">Buffer &amp; Grace Times</string>
     <string name="onboarding_step_1_subtitle">Automate grace periods for early clock-ins and late clock-outs to ensure accurate overtime calculations.</string>
     <string name="onboarding_step_2_title">Default Work Schedule</string>
@@ -295,7 +266,6 @@
     <string name="onboarding_btn_skip">Skip Setup</string>
     <string name="onboarding_btn_get_started">Get Started</string>
     <string name="onboarding_btn_done">Complete Setup</string>
-    <string name="onboarding_step_counter">Step %1$d of %2$d</string>
     <string name="backup_redo_onboarding_title">App Onboarding Setup</string>
     <string name="backup_redo_onboarding_subtitle">Re-run the setup wizard to reconfigure your shift buffer settings and default work schedule.</string>
     <string name="backup_redo_onboarding_btn">Redo Onboarding Setup</string>
