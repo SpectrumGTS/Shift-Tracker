@@ -292,13 +292,13 @@
     <string name="onboarding_btn_done">Complete Setup</string>
     <string name="onboarding_step_counter">Step %1$d of %2$d</string>
     <string name="backup_redo_onboarding_title">App Onboarding Setup</string>
-    <string name="backup_redo_onboarding_subtitle">Re-run the Pixel OOBE setup wizard to reconfigure your shift buffer settings and default work schedule.</string>
+    <string name="backup_redo_onboarding_subtitle">Re-run the setup wizard to reconfigure your shift buffer settings and default work schedule.</string>
     <string name="backup_redo_onboarding_btn">Redo Onboarding Setup</string>
 
     <string name="onboarding_feature_buffer_desc">Automatic grace periods before and after shifts.</string>
     <string name="onboarding_feature_schedule_desc">Custom weekly shift schedules &amp; 1-tap presets.</string>
     <string name="onboarding_feature_wellbeing_desc">Overtime strain monitoring &amp; mental health tools.</string>
-    <string name="onboarding_preset_9to5_title">Standard 9:00 AM – 5:00 PM Work Week</string>
+    <string name="onboarding_preset_9to5_title">Standard 9 to 5 Work Week</string>
     <string name="onboarding_preset_9to5_desc">Apply 09:00 – 17:00 to Monday through Friday.</string>
     <string name="onboarding_btn_apply">Apply</string>
 </resources>
