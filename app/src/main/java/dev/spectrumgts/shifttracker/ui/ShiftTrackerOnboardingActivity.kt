@@ -43,8 +43,7 @@ class ShiftTrackerOnboardingActivity : ComponentActivity() {
                         viewModel.applyDefaultScheduleToAllWorkingDays(workStart, workEnd)
                     },
                     onImportBackup = { uri: Uri ->
-                        viewModel.importShiftsFromUri(uri, context)
-                        viewModel.importSchedulesFromUri(uri, context)
+                        viewModel.importUnifiedBackupFromUri(uri, context, restoreShifts = true, restoreSettings = true)
                     },
                     onFinishOnboarding = {
                         val prefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)

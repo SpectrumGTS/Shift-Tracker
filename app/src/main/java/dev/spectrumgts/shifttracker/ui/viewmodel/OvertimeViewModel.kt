@@ -19,12 +19,16 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import org.json.JSONArray
+import org.json.JSONObject
 
 fun getTodayDateString(): String {
     val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -355,149 +359,343 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun exportShiftsToUri(uri: Uri, context: android.content.Context) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val currentShifts = repository.allShifts.first()
-            val sb = StringBuilder()
-            sb.append("id,date,workStartMinutes,workEndMinutes,clockInMinutes,clockOutMinutes,bufferBeforeMinutes,bufferAfterMinutes,isWorkDay,notes,timestamp\n")
-            for (s in currentShifts) {
-                val escapedNotes = "\"${s.notes.replace("\"", "\"\"")}\""
-                sb.append("${s.id},${s.date},${s.workStartMinutes},${s.workEndMinutes},${s.clockInMinutes},${s.clockOutMinutes},${s.bufferBeforeMinutes},${s.bufferAfterMinutes},${s.isWorkDay},$escapedNotes,${s.timestamp}\n")
+    private fun canonicalJsonString(obj: Any?): String {
+        return when (obj) {
+            is JSONObject -> {
+                val sortedKeys = obj.keys().asSequence().sorted()
+                val pairs = sortedKeys.map { key ->
+                    val valStr = canonicalJsonString(obj.opt(key))
+                    "\"$key\":$valStr"
+                }
+                "{" + pairs.joinToString(",") + "}"
             }
+            is JSONArray -> {
+                val elements = (0 until obj.length()).map { i ->
+                    canonicalJsonString(obj.opt(i))
+                }
+                "[" + elements.joinToString(",") + "]"
+            }
+            is String -> JSONObject.quote(obj)
+            is Number, is Boolean -> obj.toString()
+            null, JSONObject.NULL -> "null"
+            else -> JSONObject.quote(obj.toString())
+        }
+    }
+
+    private fun calculateJsonChecksum(jsonObject: JSONObject): String {
+        val copy = JSONObject(jsonObject.toString())
+        copy.remove("checksum")
+        val canonicalPayload = canonicalJsonString(copy) + "_SALT_SHIFT_TRACKER_PROTECTED_HASH_2026"
+        val digest = MessageDigest.getInstance("SHA-256")
+        val hashBytes = digest.digest(canonicalPayload.toByteArray(Charsets.UTF_8))
+        val sb = StringBuilder()
+        for (b in hashBytes) {
+            sb.append(String.format("%02x", b))
+        }
+        return sb.toString()
+    }
+
+    fun exportBackupToUri(
+        uri: Uri,
+        context: android.content.Context,
+        includeShifts: Boolean = true,
+        includeSettings: Boolean = true
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val root = JSONObject()
+            root.put("version", 1)
+            root.put("appName", "Shift Tracker")
+            root.put("exportTimestamp", System.currentTimeMillis())
+
+            if (includeShifts) {
+                val currentShifts = repository.allShifts.first()
+                val shiftsArray = JSONArray()
+                for (s in currentShifts) {
+                    val shiftObj = JSONObject().apply {
+                        put("id", s.id)
+                        put("date", s.date)
+                        put("workStartMinutes", s.workStartMinutes)
+                        put("workEndMinutes", s.workEndMinutes)
+                        put("clockInMinutes", s.clockInMinutes)
+                        put("clockOutMinutes", s.clockOutMinutes)
+                        put("bufferBeforeMinutes", s.bufferBeforeMinutes)
+                        put("bufferAfterMinutes", s.bufferAfterMinutes)
+                        put("isWorkDay", s.isWorkDay)
+                        put("notes", s.notes)
+                        put("timestamp", s.timestamp)
+                    }
+                    shiftsArray.put(shiftObj)
+                }
+                root.put("shiftLogs", shiftsArray)
+            }
+
+            if (includeSettings) {
+                val settings = repository.appSettings.first()
+                val settingsObj = JSONObject().apply {
+                    put("id", settings.id)
+                    put("bufferBeforeMinutes", settings.bufferBeforeMinutes)
+                    put("bufferAfterMinutes", settings.bufferAfterMinutes)
+                    put("cutoffTimeMinutes", settings.cutoffTimeMinutes)
+                    put("ignoreEarlyClockIns", settings.ignoreEarlyClockIns)
+                    put("lunchStartMinutes", settings.lunchStartMinutes)
+                    put("lunchEndMinutes", settings.lunchEndMinutes)
+                    put("subtractLunchWorkDays", settings.subtractLunchWorkDays)
+                    put("subtractLunchOffDays", settings.subtractLunchOffDays)
+                }
+                root.put("appSettings", settingsObj)
+
+                val schedules = repository.defaultSchedules.first()
+                val schedulesArray = JSONArray()
+                for (sch in schedules) {
+                    val schObj = JSONObject().apply {
+                        put("dayOfWeek", sch.dayOfWeek)
+                        put("isWorkDay", sch.isWorkDay)
+                        put("workStartMinutes", sch.workStartMinutes)
+                        put("workEndMinutes", sch.workEndMinutes)
+                    }
+                    schedulesArray.put(schObj)
+                }
+                root.put("defaultSchedules", schedulesArray)
+            }
+
+            root.put("checksum", calculateJsonChecksum(root))
+
             context.contentResolver.openOutputStream(uri)?.use { outputStream ->
-                outputStream.write(sb.toString().toByteArray(Charsets.UTF_8))
+                outputStream.write(root.toString(2).toByteArray(Charsets.UTF_8))
             }
         }
+    }
+
+    fun importBackupFromUri(
+        uri: Uri,
+        context: android.content.Context,
+        restoreShifts: Boolean = true,
+        restoreSettings: Boolean = true
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val content = context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8)).use { reader ->
+                    reader.readText()
+                }
+            } ?: return@launch
+
+            if (content.isBlank()) return@launch
+
+            val jsonRoot = try {
+                JSONObject(content)
+            } catch (e: Exception) {
+                null
+            }
+
+            if (jsonRoot != null) {
+                val storedChecksum = jsonRoot.optString("checksum", "")
+                val calculatedChecksum = calculateJsonChecksum(jsonRoot)
+                if (storedChecksum.isBlank() || !storedChecksum.equals(calculatedChecksum, ignoreCase = true)) {
+                    return@launch
+                }
+
+                if (restoreShifts && jsonRoot.has("shiftLogs")) {
+                    val shiftsArray = jsonRoot.optJSONArray("shiftLogs")
+                    if (shiftsArray != null) {
+                        repository.deleteAllShifts()
+                        for (i in 0 until shiftsArray.length()) {
+                            val obj = shiftsArray.optJSONObject(i) ?: continue
+                            val shift = ShiftLog(
+                                id = 0,
+                                date = obj.optString("date", getTodayDateString()),
+                                workStartMinutes = obj.optInt("workStartMinutes", 540),
+                                workEndMinutes = obj.optInt("workEndMinutes", 1020),
+                                clockInMinutes = obj.optInt("clockInMinutes", 510),
+                                clockOutMinutes = obj.optInt("clockOutMinutes", 1080),
+                                bufferBeforeMinutes = obj.optInt("bufferBeforeMinutes", 15),
+                                bufferAfterMinutes = obj.optInt("bufferAfterMinutes", 15),
+                                isWorkDay = obj.optBoolean("isWorkDay", true),
+                                notes = obj.optString("notes", ""),
+                                timestamp = obj.optLong("timestamp", System.currentTimeMillis())
+                            )
+                            repository.insertShift(shift)
+                        }
+                    }
+                }
+
+                if (restoreSettings) {
+                    if (jsonRoot.has("appSettings")) {
+                        val settingsObj = jsonRoot.optJSONObject("appSettings")
+                        if (settingsObj != null) {
+                            val currentSettings = repository.getAppSettingsDirect()
+                            val newSettings = AppSettings(
+                                id = 1,
+                                bufferBeforeMinutes = settingsObj.optInt("bufferBeforeMinutes", currentSettings.bufferBeforeMinutes),
+                                bufferAfterMinutes = settingsObj.optInt("bufferAfterMinutes", currentSettings.bufferAfterMinutes),
+                                cutoffTimeMinutes = settingsObj.optInt("cutoffTimeMinutes", currentSettings.cutoffTimeMinutes),
+                                ignoreEarlyClockIns = settingsObj.optBoolean("ignoreEarlyClockIns", currentSettings.ignoreEarlyClockIns),
+                                lunchStartMinutes = settingsObj.optInt("lunchStartMinutes", currentSettings.lunchStartMinutes),
+                                lunchEndMinutes = settingsObj.optInt("lunchEndMinutes", currentSettings.lunchEndMinutes),
+                                subtractLunchWorkDays = settingsObj.optBoolean("subtractLunchWorkDays", currentSettings.subtractLunchWorkDays),
+                                subtractLunchOffDays = settingsObj.optBoolean("subtractLunchOffDays", currentSettings.subtractLunchOffDays)
+                            )
+                            repository.saveAppSettings(newSettings)
+                        }
+                    }
+
+                    if (jsonRoot.has("defaultSchedules")) {
+                        val schedulesArray = jsonRoot.optJSONArray("defaultSchedules")
+                        if (schedulesArray != null) {
+                            repository.deleteAllDefaultSchedules()
+                            for (i in 0 until schedulesArray.length()) {
+                                val obj = schedulesArray.optJSONObject(i) ?: continue
+                                val schedule = DayDefaultSchedule(
+                                    dayOfWeek = obj.optInt("dayOfWeek", 1),
+                                    isWorkDay = obj.optBoolean("isWorkDay", true),
+                                    workStartMinutes = obj.optInt("workStartMinutes", 540),
+                                    workEndMinutes = obj.optInt("workEndMinutes", 1020)
+                                )
+                                repository.saveDefaultSchedule(schedule)
+                            }
+                        }
+                    }
+                }
+            } else {
+                // Fallback for legacy CSV files
+                if (restoreShifts && content.contains("workStartMinutes")) {
+                    importShiftsFromCsvString(content)
+                } else if (restoreSettings && content.contains("dayOfWeek")) {
+                    importSchedulesFromCsvString(content)
+                }
+            }
+        }
+    }
+
+    private suspend fun importShiftsFromCsvString(csvContent: String) {
+        val lines = csvContent.lines()
+        if (lines.isNotEmpty()) {
+            repository.deleteAllShifts()
+            val startIndex = if (lines[0].startsWith("id,")) 1 else 0
+            for (i in startIndex until lines.size) {
+                val line = lines[i]
+                if (line.isBlank()) continue
+                val tokens = mutableListOf<String>()
+                var inQuotes = false
+                val sb = StringBuilder()
+                var j = 0
+                while (j < line.length) {
+                    val c = line[j]
+                    if (c == '"') {
+                        if (inQuotes && j + 1 < line.length && line[j + 1] == '"') {
+                            sb.append('"')
+                            j++
+                        } else {
+                            inQuotes = !inQuotes
+                        }
+                    } else if (c == ',' && !inQuotes) {
+                        tokens.add(sb.toString())
+                        sb.clear()
+                    } else {
+                        sb.append(c)
+                    }
+                    j++
+                }
+                tokens.add(sb.toString())
+
+                if (tokens.size >= 10) {
+                    val timestampVal = if (tokens.size >= 11) {
+                        tokens[10].toLongOrNull() ?: System.currentTimeMillis()
+                    } else {
+                        System.currentTimeMillis()
+                    }
+                    val shift = ShiftLog(
+                        id = 0,
+                        date = tokens[1],
+                        workStartMinutes = tokens[2].toIntOrNull() ?: 540,
+                        workEndMinutes = tokens[3].toIntOrNull() ?: 1020,
+                        clockInMinutes = tokens[4].toIntOrNull() ?: 510,
+                        clockOutMinutes = tokens[5].toIntOrNull() ?: 1080,
+                        bufferBeforeMinutes = tokens[6].toIntOrNull() ?: 15,
+                        bufferAfterMinutes = tokens[7].toIntOrNull() ?: 15,
+                        isWorkDay = tokens[8].toBooleanStrictOrNull() ?: true,
+                        notes = tokens[9],
+                        timestamp = timestampVal
+                    )
+                    repository.insertShift(shift)
+                }
+            }
+        }
+    }
+
+    private suspend fun importSchedulesFromCsvString(csvContent: String) {
+        val lines = csvContent.lines()
+        if (lines.isNotEmpty()) {
+            repository.deleteAllDefaultSchedules()
+            val startIndex = if (lines[0].startsWith("dayOfWeek,")) 1 else 0
+            var importedSettings: AppSettings? = null
+            for (i in startIndex until lines.size) {
+                val line = lines[i]
+                if (line.isBlank()) continue
+                val tokens = line.split(",")
+                if (tokens.size >= 4) {
+                    val schedule = DayDefaultSchedule(
+                        dayOfWeek = tokens[0].toIntOrNull() ?: 1,
+                        isWorkDay = tokens[1].toBooleanStrictOrNull() ?: true,
+                        workStartMinutes = tokens[2].toIntOrNull() ?: 540,
+                        workEndMinutes = tokens[3].toIntOrNull() ?: 1020
+                    )
+                    repository.saveDefaultSchedule(schedule)
+
+                    if (tokens.size >= 6 && importedSettings == null) {
+                        val currentSettings = repository.appSettings.first()
+                        val bufBefore = tokens[4].toIntOrNull() ?: currentSettings.bufferBeforeMinutes
+                        val bufAfter = tokens[5].toIntOrNull() ?: currentSettings.bufferAfterMinutes
+                        val cutoff = if (tokens.size >= 7) tokens[6].toIntOrNull() ?: currentSettings.cutoffTimeMinutes else currentSettings.cutoffTimeMinutes
+                        val ignoreEarly = if (tokens.size >= 8) tokens[7].toBooleanStrictOrNull() ?: currentSettings.ignoreEarlyClockIns else currentSettings.ignoreEarlyClockIns
+                        val lunchStart = if (tokens.size >= 9) tokens[8].toIntOrNull() ?: currentSettings.lunchStartMinutes else currentSettings.lunchStartMinutes
+                        val lunchEnd = if (tokens.size >= 10) tokens[9].toIntOrNull() ?: currentSettings.lunchEndMinutes else currentSettings.lunchEndMinutes
+                        val subWork = if (tokens.size >= 11) tokens[10].toBooleanStrictOrNull() ?: currentSettings.subtractLunchWorkDays else currentSettings.subtractLunchWorkDays
+                        val subOff = if (tokens.size >= 12) tokens[11].toBooleanStrictOrNull() ?: currentSettings.subtractLunchOffDays else currentSettings.subtractLunchOffDays
+
+                        importedSettings = AppSettings(
+                            id = 1,
+                            bufferBeforeMinutes = bufBefore,
+                            bufferAfterMinutes = bufAfter,
+                            cutoffTimeMinutes = cutoff,
+                            ignoreEarlyClockIns = ignoreEarly,
+                            lunchStartMinutes = lunchStart,
+                            lunchEndMinutes = lunchEnd,
+                            subtractLunchWorkDays = subWork,
+                            subtractLunchOffDays = subOff
+                        )
+                    }
+                }
+            }
+            importedSettings?.let { repository.saveAppSettings(it) }
+        }
+    }
+
+    fun exportShiftsToUri(uri: Uri, context: android.content.Context) {
+        exportBackupToUri(uri, context, includeShifts = true, includeSettings = false)
     }
 
     fun importShiftsFromUri(uri: Uri, context: android.content.Context) {
-        viewModelScope.launch(Dispatchers.IO) {
-            context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8)).use { reader ->
-                    val lines = reader.readLines()
-                    if (lines.isNotEmpty()) {
-                        repository.deleteAllShifts()
-                        val startIndex = if (lines[0].startsWith("id,")) 1 else 0
-                        for (i in startIndex until lines.size) {
-                            val line = lines[i]
-                            if (line.isBlank()) continue
-                            val tokens = mutableListOf<String>()
-                            var inQuotes = false
-                            val sb = StringBuilder()
-                            var j = 0
-                            while (j < line.length) {
-                                val c = line[j]
-                                if (c == '"') {
-                                    if (inQuotes && j + 1 < line.length && line[j + 1] == '"') {
-                                        sb.append('"')
-                                        j++
-                                    } else {
-                                        inQuotes = !inQuotes
-                                    }
-                                } else if (c == ',' && !inQuotes) {
-                                    tokens.add(sb.toString())
-                                    sb.clear()
-                                } else {
-                                    sb.append(c)
-                                }
-                                j++
-                            }
-                            tokens.add(sb.toString())
-
-                            if (tokens.size >= 10) {
-                                val timestampVal = if (tokens.size >= 11) {
-                                    tokens[10].toLongOrNull() ?: System.currentTimeMillis()
-                                } else {
-                                    System.currentTimeMillis()
-                                }
-                                val shift = ShiftLog(
-                                    id = 0,
-                                    date = tokens[1],
-                                    workStartMinutes = tokens[2].toIntOrNull() ?: 540,
-                                    workEndMinutes = tokens[3].toIntOrNull() ?: 1020,
-                                    clockInMinutes = tokens[4].toIntOrNull() ?: 510,
-                                    clockOutMinutes = tokens[5].toIntOrNull() ?: 1080,
-                                    bufferBeforeMinutes = tokens[6].toIntOrNull() ?: 15,
-                                    bufferAfterMinutes = tokens[7].toIntOrNull() ?: 15,
-                                    isWorkDay = tokens[8].toBooleanStrictOrNull() ?: true,
-                                    notes = tokens[9],
-                                    timestamp = timestampVal
-                                )
-                                repository.insertShift(shift)
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        importBackupFromUri(uri, context, restoreShifts = true, restoreSettings = false)
     }
 
     fun exportSchedulesToUri(uri: Uri, context: android.content.Context) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val schedules = repository.defaultSchedules.first()
-            val settings = repository.appSettings.first()
-            val sb = StringBuilder()
-            sb.append("dayOfWeek,isWorkDay,workStartMinutes,workEndMinutes,bufferBeforeMinutes,bufferAfterMinutes,cutoffTimeMinutes,ignoreEarlyClockIns,lunchStartMinutes,lunchEndMinutes,subtractLunchWorkDays,subtractLunchOffDays\n")
-            for (s in schedules) {
-                sb.append("${s.dayOfWeek},${s.isWorkDay},${s.workStartMinutes},${s.workEndMinutes},${settings.bufferBeforeMinutes},${settings.bufferAfterMinutes},${settings.cutoffTimeMinutes},${settings.ignoreEarlyClockIns},${settings.lunchStartMinutes},${settings.lunchEndMinutes},${settings.subtractLunchWorkDays},${settings.subtractLunchOffDays}\n")
-            }
-            context.contentResolver.openOutputStream(uri)?.use { outputStream ->
-                outputStream.write(sb.toString().toByteArray(Charsets.UTF_8))
-            }
-        }
+        exportBackupToUri(uri, context, includeShifts = false, includeSettings = true)
     }
 
     fun importSchedulesFromUri(uri: Uri, context: android.content.Context) {
-        viewModelScope.launch(Dispatchers.IO) {
-            context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8)).use { reader ->
-                    val lines = reader.readLines()
-                    if (lines.isNotEmpty()) {
-                        repository.deleteAllDefaultSchedules()
-                        val startIndex = if (lines[0].startsWith("dayOfWeek,")) 1 else 0
-                        var importedSettings: AppSettings? = null
-                        for (i in startIndex until lines.size) {
-                            val line = lines[i]
-                            if (line.isBlank()) continue
-                            val tokens = line.split(",")
-                            if (tokens.size >= 4) {
-                                val schedule = DayDefaultSchedule(
-                                    dayOfWeek = tokens[0].toIntOrNull() ?: 1,
-                                    isWorkDay = tokens[1].toBooleanStrictOrNull() ?: true,
-                                    workStartMinutes = tokens[2].toIntOrNull() ?: 540,
-                                    workEndMinutes = tokens[3].toIntOrNull() ?: 1020
-                                )
-                                repository.saveDefaultSchedule(schedule)
+        importBackupFromUri(uri, context, restoreShifts = false, restoreSettings = true)
+    }
 
-                                if (tokens.size >= 6 && importedSettings == null) {
-                                    val currentSettings = repository.appSettings.first()
-                                    val bufBefore = tokens[4].toIntOrNull() ?: currentSettings.bufferBeforeMinutes
-                                    val bufAfter = tokens[5].toIntOrNull() ?: currentSettings.bufferAfterMinutes
-                                    val cutoff = if (tokens.size >= 7) tokens[6].toIntOrNull() ?: currentSettings.cutoffTimeMinutes else currentSettings.cutoffTimeMinutes
-                                    val ignoreEarly = if (tokens.size >= 8) tokens[7].toBooleanStrictOrNull() ?: currentSettings.ignoreEarlyClockIns else currentSettings.ignoreEarlyClockIns
-                                    val lunchStart = if (tokens.size >= 9) tokens[8].toIntOrNull() ?: currentSettings.lunchStartMinutes else currentSettings.lunchStartMinutes
-                                    val lunchEnd = if (tokens.size >= 10) tokens[9].toIntOrNull() ?: currentSettings.lunchEndMinutes else currentSettings.lunchEndMinutes
-                                    val subWork = if (tokens.size >= 11) tokens[10].toBooleanStrictOrNull() ?: currentSettings.subtractLunchWorkDays else currentSettings.subtractLunchWorkDays
-                                    val subOff = if (tokens.size >= 12) tokens[11].toBooleanStrictOrNull() ?: currentSettings.subtractLunchOffDays else currentSettings.subtractLunchOffDays
+    fun exportUnifiedBackupToUri(uri: Uri, context: android.content.Context) {
+        exportBackupToUri(uri, context, includeShifts = true, includeSettings = true)
+    }
 
-                                    importedSettings = AppSettings(
-                                        id = 1,
-                                        bufferBeforeMinutes = bufBefore,
-                                        bufferAfterMinutes = bufAfter,
-                                        cutoffTimeMinutes = cutoff,
-                                        ignoreEarlyClockIns = ignoreEarly,
-                                        lunchStartMinutes = lunchStart,
-                                        lunchEndMinutes = lunchEnd,
-                                        subtractLunchWorkDays = subWork,
-                                        subtractLunchOffDays = subOff
-                                    )
-                                }
-                            }
-                        }
-                        importedSettings?.let { repository.saveAppSettings(it) }
-                    }
-                }
-            }
-        }
+    fun importUnifiedBackupFromUri(
+        uri: Uri,
+        context: android.content.Context,
+        restoreShifts: Boolean = true,
+        restoreSettings: Boolean = true
+    ) {
+        importBackupFromUri(uri, context, restoreShifts = restoreShifts, restoreSettings = restoreSettings)
     }
 }

@@ -33,12 +33,18 @@ fun BackupRestoreScreen(
     onImportShifts: (Uri) -> Unit,
     onExportSchedules: (Uri) -> Unit,
     onImportSchedules: (Uri) -> Unit,
+    onExportUnifiedBackup: ((Uri) -> Unit)? = null,
+    onImportUnifiedBackup: ((Uri, Boolean, Boolean) -> Unit)? = null,
     onRedoOnboarding: () -> Unit = {}
 ) {
     val context = LocalContext.current
     var snackbarMessage by remember { mutableStateOf<String?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
-    var pendingImportType by remember { mutableStateOf<String?>(null) } // "shifts", "schedules", or null
+    
+    var pendingImportType by remember { mutableStateOf<String?>(null) } // "shifts", "schedules", or "unified"
+    var pendingImportUri by remember { mutableStateOf<Uri?>(null) }
+    var restoreShiftsChecked by remember { mutableStateOf(true) }
+    var restoreSettingsChecked by remember { mutableStateOf(true) }
 
     LaunchedEffect(snackbarMessage) {
         snackbarMessage?.let {
@@ -47,8 +53,37 @@ fun BackupRestoreScreen(
         }
     }
 
+    val exportUnifiedLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        uri?.let {
+            try {
+                if (onExportUnifiedBackup != null) {
+                    onExportUnifiedBackup(it)
+                } else {
+                    onExportShifts(it)
+                    onExportSchedules(it)
+                }
+                snackbarMessage = context.getString(R.string.backup_export_success_unified)
+            } catch (e: Exception) {
+                snackbarMessage = context.getString(R.string.backup_export_failed, e.localizedMessage ?: "")
+            }
+        }
+    }
+
+    val importUnifiedLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let {
+            pendingImportUri = it
+            pendingImportType = "unified"
+            restoreShiftsChecked = true
+            restoreSettingsChecked = true
+        }
+    }
+
     val exportShiftsLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.CreateDocument("text/csv")
+        contract = ActivityResultContracts.CreateDocument("application/json")
     ) { uri ->
         uri?.let {
             try {
@@ -74,7 +109,7 @@ fun BackupRestoreScreen(
     }
 
     val exportSchedulesLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.CreateDocument("text/csv")
+        contract = ActivityResultContracts.CreateDocument("application/json")
     ) { uri ->
         uri?.let {
             try {
@@ -99,34 +134,83 @@ fun BackupRestoreScreen(
         }
     }
 
+    // Restore Options & Confirmation Dialog
     if (pendingImportType != null) {
         val type = pendingImportType
+        val uri = pendingImportUri
+
         AlertDialog(
-            onDismissRequest = { pendingImportType = null },
+            onDismissRequest = {
+                pendingImportType = null
+                pendingImportUri = null
+            },
             title = { Text(text = stringResource(R.string.backup_confirm_overwrite_title)) },
             text = {
-                Text(
-                    text = if (type == "shifts") {
-                        stringResource(R.string.backup_confirm_import_shifts_msg)
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    if (type == "unified" && uri != null) {
+                        Text(
+                            text = stringResource(R.string.backup_restore_dialog_intro),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Checkbox(
+                                checked = restoreShiftsChecked,
+                                onCheckedChange = { restoreShiftsChecked = it }
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(stringResource(R.string.backup_restore_option_logs, shifts.size))
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Checkbox(
+                                checked = restoreSettingsChecked,
+                                onCheckedChange = { restoreSettingsChecked = it }
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(stringResource(R.string.backup_restore_option_schedules, defaultSchedules.size))
+                        }
+                    } else if (type == "shifts") {
+                        Text(text = stringResource(R.string.backup_confirm_import_shifts_msg))
                     } else {
-                        stringResource(R.string.backup_confirm_import_schedules_msg)
+                        Text(text = stringResource(R.string.backup_confirm_import_schedules_msg))
                     }
-                )
+                }
             },
             confirmButton = {
                 Button(
                     onClick = {
                         val currentType = pendingImportType
+                        val targetUri = pendingImportUri
                         pendingImportType = null
-                        if (currentType == "shifts") {
-                            importShiftsLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "*/*"))
+                        pendingImportUri = null
+
+                        if (currentType == "unified" && targetUri != null) {
+                            try {
+                                if (onImportUnifiedBackup != null) {
+                                    onImportUnifiedBackup(targetUri, restoreShiftsChecked, restoreSettingsChecked)
+                                } else {
+                                    if (restoreShiftsChecked) onImportShifts(targetUri)
+                                    if (restoreSettingsChecked) onImportSchedules(targetUri)
+                                }
+                                snackbarMessage = context.getString(R.string.backup_import_success_unified)
+                            } catch (e: Exception) {
+                                snackbarMessage = context.getString(R.string.backup_import_failed, e.localizedMessage ?: "")
+                            }
+                        } else if (currentType == "shifts") {
+                            importShiftsLauncher.launch(arrayOf("application/json", "text/csv", "text/comma-separated-values", "*/*"))
                         } else if (currentType == "schedules") {
-                            importSchedulesLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "*/*"))
+                            importSchedulesLauncher.launch(arrayOf("application/json", "text/csv", "text/comma-separated-values", "*/*"))
                         }
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error
                     ),
+                    enabled = type != "unified" || (restoreShiftsChecked || restoreSettingsChecked),
                     modifier = Modifier.testTag("confirm_import_button")
                 ) {
                     Text(stringResource(R.string.backup_overwrite_import_btn))
@@ -134,7 +218,10 @@ fun BackupRestoreScreen(
             },
             dismissButton = {
                 TextButton(
-                    onClick = { pendingImportType = null },
+                    onClick = {
+                        pendingImportType = null
+                        pendingImportUri = null
+                    },
                     modifier = Modifier.testTag("dismiss_import_button")
                 ) {
                     Text(stringResource(R.string.cancel_btn))
@@ -172,7 +259,75 @@ fun BackupRestoreScreen(
                 }
             }
 
-            // Shift Logs Backup Card
+            // Unified Backup File Card (Single File)
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Storage,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = stringResource(R.string.backup_unified_title),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = stringResource(R.string.backup_unified_subtitle, shifts.size, defaultSchedules.size),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Button(
+                                onClick = { exportUnifiedLauncher.launch("shift_tracker_backup.json") },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .testTag("export_unified_json_btn"),
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(stringResource(R.string.backup_export_json_btn))
+                            }
+
+                            OutlinedButton(
+                                onClick = {
+                                    importUnifiedLauncher.launch(arrayOf("application/json", "text/plain", "*/*"))
+                                },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .testTag("import_unified_json_btn"),
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Icon(Icons.Default.Upload, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(stringResource(R.string.backup_import_json_btn))
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Independent Shift Logs Backup Card
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -189,7 +344,7 @@ fun BackupRestoreScreen(
                             Icon(
                                 imageVector = Icons.Default.Storage,
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
+                                tint = MaterialTheme.colorScheme.secondary
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
@@ -211,7 +366,7 @@ fun BackupRestoreScreen(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             Button(
-                                onClick = { exportShiftsLauncher.launch("overtime_shifts_backup.csv") },
+                                onClick = { exportShiftsLauncher.launch("overtime_shifts_backup.json") },
                                 modifier = Modifier
                                     .weight(1f)
                                     .testTag("export_shifts_csv_btn"),
@@ -219,7 +374,7 @@ fun BackupRestoreScreen(
                             ) {
                                 Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(stringResource(R.string.backup_export_csv_btn))
+                                Text(stringResource(R.string.backup_export_json_btn))
                             }
 
                             OutlinedButton(
@@ -231,14 +386,14 @@ fun BackupRestoreScreen(
                             ) {
                                 Icon(Icons.Default.Upload, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(stringResource(R.string.backup_import_csv_btn))
+                                Text(stringResource(R.string.backup_import_json_btn))
                             }
                         }
                     }
                 }
             }
 
-            // Default Schedules Backup Card
+            // Independent Default Schedules & Settings Backup Card
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -255,7 +410,7 @@ fun BackupRestoreScreen(
                             Icon(
                                 imageVector = Icons.Default.Storage,
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
+                                tint = MaterialTheme.colorScheme.tertiary
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
@@ -277,7 +432,7 @@ fun BackupRestoreScreen(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             Button(
-                                onClick = { exportSchedulesLauncher.launch("overtime_schedules_backup.csv") },
+                                onClick = { exportSchedulesLauncher.launch("overtime_schedules_backup.json") },
                                 modifier = Modifier
                                     .weight(1f)
                                     .testTag("export_schedules_csv_btn"),
@@ -285,7 +440,7 @@ fun BackupRestoreScreen(
                             ) {
                                 Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(stringResource(R.string.backup_export_csv_btn))
+                                Text(stringResource(R.string.backup_export_json_btn))
                             }
 
                             OutlinedButton(
@@ -297,7 +452,7 @@ fun BackupRestoreScreen(
                             ) {
                                 Icon(Icons.Default.Upload, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(stringResource(R.string.backup_import_csv_btn))
+                                Text(stringResource(R.string.backup_import_json_btn))
                             }
                         }
                     }
@@ -309,7 +464,7 @@ fun BackupRestoreScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
                     ),
                     shape = RoundedCornerShape(16.dp)
                 ) {
@@ -355,3 +510,4 @@ fun BackupRestoreScreen(
         }
     }
 }
+
