@@ -31,4 +31,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: release-apk
-        path: app/build/outputs/apk/release/shifttracker-release.apk
+        path: gradle/build/release/shifttracker-release.apk
