@@ -17,8 +17,8 @@ android {
     applicationId = "dev.spectrumgts.shifttracker"
     minSdk = 24
     targetSdk = 36
-    versionCode = 4
-    versionName = "v0.1.0-beta.4"
+    versionCode = (project.findProperty("versionCode")?.toString() ?: "1").toInt()
+    versionName = project.findProperty("versionName")?.toString() ?: "v0.1.0-alpha"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
