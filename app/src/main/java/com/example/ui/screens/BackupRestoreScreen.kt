@@ -8,7 +8,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Storage
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -30,7 +32,8 @@ fun BackupRestoreScreen(
     onExportShifts: (Uri) -> Unit,
     onImportShifts: (Uri) -> Unit,
     onExportSchedules: (Uri) -> Unit,
-    onImportSchedules: (Uri) -> Unit
+    onImportSchedules: (Uri) -> Unit,
+    onRedoOnboarding: () -> Unit = {}
 ) {
     val context = LocalContext.current
     var snackbarMessage by remember { mutableStateOf<String?>(null) }
@@ -295,6 +298,55 @@ fun BackupRestoreScreen(
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(stringResource(R.string.backup_import_csv_btn))
                             }
+                        }
+                    }
+                }
+            }
+
+            // Redo Onboarding Card
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Tune,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = stringResource(R.string.backup_redo_onboarding_title),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = stringResource(R.string.backup_redo_onboarding_subtitle),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+
+                        Button(
+                            onClick = onRedoOnboarding,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("redo_onboarding_btn"),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(Icons.Default.RestartAlt, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(stringResource(R.string.backup_redo_onboarding_btn))
                         }
                     }
                 }

@@ -251,4 +251,42 @@
     <string name="about_val_target_sdk">API 36</string>
     <string name="about_val_min_sdk">API 24</string>
     <string name="about_val_build_date">August 10, 2026</string>
+
+    <!-- Onboarding OOBE Strings -->
+    <string name="onboarding_welcome_title">Welcome to Shift Tracker</string>
+    <string name="onboarding_welcome_subtitle">Let\'s personalize your experience. Configure your buffer rules, default work schedule, or restore your previous data from a backup.</string>
+    <string name="onboarding_welcome_badge_title">Smart Shift &amp; Overtime Management</string>
+    <string name="onboarding_welcome_badge_desc">Track working hours, calculate automatic grace buffers, and protect your mental health with built-in wellbeing tools.</string>
+    <string name="onboarding_btn_restore_backup">Restore from Backup</string>
+    <string name="onboarding_restore_success">Backup data restored successfully!</string>
+    <string name="onboarding_step_1_title">Buffer &amp; Grace Times</string>
+    <string name="onboarding_step_1_subtitle">Automate grace periods for early clock-ins and late clock-outs to ensure accurate overtime calculations.</string>
+    <string name="onboarding_step_2_title">Default Work Schedule</string>
+    <string name="onboarding_step_2_subtitle">Configure your weekly work days and standard hours so logging shifts is effortless.</string>
+    <string name="onboarding_step_3_title">Workplace Wellbeing Tips</string>
+    <string name="onboarding_step_3_subtitle">Essential habits to protect your mental health and prevent burnout during shift work.</string>
+    <string name="onboarding_tip1_title">Prioritize Regular Micro-breaks</string>
+    <string name="onboarding_tip1_desc">Step away from your workstation every 60–90 minutes to stretch, hydrate, and rest your eyes.</string>
+    <string name="onboarding_tip2_title">Set Clear Post-Shift Boundaries</string>
+    <string name="onboarding_tip2_desc">Disconnect from work communications after clocking out to allow your nervous system to recover.</string>
+    <string name="onboarding_tip3_title">Monitor Monthly Overtime Strain</string>
+    <string name="onboarding_tip3_desc">Use the built-in Mental Wellbeing dashboard to keep monthly overtime within safe, sustainable limits.</string>
+    <string name="onboarding_tip4_title">Practice Box Breathing</string>
+    <string name="onboarding_tip4_desc">When feeling overwhelmed, try the 4-4-4-4 Box Breathing exercise for fast physiological calm.</string>
+    <string name="onboarding_btn_next">Next</string>
+    <string name="onboarding_btn_back">Back</string>
+    <string name="onboarding_btn_skip">Skip Setup</string>
+    <string name="onboarding_btn_get_started">Get Started</string>
+    <string name="onboarding_btn_done">Complete Setup</string>
+    <string name="onboarding_step_counter">Step %1$d of %2$d</string>
+    <string name="backup_redo_onboarding_title">App Onboarding Setup</string>
+    <string name="backup_redo_onboarding_subtitle">Re-run the Pixel OOBE setup wizard to reconfigure your shift buffer settings and default work schedule.</string>
+    <string name="backup_redo_onboarding_btn">Redo Onboarding Setup</string>
+
+    <string name="onboarding_feature_buffer_desc">Automatic grace periods before and after shifts.</string>
+    <string name="onboarding_feature_schedule_desc">Custom weekly shift schedules &amp; 1-tap presets.</string>
+    <string name="onboarding_feature_wellbeing_desc">Overtime strain monitoring &amp; mental health tools.</string>
+    <string name="onboarding_preset_9to5_title">Standard 9:00 AM – 5:00 PM Work Week</string>
+    <string name="onboarding_preset_9to5_desc">Apply 09:00 – 17:00 to Monday through Friday.</string>
+    <string name="onboarding_btn_apply">Apply</string>
 </resources>

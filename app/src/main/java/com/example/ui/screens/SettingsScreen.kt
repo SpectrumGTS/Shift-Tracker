@@ -56,6 +56,10 @@ import com.example.R
 import com.example.data.model.AppSettings
 import com.example.data.model.DayDefaultSchedule
 import com.example.data.model.OvertimeCalculator
+import com.example.ui.components.BufferAfterCard
+import com.example.ui.components.BufferBeforeCard
+import com.example.ui.components.CutoffTimeCard
+import com.example.ui.components.LunchBreakCard
 import com.example.ui.components.M3TimePickerDialog
 
 @Composable
@@ -170,474 +174,44 @@ fun SettingsScreen(
 
         // Buffer BEFORE Working Hours Card
         item {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("buffer_before_card"),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                ),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Text(
-                                text = stringResource(R.string.before_working_hours_buffer),
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = stringResource(R.string.grace_period_prior_to_start),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = MaterialTheme.colorScheme.primary
-                        ) {
-                            Text(
-                                text = stringResource(R.string.mins_suffix, bufferBefore.toInt()),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                            )
-                        }
-                    }
-
-                    Slider(
-                        value = bufferBefore,
-                        onValueChange = { bufferBefore = it },
-                        valueRange = 0f..60f,
-                        steps = 11, // 5 min increments
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("buffer_before_slider")
-                    )
-
-                    // Quick Presets
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        listOf(0, 5, 10, 15, 30).forEach { preset ->
-                            FilterChip(
-                                selected = bufferBefore.toInt() == preset,
-                                onClick = { bufferBefore = preset.toFloat() },
-                                label = { Text("${preset}m") },
-                                modifier = Modifier.testTag("buffer_before_preset_$preset")
-                            )
-                        }
-                    }
-
-                    Text(
-                        text = if (ignoreEarlyClockIns)
-                            stringResource(R.string.desc_early_clockins_disabled)
-                        else if (bufferBefore.toInt() == 0)
-                            stringResource(R.string.desc_no_buffer_early)
-                        else
-                            stringResource(R.string.desc_buffer_early_active, bufferBefore.toInt()),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = stringResource(R.string.always_ignore_early_clock_ins),
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = stringResource(R.string.disregard_early_work),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Switch(
-                            checked = ignoreEarlyClockIns,
-                            onCheckedChange = { ignoreEarlyClockIns = it },
-                            modifier = Modifier.testTag("ignore_early_clockins_switch")
-                        )
-                    }
-                }
-            }
+            BufferBeforeCard(
+                bufferBefore = bufferBefore,
+                onBufferBeforeChange = { bufferBefore = it },
+                ignoreEarlyClockIns = ignoreEarlyClockIns,
+                onIgnoreEarlyChange = { ignoreEarlyClockIns = it }
+            )
         }
 
         // Buffer AFTER Working Hours Card
         item {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("buffer_after_card"),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                ),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Text(
-                                text = stringResource(R.string.after_working_hours_buffer),
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = stringResource(R.string.grace_period_after_end),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = MaterialTheme.colorScheme.primary
-                        ) {
-                            Text(
-                                text = stringResource(R.string.mins_suffix, bufferAfter.toInt()),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                            )
-                        }
-                    }
-
-                    Slider(
-                        value = bufferAfter,
-                        onValueChange = { bufferAfter = it },
-                        valueRange = 0f..60f,
-                        steps = 11, // 5 min increments
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("buffer_after_slider")
-                    )
-
-                    // Quick Presets
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        listOf(0, 5, 10, 15, 30).forEach { preset ->
-                            FilterChip(
-                                selected = bufferAfter.toInt() == preset,
-                                onClick = { bufferAfter = preset.toFloat() },
-                                label = { Text("${preset}m") },
-                                modifier = Modifier.testTag("buffer_after_preset_$preset")
-                            )
-                        }
-                    }
-
-                    Text(
-                        text = if (bufferAfter.toInt() == 0)
-                            stringResource(R.string.desc_no_buffer_late)
-                        else
-                            stringResource(R.string.desc_buffer_late_active, bufferAfter.toInt()),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
+            BufferAfterCard(
+                bufferAfter = bufferAfter,
+                onBufferAfterChange = { bufferAfter = it }
+            )
         }
 
         // Lunch Break Settings Card
         item {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("lunch_break_settings_card"),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                ),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.Schedule,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column {
-                                Text(
-                                    text = stringResource(R.string.lunch_break_range),
-                                    style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = stringResource(R.string.default_lunch_break),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = MaterialTheme.colorScheme.primary
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(
-                                    text = OvertimeCalculator.formatMinutesToTime(lunchStart),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onPrimary
-                                )
-                                Text(
-                                    text = OvertimeCalculator.formatMinutesToTime(lunchEnd),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onPrimary
-                                )
-                            }
-                        }
-                    }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        OutlinedButton(
-                            onClick = { showLunchStartTimePicker = true },
-                            modifier = Modifier
-                                .weight(1f)
-                                .testTag("lunch_start_time_btn"),
-                            shape = RoundedCornerShape(10.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.AccessTime,
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = stringResource(R.string.lunch_start_prefix, OvertimeCalculator.formatMinutesTo24H(lunchStart)),
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
-
-                        OutlinedButton(
-                            onClick = { showLunchEndTimePicker = true },
-                            modifier = Modifier
-                                .weight(1f)
-                                .testTag("lunch_end_time_btn"),
-                            shape = RoundedCornerShape(10.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.AccessTime,
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = stringResource(R.string.lunch_end_prefix, OvertimeCalculator.formatMinutesTo24H(lunchEnd)),
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
-                    }
-
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-
-                    // Option to subtract for Work Days
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = stringResource(R.string.subtract_lunch_workdays),
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = stringResource(R.string.subtract_lunch_workdays_desc),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Switch(
-                            checked = subtractLunchWorkDays,
-                            onCheckedChange = { subtractLunchWorkDays = it },
-                            modifier = Modifier.testTag("subtract_lunch_workdays_switch")
-                        )
-                    }
-
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-
-                    // Option to subtract for Off Days
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = stringResource(R.string.subtract_lunch_offdays),
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = stringResource(R.string.subtract_lunch_offdays_desc),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Switch(
-                            checked = subtractLunchOffDays,
-                            onCheckedChange = { subtractLunchOffDays = it },
-                            modifier = Modifier.testTag("subtract_lunch_offdays_switch")
-                        )
-                    }
-                }
-            }
+            LunchBreakCard(
+                lunchStart = lunchStart,
+                lunchEnd = lunchEnd,
+                subtractLunchWorkDays = subtractLunchWorkDays,
+                onSubtractWorkDaysChange = { subtractLunchWorkDays = it },
+                subtractLunchOffDays = subtractLunchOffDays,
+                onSubtractOffDaysChange = { subtractLunchOffDays = it },
+                onShowLunchStartPicker = { showLunchStartTimePicker = true },
+                onShowLunchEndPicker = { showLunchEndTimePicker = true }
+            )
         }
 
         // Overnight Shift Cutoff Time Card
         item {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("cutoff_time_card"),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                ),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.NightlightRound,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column {
-                                Text(
-                                    text = stringResource(R.string.overnight_shift_cutoff_time),
-                                    style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = stringResource(R.string.default_cutoff_time),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = MaterialTheme.colorScheme.primary
-                        ) {
-                            Text(
-                                text = OvertimeCalculator.formatMinutesToTime(cutoffTime),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                            )
-                        }
-                    }
-
-                    // Cutoff presets (Horizontal Scrollable to fix blank area and missing 6 am option)
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        listOf(
-                            180 to "03:00 AM",
-                            240 to "04:00 AM",
-                            300 to "05:00 AM (Default)",
-                            360 to "06:00 AM",
-                            420 to "07:00 AM"
-                        ).forEach { (presetMins, label) ->
-                            FilterChip(
-                                selected = cutoffTime == presetMins,
-                                onClick = { tryUpdateCutoff(presetMins) },
-                                label = { Text(label) },
-                                modifier = Modifier.testTag("cutoff_preset_$presetMins")
-                            )
-                        }
-                    }
-
-                    OutlinedButton(
-                        onClick = { showCutoffTimePicker = true },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("custom_cutoff_time_btn"),
-                        shape = RoundedCornerShape(10.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.AccessTime,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(stringResource(R.string.custom_cutoff_time, OvertimeCalculator.formatMinutesToTime(cutoffTime)))
-                    }
-
-                    Text(
-                        text = stringResource(R.string.cutoff_time_hint, OvertimeCalculator.formatMinutesToTime(cutoffTime)),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
+            CutoffTimeCard(
+                cutoffTime = cutoffTime,
+                onCutoffTimeChange = { tryUpdateCutoff(it) },
+                onShowCutoffPicker = { showCutoffTimePicker = true }
+            )
         }
-
-
     }
 
     if (showLunchStartTimePicker) {
