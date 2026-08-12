@@ -149,10 +149,14 @@
     <string name="backup_import_success_unified">Backup data successfully restored from JSON.</string>
     <string name="backup_export_failed">Export failed: %1$s</string>
     <string name="backup_import_failed">Import failed: %1$s</string>
+    <string name="backup_import_checksum_failed">Backup file integrity check failed. The file has been modified or corrupted.</string>
     <string name="backup_restore_dialog_title">Restore Backup Data</string>
     <string name="backup_restore_dialog_intro">Select which data sections you want to restore from this JSON file:</string>
     <string name="backup_restore_option_logs">Shift Logs (%1$d records)</string>
     <string name="backup_restore_option_schedules">Default Schedules (%1$d days) &amp; Settings</string>
+    <string name="backup_export_option_logs">Shift Logs (%1$d records)</string>
+    <string name="backup_export_option_schedules">Default Schedules (%1$d days) &amp; Settings</string>
+    <string name="backup_export_dialog_intro">Select which data sections you want to export to this JSON file:</string>
 
     <!-- Default Schedules Screen -->
     <string name="schedule_info_title">Default Weekly Working Hours</string>
@@ -234,6 +238,7 @@
     <string name="wellbeing_mat_support_item1">• Employee Assistance Program (EAP): Confidential counseling provided by many employers.</string>
     <string name="wellbeing_mat_support_item2">• Occupational Health Services: Workplace health advisors specializing in shift-work safety.</string>
     <string name="wellbeing_mat_support_item3">• Healthcare Professionals: Consult your general practitioner for mental health support.</string>
+
     <!-- About Screen -->
     <string name="about_title">About This App</string>
     <string name="about_subtitle">Learn about the architecture, framework, and licensing powering Shift Tracker, designed to support work-life balance and mental wellbeing.</string>
@@ -275,16 +280,16 @@
     <string name="onboarding_step_1_subtitle">Automate grace periods for early clock-ins and late clock-outs to ensure accurate overtime calculations.</string>
     <string name="onboarding_step_2_title">Default Work Schedule</string>
     <string name="onboarding_step_2_subtitle">Configure your weekly work days and standard hours so logging shifts is effortless.</string>
-    <string name="onboarding_step_3_title">Workplace Wellbeing Tips</string>
-    <string name="onboarding_step_3_subtitle">Essential habits to protect your mental health and prevent burnout during shift work.</string>
-    <string name="onboarding_tip1_title">Prioritize Regular Micro-breaks</string>
-    <string name="onboarding_tip1_desc">Step away from your workstation every 60–90 minutes to stretch, hydrate, and rest your eyes.</string>
-    <string name="onboarding_tip2_title">Set Clear Post-Shift Boundaries</string>
-    <string name="onboarding_tip2_desc">Disconnect from work communications after clocking out to allow your nervous system to recover.</string>
-    <string name="onboarding_tip3_title">Monitor Monthly Overtime Strain</string>
-    <string name="onboarding_tip3_desc">Use the built-in Mental Wellbeing dashboard to keep monthly overtime within safe, sustainable limits.</string>
-    <string name="onboarding_tip4_title">Practice Box Breathing</string>
-    <string name="onboarding_tip4_desc">When feeling overwhelmed, try the 4-4-4-4 Box Breathing exercise for fast physiological calm.</string>
+    <string name="onboarding_step_3_title">Data Privacy &amp; Security</string>
+    <string name="onboarding_step_3_subtitle">Your shift logs and personal data remain 100% private and secure on your device.</string>
+    <string name="onboarding_tip1_title">100% Local Storage</string>
+    <string name="onboarding_tip1_desc">All shift records and settings are stored locally in an encrypted database on your device.</string>
+    <string name="onboarding_tip2_title">Offline First Architecture</string>
+    <string name="onboarding_tip2_desc">No cloud accounts or external servers are required. The app functions entirely offline.</string>
+    <string name="onboarding_tip3_title">Secure Backups &amp; Checksums</string>
+    <string name="onboarding_tip3_desc">Export and import JSON backup files safely with built-in checksum verification.</string>
+    <string name="onboarding_tip4_title">Zero Tracking &amp; Analytics</string>
+    <string name="onboarding_tip4_desc">We never collect, track, or transmit your work logs, personal data, or activity history.</string>
     <string name="onboarding_btn_next">Next</string>
     <string name="onboarding_btn_back">Back</string>
     <string name="onboarding_btn_skip">Skip Setup</string>
@@ -294,10 +299,10 @@
     <string name="backup_redo_onboarding_title">App Onboarding Setup</string>
     <string name="backup_redo_onboarding_subtitle">Re-run the setup wizard to reconfigure your shift buffer settings and default work schedule.</string>
     <string name="backup_redo_onboarding_btn">Redo Onboarding Setup</string>
-
     <string name="onboarding_feature_buffer_desc">Automatic grace periods before and after shifts.</string>
     <string name="onboarding_feature_schedule_desc">Custom weekly shift schedules &amp; 1-tap presets.</string>
-    <string name="onboarding_feature_wellbeing_desc">Overtime strain monitoring &amp; mental health tools.</string>
+    <string name="onboarding_feature_privacy_title">Data Privacy</string>
+    <string name="onboarding_feature_privacy_desc">100% local storage &amp; zero data tracking.</string>
     <string name="onboarding_preset_9to5_title">Standard 9 to 5 Work Week</string>
     <string name="onboarding_preset_9to5_desc">Apply 09:00 – 17:00 to Monday through Friday.</string>
     <string name="onboarding_btn_apply">Apply</string>

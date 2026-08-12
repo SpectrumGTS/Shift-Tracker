@@ -206,13 +206,8 @@ fun OvertimeTrackerApp(viewModel: OvertimeViewModel) {
                             BackupRestoreScreen(
                                 shifts = shifts,
                                 defaultSchedules = defaultSchedules,
-                                onExportShifts = { uri -> viewModel.exportShiftsToUri(uri, context) },
-                                onImportShifts = { uri -> viewModel.importShiftsFromUri(uri, context) },
-                                onExportSchedules = { uri -> viewModel.exportSchedulesToUri(uri, context) },
-                                onImportSchedules = { uri -> viewModel.importSchedulesFromUri(uri, context) },
-                                onExportUnifiedBackup = { uri -> viewModel.exportUnifiedBackupToUri(uri, context) },
-                                onImportUnifiedBackup = { uri, restoreShifts, restoreSettings ->
-                                    viewModel.importUnifiedBackupFromUri(uri, context, restoreShifts, restoreSettings)
+                                onExportUnifiedBackup = { uri, includeShifts, includeSettings ->
+                                    viewModel.exportUnifiedBackupToUri(uri, context, includeShifts, includeSettings)
                                 },
                                 onRedoOnboarding = {
                                     context.startActivity(Intent(context, ShiftTrackerOnboardingActivity::class.java))

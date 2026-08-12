@@ -4,6 +4,7 @@ import android.app.Application
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import dev.spectrumgts.shifttracker.R
 import dev.spectrumgts.shifttracker.data.db.AppDatabase
 import dev.spectrumgts.shifttracker.data.model.AppSettings
 import dev.spectrumgts.shifttracker.data.model.DayDefaultSchedule
@@ -395,73 +396,102 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
         return sb.toString()
     }
 
+    fun exportUnifiedBackupToUri(
+        uri: Uri,
+        context: android.content.Context,
+        includeShifts: Boolean = true,
+        includeSettings: Boolean = true,
+        onResult: ((Boolean, String) -> Unit)? = null
+    ) {
+        exportBackupToUri(uri, context, includeShifts, includeSettings, onResult)
+    }
+
+    fun importUnifiedBackupFromUri(
+        uri: Uri,
+        context: android.content.Context,
+        restoreShifts: Boolean = true,
+        restoreSettings: Boolean = true,
+        onResult: ((Boolean, String) -> Unit)? = null
+    ) {
+        importBackupFromUri(uri, context, restoreShifts = restoreShifts, restoreSettings = restoreSettings, onResult = onResult)
+    }
+
     fun exportBackupToUri(
         uri: Uri,
         context: android.content.Context,
         includeShifts: Boolean = true,
-        includeSettings: Boolean = true
+        includeSettings: Boolean = true,
+        onResult: ((Boolean, String) -> Unit)? = null
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val root = JSONObject()
-            root.put("version", 1)
-            root.put("appName", "Shift Tracker")
-            root.put("exportTimestamp", System.currentTimeMillis())
+            try {
+                val root = JSONObject()
+                root.put("version", 1)
+                root.put("appName", "Shift Tracker")
+                root.put("exportTimestamp", System.currentTimeMillis())
 
-            if (includeShifts) {
-                val currentShifts = repository.allShifts.first()
-                val shiftsArray = JSONArray()
-                for (s in currentShifts) {
-                    val shiftObj = JSONObject().apply {
-                        put("id", s.id)
-                        put("date", s.date)
-                        put("workStartMinutes", s.workStartMinutes)
-                        put("workEndMinutes", s.workEndMinutes)
-                        put("clockInMinutes", s.clockInMinutes)
-                        put("clockOutMinutes", s.clockOutMinutes)
-                        put("bufferBeforeMinutes", s.bufferBeforeMinutes)
-                        put("bufferAfterMinutes", s.bufferAfterMinutes)
-                        put("isWorkDay", s.isWorkDay)
-                        put("notes", s.notes)
-                        put("timestamp", s.timestamp)
+                if (includeShifts) {
+                    val currentShifts = repository.allShifts.first()
+                    val shiftsArray = JSONArray()
+                    for (s in currentShifts) {
+                        val shiftObj = JSONObject().apply {
+                            put("id", s.id)
+                            put("date", s.date)
+                            put("workStartMinutes", s.workStartMinutes)
+                            put("workEndMinutes", s.workEndMinutes)
+                            put("clockInMinutes", s.clockInMinutes)
+                            put("clockOutMinutes", s.clockOutMinutes)
+                            put("bufferBeforeMinutes", s.bufferBeforeMinutes)
+                            put("bufferAfterMinutes", s.bufferAfterMinutes)
+                            put("isWorkDay", s.isWorkDay)
+                            put("notes", s.notes)
+                            put("timestamp", s.timestamp)
+                        }
+                        shiftsArray.put(shiftObj)
                     }
-                    shiftsArray.put(shiftObj)
+                    root.put("shiftLogs", shiftsArray)
                 }
-                root.put("shiftLogs", shiftsArray)
-            }
 
-            if (includeSettings) {
-                val settings = repository.appSettings.first()
-                val settingsObj = JSONObject().apply {
-                    put("id", settings.id)
-                    put("bufferBeforeMinutes", settings.bufferBeforeMinutes)
-                    put("bufferAfterMinutes", settings.bufferAfterMinutes)
-                    put("cutoffTimeMinutes", settings.cutoffTimeMinutes)
-                    put("ignoreEarlyClockIns", settings.ignoreEarlyClockIns)
-                    put("lunchStartMinutes", settings.lunchStartMinutes)
-                    put("lunchEndMinutes", settings.lunchEndMinutes)
-                    put("subtractLunchWorkDays", settings.subtractLunchWorkDays)
-                    put("subtractLunchOffDays", settings.subtractLunchOffDays)
-                }
-                root.put("appSettings", settingsObj)
-
-                val schedules = repository.defaultSchedules.first()
-                val schedulesArray = JSONArray()
-                for (sch in schedules) {
-                    val schObj = JSONObject().apply {
-                        put("dayOfWeek", sch.dayOfWeek)
-                        put("isWorkDay", sch.isWorkDay)
-                        put("workStartMinutes", sch.workStartMinutes)
-                        put("workEndMinutes", sch.workEndMinutes)
+                if (includeSettings) {
+                    val settings = repository.appSettings.first()
+                    val settingsObj = JSONObject().apply {
+                        put("id", settings.id)
+                        put("bufferBeforeMinutes", settings.bufferBeforeMinutes)
+                        put("bufferAfterMinutes", settings.bufferAfterMinutes)
+                        put("cutoffTimeMinutes", settings.cutoffTimeMinutes)
+                        put("ignoreEarlyClockIns", settings.ignoreEarlyClockIns)
+                        put("lunchStartMinutes", settings.lunchStartMinutes)
+                        put("lunchEndMinutes", settings.lunchEndMinutes)
+                        put("subtractLunchWorkDays", settings.subtractLunchWorkDays)
+                        put("subtractLunchOffDays", settings.subtractLunchOffDays)
                     }
-                    schedulesArray.put(schObj)
+                    root.put("appSettings", settingsObj)
+
+                    val schedules = repository.defaultSchedules.first()
+                    val schedulesArray = JSONArray()
+                    for (sch in schedules) {
+                        val schObj = JSONObject().apply {
+                            put("dayOfWeek", sch.dayOfWeek)
+                            put("isWorkDay", sch.isWorkDay)
+                            put("workStartMinutes", sch.workStartMinutes)
+                            put("workEndMinutes", sch.workEndMinutes)
+                        }
+                        schedulesArray.put(schObj)
+                    }
+                    root.put("defaultSchedules", schedulesArray)
                 }
-                root.put("defaultSchedules", schedulesArray)
-            }
 
-            root.put("checksum", calculateJsonChecksum(root))
+                root.put("checksum", calculateJsonChecksum(root))
 
-            context.contentResolver.openOutputStream(uri)?.use { outputStream ->
-                outputStream.write(root.toString(2).toByteArray(Charsets.UTF_8))
+                context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                    outputStream.write(root.toString(2).toByteArray(Charsets.UTF_8))
+                } ?: throw java.io.IOException("Unable to open output stream")
+
+                val successMsg = context.getString(R.string.backup_export_success_unified)
+                withContext(Dispatchers.Main) { onResult?.invoke(true, successMsg) }
+            } catch (e: Exception) {
+                val errorMsg = context.getString(R.string.backup_export_failed, e.localizedMessage ?: "Unknown error")
+                withContext(Dispatchers.Main) { onResult?.invoke(false, errorMsg) }
             }
         }
     }
@@ -470,98 +500,124 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
         uri: Uri,
         context: android.content.Context,
         restoreShifts: Boolean = true,
-        restoreSettings: Boolean = true
+        restoreSettings: Boolean = true,
+        onResult: ((Boolean, String) -> Unit)? = null
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val content = context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8)).use { reader ->
-                    reader.readText()
-                }
-            } ?: return@launch
-
-            if (content.isBlank()) return@launch
-
-            val jsonRoot = try {
-                JSONObject(content)
-            } catch (e: Exception) {
-                null
-            }
-
-            if (jsonRoot != null) {
-                val storedChecksum = jsonRoot.optString("checksum", "")
-                val calculatedChecksum = calculateJsonChecksum(jsonRoot)
-                if (storedChecksum.isBlank() || !storedChecksum.equals(calculatedChecksum, ignoreCase = true)) {
+            try {
+                val content = context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                    BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8)).use { reader ->
+                        reader.readText()
+                    }
+                } ?: run {
+                    val msg = context.getString(R.string.backup_import_failed, "Unable to open file")
+                    withContext(Dispatchers.Main) { onResult?.invoke(false, msg) }
                     return@launch
                 }
 
-                if (restoreShifts && jsonRoot.has("shiftLogs")) {
-                    val shiftsArray = jsonRoot.optJSONArray("shiftLogs")
-                    if (shiftsArray != null) {
-                        repository.deleteAllShifts()
-                        for (i in 0 until shiftsArray.length()) {
-                            val obj = shiftsArray.optJSONObject(i) ?: continue
-                            val shift = ShiftLog(
-                                id = 0,
-                                date = obj.optString("date", getTodayDateString()),
-                                workStartMinutes = obj.optInt("workStartMinutes", 540),
-                                workEndMinutes = obj.optInt("workEndMinutes", 1020),
-                                clockInMinutes = obj.optInt("clockInMinutes", 510),
-                                clockOutMinutes = obj.optInt("clockOutMinutes", 1080),
-                                bufferBeforeMinutes = obj.optInt("bufferBeforeMinutes", 15),
-                                bufferAfterMinutes = obj.optInt("bufferAfterMinutes", 15),
-                                isWorkDay = obj.optBoolean("isWorkDay", true),
-                                notes = obj.optString("notes", ""),
-                                timestamp = obj.optLong("timestamp", System.currentTimeMillis())
-                            )
-                            repository.insertShift(shift)
-                        }
-                    }
+                if (content.isBlank()) {
+                    val msg = context.getString(R.string.backup_import_failed, "File is empty")
+                    withContext(Dispatchers.Main) { onResult?.invoke(false, msg) }
+                    return@launch
                 }
 
-                if (restoreSettings) {
-                    if (jsonRoot.has("appSettings")) {
-                        val settingsObj = jsonRoot.optJSONObject("appSettings")
-                        if (settingsObj != null) {
-                            val currentSettings = repository.getAppSettingsDirect()
-                            val newSettings = AppSettings(
-                                id = 1,
-                                bufferBeforeMinutes = settingsObj.optInt("bufferBeforeMinutes", currentSettings.bufferBeforeMinutes),
-                                bufferAfterMinutes = settingsObj.optInt("bufferAfterMinutes", currentSettings.bufferAfterMinutes),
-                                cutoffTimeMinutes = settingsObj.optInt("cutoffTimeMinutes", currentSettings.cutoffTimeMinutes),
-                                ignoreEarlyClockIns = settingsObj.optBoolean("ignoreEarlyClockIns", currentSettings.ignoreEarlyClockIns),
-                                lunchStartMinutes = settingsObj.optInt("lunchStartMinutes", currentSettings.lunchStartMinutes),
-                                lunchEndMinutes = settingsObj.optInt("lunchEndMinutes", currentSettings.lunchEndMinutes),
-                                subtractLunchWorkDays = settingsObj.optBoolean("subtractLunchWorkDays", currentSettings.subtractLunchWorkDays),
-                                subtractLunchOffDays = settingsObj.optBoolean("subtractLunchOffDays", currentSettings.subtractLunchOffDays)
-                            )
-                            repository.saveAppSettings(newSettings)
-                        }
+                val jsonRoot = try {
+                    JSONObject(content)
+                } catch (e: Exception) {
+                    null
+                }
+
+                if (jsonRoot != null) {
+                    val storedChecksum = jsonRoot.optString("checksum", "").trim()
+                    val calculatedChecksum = calculateJsonChecksum(jsonRoot)
+                    if (storedChecksum.isBlank() || !storedChecksum.equals(calculatedChecksum, ignoreCase = true)) {
+                        val msg = context.getString(R.string.backup_import_checksum_failed)
+                        withContext(Dispatchers.Main) { onResult?.invoke(false, msg) }
+                        return@launch
                     }
 
-                    if (jsonRoot.has("defaultSchedules")) {
-                        val schedulesArray = jsonRoot.optJSONArray("defaultSchedules")
-                        if (schedulesArray != null) {
-                            repository.deleteAllDefaultSchedules()
-                            for (i in 0 until schedulesArray.length()) {
-                                val obj = schedulesArray.optJSONObject(i) ?: continue
-                                val schedule = DayDefaultSchedule(
-                                    dayOfWeek = obj.optInt("dayOfWeek", 1),
-                                    isWorkDay = obj.optBoolean("isWorkDay", true),
+                    if (restoreShifts && jsonRoot.has("shiftLogs")) {
+                        val shiftsArray = jsonRoot.optJSONArray("shiftLogs")
+                        if (shiftsArray != null) {
+                            repository.deleteAllShifts()
+                            for (i in 0 until shiftsArray.length()) {
+                                val obj = shiftsArray.optJSONObject(i) ?: continue
+                                val shift = ShiftLog(
+                                    id = 0,
+                                    date = obj.optString("date", getTodayDateString()),
                                     workStartMinutes = obj.optInt("workStartMinutes", 540),
-                                    workEndMinutes = obj.optInt("workEndMinutes", 1020)
+                                    workEndMinutes = obj.optInt("workEndMinutes", 1020),
+                                    clockInMinutes = obj.optInt("clockInMinutes", 510),
+                                    clockOutMinutes = obj.optInt("clockOutMinutes", 1080),
+                                    bufferBeforeMinutes = obj.optInt("bufferBeforeMinutes", 15),
+                                    bufferAfterMinutes = obj.optInt("bufferAfterMinutes", 15),
+                                    isWorkDay = obj.optBoolean("isWorkDay", true),
+                                    notes = obj.optString("notes", ""),
+                                    timestamp = obj.optLong("timestamp", System.currentTimeMillis())
                                 )
-                                repository.saveDefaultSchedule(schedule)
+                                repository.insertShift(shift)
                             }
                         }
                     }
+
+                    if (restoreSettings) {
+                        if (jsonRoot.has("appSettings")) {
+                            val settingsObj = jsonRoot.optJSONObject("appSettings")
+                            if (settingsObj != null) {
+                                val currentSettings = repository.getAppSettingsDirect()
+                                val newSettings = AppSettings(
+                                    id = 1,
+                                    bufferBeforeMinutes = settingsObj.optInt("bufferBeforeMinutes", currentSettings.bufferBeforeMinutes),
+                                    bufferAfterMinutes = settingsObj.optInt("bufferAfterMinutes", currentSettings.bufferAfterMinutes),
+                                    cutoffTimeMinutes = settingsObj.optInt("cutoffTimeMinutes", currentSettings.cutoffTimeMinutes),
+                                    ignoreEarlyClockIns = settingsObj.optBoolean("ignoreEarlyClockIns", currentSettings.ignoreEarlyClockIns),
+                                    lunchStartMinutes = settingsObj.optInt("lunchStartMinutes", currentSettings.lunchStartMinutes),
+                                    lunchEndMinutes = settingsObj.optInt("lunchEndMinutes", currentSettings.lunchEndMinutes),
+                                    subtractLunchWorkDays = settingsObj.optBoolean("subtractLunchWorkDays", currentSettings.subtractLunchWorkDays),
+                                    subtractLunchOffDays = settingsObj.optBoolean("subtractLunchOffDays", currentSettings.subtractLunchOffDays)
+                                )
+                                repository.saveAppSettings(newSettings)
+                            }
+                        }
+
+                        if (jsonRoot.has("defaultSchedules")) {
+                            val schedulesArray = jsonRoot.optJSONArray("defaultSchedules")
+                            if (schedulesArray != null) {
+                                repository.deleteAllDefaultSchedules()
+                                for (i in 0 until schedulesArray.length()) {
+                                    val obj = schedulesArray.optJSONObject(i) ?: continue
+                                    val schedule = DayDefaultSchedule(
+                                        dayOfWeek = obj.optInt("dayOfWeek", 1),
+                                        isWorkDay = obj.optBoolean("isWorkDay", true),
+                                        workStartMinutes = obj.optInt("workStartMinutes", 540),
+                                        workEndMinutes = obj.optInt("workEndMinutes", 1020)
+                                    )
+                                    repository.saveDefaultSchedule(schedule)
+                                }
+                            }
+                        }
+                    }
+
+                    val successMsg = context.getString(R.string.backup_import_success_unified)
+                    withContext(Dispatchers.Main) { onResult?.invoke(true, successMsg) }
+                } else {
+                    // Fallback for legacy CSV files
+                    if (restoreShifts && content.contains("workStartMinutes")) {
+                        importShiftsFromCsvString(content)
+                        val successMsg = context.getString(R.string.backup_import_success_unified)
+                        withContext(Dispatchers.Main) { onResult?.invoke(true, successMsg) }
+                    } else if (restoreSettings && content.contains("dayOfWeek")) {
+                        importSchedulesFromCsvString(content)
+                        val successMsg = context.getString(R.string.backup_import_success_unified)
+                        withContext(Dispatchers.Main) { onResult?.invoke(true, successMsg) }
+                    } else {
+                        val msg = context.getString(R.string.backup_import_failed, "Invalid file format")
+                        withContext(Dispatchers.Main) { onResult?.invoke(false, msg) }
+                    }
                 }
-            } else {
-                // Fallback for legacy CSV files
-                if (restoreShifts && content.contains("workStartMinutes")) {
-                    importShiftsFromCsvString(content)
-                } else if (restoreSettings && content.contains("dayOfWeek")) {
-                    importSchedulesFromCsvString(content)
-                }
+            } catch (e: Exception) {
+                val errorMsg = context.getString(R.string.backup_import_failed, e.localizedMessage ?: "Unknown error")
+                withContext(Dispatchers.Main) { onResult?.invoke(false, errorMsg) }
             }
         }
     }
@@ -684,18 +740,5 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
 
     fun importSchedulesFromUri(uri: Uri, context: android.content.Context) {
         importBackupFromUri(uri, context, restoreShifts = false, restoreSettings = true)
-    }
-
-    fun exportUnifiedBackupToUri(uri: Uri, context: android.content.Context) {
-        exportBackupToUri(uri, context, includeShifts = true, includeSettings = true)
-    }
-
-    fun importUnifiedBackupFromUri(
-        uri: Uri,
-        context: android.content.Context,
-        restoreShifts: Boolean = true,
-        restoreSettings: Boolean = true
-    ) {
-        importBackupFromUri(uri, context, restoreShifts = restoreShifts, restoreSettings = restoreSettings)
     }
 }

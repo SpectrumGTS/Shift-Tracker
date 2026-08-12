@@ -179,10 +179,8 @@ fun AboutScreen() {
                     ) {
                         BuildInfoRow(label = stringResource(R.string.about_label_app_id), value = BuildConfig.APPLICATION_ID)
                         BuildInfoRow(label = stringResource(R.string.about_label_version), value = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
-                        BuildInfoRow(label = stringResource(R.string.about_label_build_type), value = BuildConfig.BUILD_TYPE.replaceFirstChar { it.uppercase() })
                         BuildInfoRow(label = stringResource(R.string.about_label_target_sdk), value = stringResource(R.string.about_val_target_sdk))
                         BuildInfoRow(label = stringResource(R.string.about_label_min_sdk), value = stringResource(R.string.about_val_min_sdk))
-                        BuildInfoRow(label = stringResource(R.string.about_label_build_date), value = stringResource(R.string.about_val_build_date))
                     }
                 }
             }

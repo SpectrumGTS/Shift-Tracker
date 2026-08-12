@@ -58,7 +58,7 @@ fun InsightsScreen(
                     lunchEndMinutes = appSettings.lunchEndMinutes,
                     subtractLunchWorkDays = appSettings.subtractLunchWorkDays,
                     subtractLunchOffDays = appSettings.subtractLunchOffDays
-                ).totalOvertimeMinutes
+                ).actualWorkedMinutes
             }
             val monthDisplayName = try {
                 val fmt = SimpleDateFormat("yyyy-MM", Locale.getDefault())
@@ -71,7 +71,7 @@ fun InsightsScreen(
         }
     }
 
-    val totalYearOvertime = monthlyData.sumOf { it.second }
+    val totalYearWorkingTime = monthlyData.sumOf { it.second }
     val maxMonthMinutes = monthlyData.maxOfOrNull { it.second }?.coerceAtLeast(60) ?: 60
 
     LazyColumn(
@@ -84,13 +84,13 @@ fun InsightsScreen(
         item {
             Column {
                 Text(
-                    text = "Overtime Yearly Trends",
+                    text = "Work Time Yearly Trends",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Analyze your extra working hours trends across $selectedYear",
+                    text = "Analyze your total working hours trends across $selectedYear",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -115,14 +115,14 @@ fun InsightsScreen(
                 ) {
                     Column {
                         Text(
-                            text = "TOTAL OVERTIME ($selectedYear)",
+                            text = "TOTAL WORKING TIME ($selectedYear)",
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = OvertimeCalculator.formatDurationMinutes(totalYearOvertime),
+                            text = OvertimeCalculator.formatDurationMinutes(totalYearWorkingTime),
                             style = MaterialTheme.typography.headlineLarge,
                             fontWeight = FontWeight.ExtraBold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -163,7 +163,7 @@ fun InsightsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Monthly Overtime Trend ($selectedYear)",
+                            text = "Monthly Work Time Trend ($selectedYear)",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )

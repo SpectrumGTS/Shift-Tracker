@@ -36,7 +36,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -62,6 +67,14 @@ fun DashboardScreen(
     onDeleteShift: (ShiftLog) -> Unit,
     onNavigateToHistory: () -> Unit
 ) {
+    var currentTimeMs by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            currentTimeMs = System.currentTimeMillis()
+            delay(1000L)
+        }
+    }
+
     val currentMonthPrefix = remember {
         java.text.SimpleDateFormat("yyyy-MM", java.util.Locale.getDefault()).format(java.util.Date())
     }
@@ -339,8 +352,8 @@ fun DashboardScreen(
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
-                                val currentMinutesSinceMidnight = remember {
-                                    val cal = java.util.Calendar.getInstance()
+                                val currentMinutesSinceMidnight = remember(currentTimeMs) {
+                                    val cal = java.util.Calendar.getInstance().apply { timeInMillis = currentTimeMs }
                                     cal.get(java.util.Calendar.HOUR_OF_DAY) * 60 + cal.get(java.util.Calendar.MINUTE)
                                 }
                                 if (currentMinutesSinceMidnight >= todaySchedule.workStartMinutes &&

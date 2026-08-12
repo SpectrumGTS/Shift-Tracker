@@ -1,9 +1,11 @@
 package dev.spectrumgts.shifttracker.ui.screens
 
+import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import dev.spectrumgts.shifttracker.ui.BackupImportActivity
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
@@ -31,18 +33,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Air
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MoreTime
-import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.filled.SelfImprovement
-import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -98,7 +100,6 @@ fun OnboardingScreen(
     ) -> Unit,
     onSaveSchedule: (dayOfWeek: Int, isWorkDay: Boolean, workStart: Int, workEnd: Int) -> Unit,
     onApplyToAllWorkingDays: (workStart: Int, workEnd: Int) -> Unit,
-    onImportBackup: (Uri) -> Unit,
     onFinishOnboarding: () -> Unit
 ) {
     val context = LocalContext.current
@@ -118,17 +119,6 @@ fun OnboardingScreen(
     var showCutoffTimePicker by remember { mutableStateOf(false) }
     var showLunchStartTimePicker by remember { mutableStateOf(false) }
     var showLunchEndTimePicker by remember { mutableStateOf(false) }
-
-    // Backup restore file launcher
-    val filePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let {
-            onImportBackup(it)
-            Toast.makeText(context, context.getString(R.string.onboarding_restore_success), Toast.LENGTH_LONG).show()
-            onFinishOnboarding()
-        }
-    }
 
     // Synchronize settings changes
     LaunchedEffect(bufferBefore, bufferAfter, cutoffTime, ignoreEarlyClockIns, lunchStart, lunchEnd, subtractLunchWorkDays, subtractLunchOffDays) {
@@ -180,7 +170,9 @@ fun OnboardingScreen(
                 when (step) {
                     0 -> OnboardingWelcomeStep(
                         onGetStarted = { currentStep = 1 },
-                        onRestoreBackup = { filePickerLauncher.launch("*/*") },
+                        onRestoreBackup = {
+                            context.startActivity(Intent(context, BackupImportActivity::class.java))
+                        },
                         onSkipSetup = onFinishOnboarding
                     )
                     1 -> OnboardingStep1Buffer(
@@ -207,7 +199,7 @@ fun OnboardingScreen(
                         onSaveSchedule = onSaveSchedule,
                         onApplyToAllWorkingDays = onApplyToAllWorkingDays
                     )
-                    3 -> OnboardingStep3Wellbeing()
+                    3 -> OnboardingStep3Privacy()
                 }
             }
         }
@@ -350,9 +342,9 @@ private fun OnboardingWelcomeStep(
                         desc = stringResource(R.string.onboarding_feature_schedule_desc)
                     )
                     WelcomeFeatureRow(
-                        icon = Icons.Default.Shield,
-                        title = stringResource(R.string.onboarding_step_3_title),
-                        desc = stringResource(R.string.onboarding_feature_wellbeing_desc)
+                        icon = Icons.Default.Security,
+                        title = stringResource(R.string.onboarding_feature_privacy_title),
+                        desc = stringResource(R.string.onboarding_feature_privacy_desc)
                     )
                 }
             }
@@ -491,7 +483,7 @@ private fun OobeHeader(
                         imageVector = when (currentStep) {
                             1 -> Icons.Default.Tune
                             2 -> Icons.Default.CalendarMonth
-                            else -> Icons.Default.SelfImprovement
+                            else -> Icons.Default.Lock
                         },
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -647,7 +639,7 @@ private fun OnboardingStep2Schedule(
 }
 
 @Composable
-private fun OnboardingStep3Wellbeing() {
+private fun OnboardingStep3Privacy() {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 120.dp),
@@ -655,7 +647,7 @@ private fun OnboardingStep3Wellbeing() {
     ) {
         item {
             WellbeingTipCard(
-                icon = Icons.Default.Schedule,
+                icon = Icons.Default.Storage,
                 title = stringResource(R.string.onboarding_tip1_title),
                 description = stringResource(R.string.onboarding_tip1_desc)
             )
@@ -663,7 +655,7 @@ private fun OnboardingStep3Wellbeing() {
 
         item {
             WellbeingTipCard(
-                icon = Icons.Default.SelfImprovement,
+                icon = Icons.Default.Lock,
                 title = stringResource(R.string.onboarding_tip2_title),
                 description = stringResource(R.string.onboarding_tip2_desc)
             )
@@ -671,7 +663,7 @@ private fun OnboardingStep3Wellbeing() {
 
         item {
             WellbeingTipCard(
-                icon = Icons.Default.Psychology,
+                icon = Icons.Default.Security,
                 title = stringResource(R.string.onboarding_tip3_title),
                 description = stringResource(R.string.onboarding_tip3_desc)
             )
@@ -679,7 +671,7 @@ private fun OnboardingStep3Wellbeing() {
 
         item {
             WellbeingTipCard(
-                icon = Icons.Default.Air,
+                icon = Icons.Default.VisibilityOff,
                 title = stringResource(R.string.onboarding_tip4_title),
                 description = stringResource(R.string.onboarding_tip4_desc)
             )
