@@ -1,6 +1,7 @@
 package com.example.ui.screens
 
 import com.example.BuildConfig
+import com.example.R
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
@@ -42,14 +44,14 @@ fun AboutScreen() {
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            text = "About This App",
+                            text = stringResource(R.string.about_title),
                             style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Bold
                         )
                     }
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Learn about the architecture, framework, and licensing powering Shift Tracker, designed to support work-life balance and mental wellbeing.",
+                        text = stringResource(R.string.about_subtitle),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -59,7 +61,7 @@ fun AboutScreen() {
             // Tech Stack Section Header
             item {
                 Text(
-                    text = "Technology Stack",
+                    text = stringResource(R.string.about_tech_stack_header),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -69,8 +71,8 @@ fun AboutScreen() {
             // Material 3 UI Card
             item {
                 AboutTechCard(
-                    title = "Native Material 3 UI",
-                    description = "This app is built using modern Jetpack Compose and strictly adheres to Material Design 3 guidelines. It features elegant component styling, support for edge-to-edge rendering, accessible touch targets, and a cohesive theme utilizing M3 tonal elevations and generous negative space.",
+                    title = stringResource(R.string.about_m3_title),
+                    description = stringResource(R.string.about_m3_desc),
                     icon = Icons.Default.Palette
                 )
             }
@@ -78,8 +80,8 @@ fun AboutScreen() {
             // Kotlin Language Card
             item {
                 AboutTechCard(
-                    title = "Kotlin Language",
-                    description = "The entire codebase is written in Kotlin. It leverages Kotlin's advanced features, including absolute type safety, structured concurrency with Coroutines and Flow for seamless reactive state updates, and standard modern coding practices.",
+                    title = stringResource(R.string.about_kotlin_title),
+                    description = stringResource(R.string.about_kotlin_desc),
                     icon = Icons.Default.Code
                 )
             }
@@ -87,8 +89,8 @@ fun AboutScreen() {
             // Room Database Card
             item {
                 AboutTechCard(
-                    title = "Offline Room Database",
-                    description = "Your data stays private and secure. The application integrates an offline SQLite database via Android Jetpack Room. This ensures reliable offline data persistence, atomic database transactions, and smooth local state management without relying on external cloud APIs.",
+                    title = stringResource(R.string.about_room_title),
+                    description = stringResource(R.string.about_room_desc),
                     icon = Icons.Default.Storage
                 )
             }
@@ -96,7 +98,7 @@ fun AboutScreen() {
             // License Header
             item {
                 Text(
-                    text = "Licensing & Legal",
+                    text = stringResource(R.string.about_licensing_header),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -124,14 +126,14 @@ fun AboutScreen() {
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
-                                text = "GNU GPL v3 License Summary",
+                                text = stringResource(R.string.about_gpl_title),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold
                             )
                         }
 
                         Text(
-                            text = "This application is released under the GNU General Public License v3 (GPL v3). Below is a simplified summary of the license terms:",
+                            text = stringResource(R.string.about_gpl_desc),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -139,18 +141,18 @@ fun AboutScreen() {
                         HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
 
                         LicenseBulletPoint(
-                            title = "Permissions",
-                            detail = "You are permitted to run, copy, distribute, modify, and convey the program commercially or privately, provided that you preserve the author attributes, license notices, and make the source code available."
+                            title = stringResource(R.string.about_gpl_permissions_title),
+                            detail = stringResource(R.string.about_gpl_permissions_desc)
                         )
 
                         LicenseBulletPoint(
-                            title = "Copyleft Rule",
-                            detail = "Modified versions of the source code must also be licensed under the GPL v3. Anyone who distributes modified versions of the software must release their source code under the same terms."
+                            title = stringResource(R.string.about_gpl_copyleft_title),
+                            detail = stringResource(R.string.about_gpl_copyleft_desc)
                         )
 
                         LicenseBulletPoint(
-                            title = "No Warranty",
-                            detail = "This software is provided 'as is' without any warranty of any kind. The authors and copyright holders are not liable for any damages or issues resulting from its use."
+                            title = stringResource(R.string.about_gpl_nowarranty_title),
+                            detail = stringResource(R.string.about_gpl_nowarranty_desc)
                         )
                     }
                 }
@@ -159,7 +161,7 @@ fun AboutScreen() {
             // Version & Build Info Header
             item {
                 Text(
-                    text = "Version & Build Info",
+                    text = stringResource(R.string.about_build_info_header),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -179,12 +181,12 @@ fun AboutScreen() {
                         modifier = Modifier.padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        BuildInfoRow(label = "Application ID", value = BuildConfig.APPLICATION_ID)
-                        BuildInfoRow(label = "Version", value = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
-                        BuildInfoRow(label = "Build Type", value = BuildConfig.BUILD_TYPE.replaceFirstChar { it.uppercase() })
-                        BuildInfoRow(label = "Target SDK", value = "API 36")
-                        BuildInfoRow(label = "Min SDK", value = "API 24")
-                        BuildInfoRow(label = "Build Date", value = "August 10, 2026")
+                        BuildInfoRow(label = stringResource(R.string.about_label_app_id), value = BuildConfig.APPLICATION_ID)
+                        BuildInfoRow(label = stringResource(R.string.about_label_version), value = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
+                        BuildInfoRow(label = stringResource(R.string.about_label_build_type), value = BuildConfig.BUILD_TYPE.replaceFirstChar { it.uppercase() })
+                        BuildInfoRow(label = stringResource(R.string.about_label_target_sdk), value = stringResource(R.string.about_val_target_sdk))
+                        BuildInfoRow(label = stringResource(R.string.about_label_min_sdk), value = stringResource(R.string.about_val_min_sdk))
+                        BuildInfoRow(label = stringResource(R.string.about_label_build_date), value = stringResource(R.string.about_val_build_date))
                     }
                 }
             }

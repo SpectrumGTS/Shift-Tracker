@@ -92,6 +92,7 @@
     <string name="menu_dashboard">Dashboard &amp; Log</string>
     <string name="menu_history">Shift History</string>
     <string name="menu_insights">Yearly Insights</string>
+    <string name="menu_mental_wellbeing">Mental Wellbeing</string>
     <string name="menu_section_settings">SETTINGS &amp; PREFERENCES</string>
     <string name="menu_default_schedule">Default Schedule</string>
     <string name="menu_buffer_grace_time">Buffer &amp; Grace Time</string>
@@ -170,12 +171,11 @@
     <string name="notes_limit_counter">%1$d/32 chars (%2$d words)</string>
 
     <!-- Mental Wellbeing Screen -->
-    <string name="menu_mental_wellbeing">Mental Wellbeing</string>
     <string name="title_mental_wellbeing">Mental Wellbeing</string>
     <string name="wellbeing_headline">Workplace Mental Wellbeing</string>
-    <string name="wellbeing_subtitle">Read-only healthiness assessment based on monthly overtime strain and occupational health resources.</string>
+    <string name="wellbeing_subtitle">Healthiness assessment based on monthly overtime strain and occupational health resources.</string>
     <string name="wellbeing_select_month">Select Month</string>
-    <string name="wellbeing_monthly_overtime_label">MONTHLY OVERTIME STRAIN (%1$s)</string>
+    <string name="wellbeing_monthly_overtime_label">MONTHLY OVERTIME STRAIN</string>
     <string name="wellbeing_readonly_badge">Read-Only Analytics</string>
     
     <!-- Healthiness Ratings -->
@@ -222,4 +222,33 @@
     <string name="wellbeing_mat_support_item1">• Employee Assistance Program (EAP): Confidential counseling provided by many employers.</string>
     <string name="wellbeing_mat_support_item2">• Occupational Health Services: Workplace health advisors specializing in shift-work safety.</string>
     <string name="wellbeing_mat_support_item3">• Healthcare Professionals: Consult your general practitioner for mental health support.</string>
+    <!-- About Screen -->
+    <string name="about_title">About This App</string>
+    <string name="about_subtitle">Learn about the architecture, framework, and licensing powering Shift Tracker, designed to support work-life balance and mental wellbeing.</string>
+    <string name="about_tech_stack_header">Technology Stack</string>
+    <string name="about_m3_title">Native Material 3 UI</string>
+    <string name="about_m3_desc">This app is built using modern Jetpack Compose and strictly adheres to Material Design 3 guidelines. It features elegant component styling, support for edge-to-edge rendering, accessible touch targets, and a cohesive theme utilizing M3 tonal elevations and generous negative space.</string>
+    <string name="about_kotlin_title">Kotlin Language</string>
+    <string name="about_kotlin_desc">The entire codebase is written in Kotlin. It leverages Kotlin\'s advanced features, including absolute type safety, structured concurrency with Coroutines and Flow for seamless reactive state updates, and standard modern coding practices.</string>
+    <string name="about_room_title">Offline Room Database</string>
+    <string name="about_room_desc">Your data stays private and secure. The application integrates an offline SQLite database via Android Jetpack Room. This ensures reliable offline data persistence, atomic database transactions, and smooth local state management without relying on external cloud APIs.</string>
+    <string name="about_licensing_header">Licensing &amp; Legal</string>
+    <string name="about_gpl_title">GNU GPL v3 License Summary</string>
+    <string name="about_gpl_desc">This application is released under the GNU General Public License v3 (GPL v3).</string>
+    <string name="about_gpl_permissions_title">Permissions</string>
+    <string name="about_gpl_permissions_desc">You are permitted to run, copy, distribute, modify, and convey the program commercially or privately, provided that you preserve the author attributes, license notices, and make the source code available.</string>
+    <string name="about_gpl_copyleft_title">Copyleft Rule</string>
+    <string name="about_gpl_copyleft_desc">Modified versions of the source code must also be licensed under the GPL v3. Anyone who distributes modified versions of the software must release their source code under the same terms.</string>
+    <string name="about_gpl_nowarranty_title">No Warranty</string>
+    <string name="about_gpl_nowarranty_desc">This software is provided \'as is\' without any warranty of any kind. The authors and copyright holders are not liable for any damages or issues resulting from its use.</string>
+    <string name="about_build_info_header">Version &amp; Build Info</string>
+    <string name="about_label_app_id">Application ID</string>
+    <string name="about_label_version">Version</string>
+    <string name="about_label_build_type">Build Type</string>
+    <string name="about_label_target_sdk">Target SDK</string>
+    <string name="about_label_min_sdk">Min SDK</string>
+    <string name="about_label_build_date">Build Date</string>
+    <string name="about_val_target_sdk">API 36</string>
+    <string name="about_val_min_sdk">API 24</string>
+    <string name="about_val_build_date">August 10, 2026</string>
 </resources>

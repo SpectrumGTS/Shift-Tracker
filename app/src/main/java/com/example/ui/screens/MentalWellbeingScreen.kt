@@ -207,62 +207,61 @@ fun MentalWellbeingScreen(
                         .fillMaxWidth()
                         .padding(20.dp)
                 ) {
-                    // Month dropdown selector row
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.wellbeing_monthly_overtime_label, monthDisplayName),
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = when (wellbeingLevel) {
-                                WellbeingLevel.OPTIMAL -> MaterialTheme.colorScheme.onPrimaryContainer
-                                WellbeingLevel.MODERATE -> MaterialTheme.colorScheme.onSecondaryContainer
-                                WellbeingLevel.HIGH -> MaterialTheme.colorScheme.onTertiaryContainer
-                                WellbeingLevel.CRITICAL -> MaterialTheme.colorScheme.onErrorContainer
-                            }.copy(alpha = 0.8f)
-                        )
+                    // Title row
+                    Text(
+                        text = stringResource(R.string.wellbeing_monthly_overtime_label),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = when (wellbeingLevel) {
+                            WellbeingLevel.OPTIMAL -> MaterialTheme.colorScheme.onPrimaryContainer
+                            WellbeingLevel.MODERATE -> MaterialTheme.colorScheme.onSecondaryContainer
+                            WellbeingLevel.HIGH -> MaterialTheme.colorScheme.onTertiaryContainer
+                            WellbeingLevel.CRITICAL -> MaterialTheme.colorScheme.onErrorContainer
+                        }.copy(alpha = 0.8f)
+                    )
 
-                        Box {
-                            OutlinedButton(
-                                onClick = { monthDropdownExpanded = true },
-                                shape = RoundedCornerShape(12.dp),
-                                modifier = Modifier.testTag("wellbeing_month_selector")
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.CalendarToday,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = monthDisplayName,
-                                    style = MaterialTheme.typography.labelLarge
-                                )
-                            }
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                            DropdownMenu(
-                                expanded = monthDropdownExpanded,
-                                onDismissRequest = { monthDropdownExpanded = false }
-                            ) {
-                                availableMonths.forEach { mKey ->
-                                    val displayName = try {
-                                        val fmt = SimpleDateFormat("yyyy-MM", Locale.getDefault())
-                                        val d = fmt.parse(mKey)
-                                        SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(d ?: Date())
-                                    } catch (e: Exception) {
-                                        mKey
-                                    }
-                                    DropdownMenuItem(
-                                        text = { Text(displayName) },
-                                        onClick = {
-                                            selectedMonthKey = mKey
-                                            monthDropdownExpanded = false
-                                        }
-                                    )
+                    // Month dropdown selector (Row 2 - Full/Wide button)
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        OutlinedButton(
+                            onClick = { monthDropdownExpanded = true },
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("wellbeing_month_selector")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.CalendarToday,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = monthDisplayName,
+                                style = MaterialTheme.typography.labelLarge
+                            )
+                        }
+
+                        DropdownMenu(
+                            expanded = monthDropdownExpanded,
+                            onDismissRequest = { monthDropdownExpanded = false }
+                        ) {
+                            availableMonths.forEach { mKey ->
+                                val displayName = try {
+                                    val fmt = SimpleDateFormat("yyyy-MM", Locale.getDefault())
+                                    val d = fmt.parse(mKey)
+                                    SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(d ?: Date())
+                                } catch (e: Exception) {
+                                    mKey
                                 }
+                                DropdownMenuItem(
+                                    text = { Text(displayName) },
+                                    onClick = {
+                                        selectedMonthKey = mKey
+                                        monthDropdownExpanded = false
+                                    }
+                                )
                             }
                         }
                     }
