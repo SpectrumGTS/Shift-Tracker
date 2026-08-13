@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.spectrumgts.shifttracker.R
 import dev.spectrumgts.shifttracker.data.model.DayDefaultSchedule
+import dev.spectrumgts.shifttracker.data.model.ShiftLog
 import dev.spectrumgts.shifttracker.ui.theme.WarningDialogBodyStyle
 import dev.spectrumgts.shifttracker.ui.theme.WarningDialogTitleStyle
 
