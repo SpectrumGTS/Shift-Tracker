@@ -28,6 +28,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import dev.spectrumgts.shifttracker.ui.theme.WarningDialogBodyStyle
+import dev.spectrumgts.shifttracker.ui.theme.WarningDialogTitleStyle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -234,8 +236,18 @@ fun ShiftCard(
     if (showDeleteConfirmDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirmDialog = false },
-            title = { Text(stringResource(R.string.delete_shift_title)) },
-            text = { Text(stringResource(R.string.delete_shift_desc, shift.date)) },
+            title = {
+                Text(
+                    text = stringResource(R.string.delete_shift_title),
+                    style = WarningDialogTitleStyle
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.delete_shift_desc, shift.date),
+                    style = WarningDialogBodyStyle
+                )
+            },
             confirmButton = {
                 TextButton(
                     onClick = {

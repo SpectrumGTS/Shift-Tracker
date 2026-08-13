@@ -27,6 +27,8 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import dev.spectrumgts.shifttracker.ui.theme.WarningDialogBodyStyle
+import dev.spectrumgts.shifttracker.ui.theme.WarningDialogTitleStyle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -168,9 +170,19 @@ fun DefaultScheduleSettingsCard(
 
         AlertDialog(
             onDismissRequest = { pendingApplyTarget = null },
-            title = { Text(stringResource(R.string.schedule_apply_all_title), color = MaterialTheme.colorScheme.onSurface) },
+            title = {
+                Text(
+                    text = stringResource(R.string.schedule_apply_all_title),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = WarningDialogTitleStyle
+                )
+            },
             text = {
-                Text(stringResource(R.string.schedule_apply_all_desc, startFormatted, endFormatted), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    text = stringResource(R.string.schedule_apply_all_desc, startFormatted, endFormatted),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = WarningDialogBodyStyle
+                )
             },
             confirmButton = {
                 TextButton(

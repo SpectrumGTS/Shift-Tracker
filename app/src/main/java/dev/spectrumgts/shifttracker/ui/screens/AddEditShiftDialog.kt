@@ -43,6 +43,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import dev.spectrumgts.shifttracker.ui.theme.WarningDialogBodyStyle
+import dev.spectrumgts.shifttracker.ui.theme.WarningDialogTitleStyle
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -562,11 +564,17 @@ fun AddEditShiftDialog(
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.padding(end = 8.dp)
                     )
-                    Text(stringResource(R.string.cutoff_warning_title))
+                    Text(
+                        text = stringResource(R.string.cutoff_warning_title),
+                        style = WarningDialogTitleStyle
+                    )
                 }
             },
             text = {
-                Text(stringResource(R.string.cutoff_warning_desc, formattedClockOut, formattedCutoff))
+                Text(
+                    text = stringResource(R.string.cutoff_warning_desc, formattedClockOut, formattedCutoff),
+                    style = WarningDialogBodyStyle
+                )
             },
             confirmButton = {
                 TextButton(
@@ -610,11 +618,17 @@ fun AddEditShiftDialog(
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(end = 8.dp)
                     )
-                    Text(stringResource(R.string.early_clock_out_title))
+                    Text(
+                        text = stringResource(R.string.early_clock_out_title),
+                        style = WarningDialogTitleStyle
+                    )
                 }
             },
             text = {
-                Text(stringResource(R.string.early_clock_out_desc, formattedClockOut, formattedWorkEnd))
+                Text(
+                    text = stringResource(R.string.early_clock_out_desc, formattedClockOut, formattedWorkEnd),
+                    style = WarningDialogBodyStyle
+                )
             },
             confirmButton = {
                 TextButton(
@@ -647,7 +661,8 @@ fun AddEditShiftDialog(
             onDismissRequest = { showSaveConfirmDialog = false },
             title = {
                 Text(
-                    text = if (inputState.isEditing) stringResource(R.string.confirm_overwrite_title) else stringResource(R.string.confirm_save_title)
+                    text = if (inputState.isEditing) stringResource(R.string.confirm_overwrite_title) else stringResource(R.string.confirm_save_title),
+                    style = WarningDialogTitleStyle
                 )
             },
             text = {
@@ -655,7 +670,8 @@ fun AddEditShiftDialog(
                     text = if (inputState.isEditing)
                         stringResource(R.string.confirm_overwrite_desc, inputState.date)
                     else
-                        stringResource(R.string.confirm_save_desc, inputState.date)
+                        stringResource(R.string.confirm_save_desc, inputState.date),
+                    style = WarningDialogBodyStyle
                 )
             },
             confirmButton = {
@@ -691,11 +707,17 @@ fun AddEditShiftDialog(
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.padding(end = 8.dp)
                     )
-                    Text(stringResource(R.string.future_date_warning_title))
+                    Text(
+                        text = stringResource(R.string.future_date_warning_title),
+                        style = WarningDialogTitleStyle
+                    )
                 }
             },
             text = {
-                Text(stringResource(R.string.future_date_warning_desc, inputState.date))
+                Text(
+                    text = stringResource(R.string.future_date_warning_desc, inputState.date),
+                    style = WarningDialogBodyStyle
+                )
             },
             confirmButton = {
                 TextButton(

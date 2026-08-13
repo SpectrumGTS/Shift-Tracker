@@ -23,6 +23,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.spectrumgts.shifttracker.R
 import dev.spectrumgts.shifttracker.ShiftTrackerMainActivity
 import dev.spectrumgts.shifttracker.ui.theme.MyApplicationTheme
+import dev.spectrumgts.shifttracker.ui.theme.WarningDialogBodyStyle
+import dev.spectrumgts.shifttracker.ui.theme.WarningDialogTitleStyle
 import dev.spectrumgts.shifttracker.ui.viewmodel.OvertimeViewModel
 
 class BackupImportActivity : ComponentActivity() {
@@ -65,12 +67,17 @@ class BackupImportActivity : ComponentActivity() {
                             showDialog = false
                             finish()
                         },
-                        title = { Text(text = stringResource(R.string.backup_confirm_overwrite_title)) },
+                        title = {
+                            Text(
+                                text = stringResource(R.string.backup_confirm_overwrite_title),
+                                style = WarningDialogTitleStyle
+                            )
+                        },
                         text = {
                             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                                 Text(
                                     text = stringResource(R.string.backup_restore_dialog_intro),
-                                    style = MaterialTheme.typography.bodyMedium
+                                    style = WarningDialogBodyStyle
                                 )
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,

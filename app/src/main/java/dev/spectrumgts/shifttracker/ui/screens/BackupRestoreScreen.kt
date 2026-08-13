@@ -25,7 +25,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.spectrumgts.shifttracker.R
 import dev.spectrumgts.shifttracker.data.model.DayDefaultSchedule
-import dev.spectrumgts.shifttracker.data.model.ShiftLog
+import dev.spectrumgts.shifttracker.ui.theme.WarningDialogBodyStyle
+import dev.spectrumgts.shifttracker.ui.theme.WarningDialogTitleStyle
 
 @Composable
 fun BackupRestoreScreen(
@@ -215,7 +216,7 @@ fun BackupRestoreScreen(
                             Column {
                                 Text(
                                     text = stringResource(R.string.backup_redo_onboarding_title),
-                                    style = MaterialTheme.typography.titleMedium,
+                                    style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
@@ -249,14 +250,14 @@ fun BackupRestoreScreen(
             title = {
                 Text(
                     text = stringResource(R.string.backup_redo_onboarding_dialog_title),
-                    style = MaterialTheme.typography.titleMedium,
+                    style = WarningDialogTitleStyle,
                     fontWeight = FontWeight.Bold
                 )
             },
             text = {
                 Text(
                     text = stringResource(R.string.backup_redo_onboarding_dialog_msg),
-                    style = MaterialTheme.typography.bodyMedium
+                    style = WarningDialogBodyStyle
                 )
             },
             confirmButton = {

@@ -33,6 +33,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
+import dev.spectrumgts.shifttracker.ui.theme.WarningDialogBodyStyle
+import dev.spectrumgts.shifttracker.ui.theme.WarningDialogTitleStyle
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -253,8 +255,18 @@ fun SettingsScreen(
     if (showCutoffErrorDialog) {
         AlertDialog(
             onDismissRequest = { showCutoffErrorDialog = false },
-            title = { Text(stringResource(R.string.invalid_cutoff_time)) },
-            text = { Text(cutoffErrorMessage) },
+            title = {
+                Text(
+                    text = stringResource(R.string.invalid_cutoff_time),
+                    style = WarningDialogTitleStyle
+                )
+            },
+            text = {
+                Text(
+                    text = cutoffErrorMessage,
+                    style = WarningDialogBodyStyle
+                )
+            },
             confirmButton = {
                 TextButton(onClick = { showCutoffErrorDialog = false }) {
                     Text(stringResource(R.string.ok_btn), fontWeight = FontWeight.Bold)
