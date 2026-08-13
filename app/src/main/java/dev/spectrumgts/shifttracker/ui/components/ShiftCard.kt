@@ -96,7 +96,7 @@ fun ShiftCard(
             ) {
                 Column {
                     Text(
-                        text = "$dayName, ${shift.date}",
+                        text = "${shift.date}, $dayName",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
