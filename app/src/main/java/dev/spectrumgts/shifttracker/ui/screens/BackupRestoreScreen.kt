@@ -40,6 +40,7 @@ fun BackupRestoreScreen(
 
     var exportShiftsChecked by remember { mutableStateOf(true) }
     var exportSettingsChecked by remember { mutableStateOf(true) }
+    var showRedoOnboardingDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(snackbarMessage) {
         snackbarMessage?.let {
@@ -226,7 +227,7 @@ fun BackupRestoreScreen(
                         }
 
                         Button(
-                            onClick = onRedoOnboarding,
+                            onClick = { showRedoOnboardingDialog = true },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .testTag("redo_onboarding_btn"),
@@ -240,5 +241,46 @@ fun BackupRestoreScreen(
                 }
             }
         }
+    }
+
+    if (showRedoOnboardingDialog) {
+        AlertDialog(
+            onDismissRequest = { showRedoOnboardingDialog = false },
+            title = {
+                Text(
+                    text = stringResource(R.string.backup_redo_onboarding_dialog_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.backup_redo_onboarding_dialog_msg),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showRedoOnboardingDialog = false
+                        onRedoOnboarding()
+                    },
+                    modifier = Modifier.testTag("redo_onboarding_confirm_btn")
+                ) {
+                    Text(
+                        text = stringResource(R.string.backup_redo_onboarding_dialog_confirm),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showRedoOnboardingDialog = false },
+                    modifier = Modifier.testTag("redo_onboarding_cancel_btn")
+                ) {
+                    Text(stringResource(R.string.cancel_btn))
+                }
+            }
+        )
     }
 }

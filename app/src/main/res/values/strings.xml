@@ -279,4 +279,9 @@
     <string name="onboarding_preset_9to5_title">Standard 9 to 5 Work Week</string>
     <string name="onboarding_preset_9to5_desc">Apply 09:00 – 17:00 to Monday through Friday.</string>
     <string name="onboarding_btn_apply">Apply</string>
+
+    <!-- Redo Onboarding Warning Dialog -->
+    <string name="backup_redo_onboarding_dialog_title">Overwrite Current Settings?</string>
+    <string name="backup_redo_onboarding_dialog_msg">Redoing the onboarding setup will overwrite your current settings. Are you sure you want to proceed?</string>
+    <string name="backup_redo_onboarding_dialog_confirm">Proceed</string>
 </resources>

@@ -104,6 +104,7 @@ fun OnboardingScreen(
 ) {
     val context = LocalContext.current
     var currentStep by remember { mutableIntStateOf(0) } // Step 0 = Welcome, 1 = Buffer, 2 = Schedule, 3 = Wellbeing
+    var hasPressedGetStarted by remember { mutableStateOf(false) }
     val totalSetupSteps = 3
 
     // State for Buffer & Lunch settings (Step 1)
@@ -120,18 +121,20 @@ fun OnboardingScreen(
     var showLunchStartTimePicker by remember { mutableStateOf(false) }
     var showLunchEndTimePicker by remember { mutableStateOf(false) }
 
-    // Synchronize settings changes
-    LaunchedEffect(bufferBefore, bufferAfter, cutoffTime, ignoreEarlyClockIns, lunchStart, lunchEnd, subtractLunchWorkDays, subtractLunchOffDays) {
-        onSaveSettings(
-            bufferBefore.toInt(),
-            bufferAfter.toInt(),
-            cutoffTime,
-            ignoreEarlyClockIns,
-            lunchStart,
-            lunchEnd,
-            subtractLunchWorkDays,
-            subtractLunchOffDays
-        )
+    // Synchronize settings changes only after user pressed Get Started on welcome screen
+    LaunchedEffect(hasPressedGetStarted, bufferBefore, bufferAfter, cutoffTime, ignoreEarlyClockIns, lunchStart, lunchEnd, subtractLunchWorkDays, subtractLunchOffDays) {
+        if (hasPressedGetStarted) {
+            onSaveSettings(
+                bufferBefore.toInt(),
+                bufferAfter.toInt(),
+                cutoffTime,
+                ignoreEarlyClockIns,
+                lunchStart,
+                lunchEnd,
+                subtractLunchWorkDays,
+                subtractLunchOffDays
+            )
+        }
     }
 
     Box(
@@ -169,7 +172,10 @@ fun OnboardingScreen(
             ) { step ->
                 when (step) {
                     0 -> OnboardingWelcomeStep(
-                        onGetStarted = { currentStep = 1 },
+                        onGetStarted = {
+                            hasPressedGetStarted = true
+                            currentStep = 1
+                        },
                         onRestoreBackup = {
                             context.startActivity(Intent(context, BackupImportActivity::class.java))
                         },
