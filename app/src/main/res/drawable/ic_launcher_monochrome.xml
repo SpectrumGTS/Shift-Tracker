@@ -3,6 +3,6 @@
     <item
         android:width="50dp"
         android:height="50dp"
-        android:drawable="@drawable/ic_more_time"
+        android:drawable="@drawable/ic_work_time"
         android:gravity="center" />
 </layer-list>
