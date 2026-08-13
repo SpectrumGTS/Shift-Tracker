@@ -208,45 +208,72 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
 
     fun updateShiftDate(newDate: String) {
         viewModelScope.launch {
-            val currentState = _shiftInputState.value ?: return@launch
-            val dayOfWeek = getDayOfWeekForDate(newDate)
-            val schedule = repository.getDefaultScheduleForDay(dayOfWeek)
-            val settings = repository.getAppSettingsDirect()
-
-            val todayStr = getTodayDateString()
-            val nowCal = Calendar.getInstance()
-            val rawCurrentMins = nowCal.get(Calendar.HOUR_OF_DAY) * 60 + nowCal.get(Calendar.MINUTE)
-            val cutoffTime = settings.cutoffTimeMinutes
-
-            val adjustedCurrentMins = if (rawCurrentMins <= cutoffTime) rawCurrentMins + 1440 else rawCurrentMins
-            val adjustedWorkEnd = if (schedule.workEndMinutes < schedule.workStartMinutes || schedule.workEndMinutes <= cutoffTime) {
-                schedule.workEndMinutes + 1440
+            if (_shiftInputState.value == null) return@launch
+            
+            // Check if a shift already exists for the NEW date
+            val existing = repository.getShiftByDate(newDate)
+            
+            if (existing != null) {
+                // If it exists, switch to editing THAT shift
+                _shiftInputState.value = ShiftInputState(
+                    id = existing.id,
+                    date = existing.date,
+                    workStartMinutes = existing.workStartMinutes,
+                    workEndMinutes = existing.workEndMinutes,
+                    clockInMinutes = existing.clockInMinutes,
+                    clockOutMinutes = existing.clockOutMinutes,
+                    bufferBeforeMinutes = existing.bufferBeforeMinutes,
+                    bufferAfterMinutes = existing.bufferAfterMinutes,
+                    isWorkDay = existing.isWorkDay,
+                    notes = existing.notes,
+                    isEditing = true
+                )
             } else {
-                schedule.workEndMinutes
-            }
-            val isPastWorkEnd = adjustedCurrentMins > adjustedWorkEnd
+                // If it doesn't exist, we are in "Add" mode for this new date
+                val dayOfWeek = getDayOfWeekForDate(newDate)
+                val schedule = repository.getDefaultScheduleForDay(dayOfWeek)
+                val settings = repository.getAppSettingsDirect()
 
-            val shouldDefaultToWorkEnd = (newDate != todayStr) || (newDate == todayStr && !isPastWorkEnd)
-            val defaultClockOut = if (shouldDefaultToWorkEnd) {
-                schedule.workEndMinutes
-            } else {
-                rawCurrentMins
-            }
+                val todayStr = getTodayDateString()
+                val nowCal = Calendar.getInstance()
+                val rawCurrentMins = nowCal.get(Calendar.HOUR_OF_DAY) * 60 + nowCal.get(Calendar.MINUTE)
+                val cutoffTime = settings.cutoffTimeMinutes
 
-            val defaultClockIn = if (settings.ignoreEarlyClockIns) {
-                schedule.workStartMinutes
-            } else {
-                schedule.workStartMinutes - settings.bufferBeforeMinutes
-            }
+                val adjustedCurrentMins = if (rawCurrentMins <= cutoffTime) rawCurrentMins + 1440 else rawCurrentMins
+                val adjustedWorkEnd = if (schedule.workEndMinutes < schedule.workStartMinutes || schedule.workEndMinutes <= cutoffTime) {
+                    schedule.workEndMinutes + 1440
+                } else {
+                    schedule.workEndMinutes
+                }
+                val isPastWorkEnd = adjustedCurrentMins > adjustedWorkEnd
 
-            _shiftInputState.value = currentState.copy(
-                date = newDate,
-                workStartMinutes = if (!currentState.isEditing) schedule.workStartMinutes else currentState.workStartMinutes,
-                workEndMinutes = if (!currentState.isEditing) schedule.workEndMinutes else currentState.workEndMinutes,
-                clockInMinutes = if (!currentState.isEditing) defaultClockIn else currentState.clockInMinutes,
-                clockOutMinutes = if (!currentState.isEditing) defaultClockOut else currentState.clockOutMinutes,
-                isWorkDay = if (!currentState.isEditing) schedule.isWorkDay else currentState.isWorkDay
-            )
+                val shouldDefaultToWorkEnd = (newDate != todayStr) || (newDate == todayStr && !isPastWorkEnd)
+                val defaultClockOut = if (shouldDefaultToWorkEnd) {
+                    schedule.workEndMinutes
+                } else {
+                    rawCurrentMins
+                }
+
+                val defaultClockIn = if (settings.ignoreEarlyClockIns) {
+                    schedule.workStartMinutes
+                } else {
+                    schedule.workStartMinutes - settings.bufferBeforeMinutes
+                }
+
+                _shiftInputState.value = ShiftInputState(
+                    id = 0,
+                    date = newDate,
+                    workStartMinutes = schedule.workStartMinutes,
+                    workEndMinutes = schedule.workEndMinutes,
+                    clockInMinutes = defaultClockIn,
+                    clockOutMinutes = defaultClockOut,
+                    bufferBeforeMinutes = settings.bufferBeforeMinutes,
+                    bufferAfterMinutes = settings.bufferAfterMinutes,
+                    isWorkDay = schedule.isWorkDay,
+                    notes = "",
+                    isEditing = false
+                )
+            }
         }
     }
 

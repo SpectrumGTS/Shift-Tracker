@@ -19,3 +19,6 @@ debug.keystore
 *.apk
 /app/debug
 /.artifacts
+/app/src/main/java/dev/spectrumgts/shifttracker/.artifacts
+/app/src/main/java/dev/spectrumgts/shifttracker/.artifacts
+.idea/planningMode.xml

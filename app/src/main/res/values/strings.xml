@@ -89,19 +89,19 @@
 
     <!-- Navigation Drawer Menu Items -->
     <string name="menu_subtitle">Work-Life Balance</string>
-    <string name="menu_dashboard">Dashboard &amp; Log</string>
+    <string name="menu_dashboard">Dashboard</string>
     <string name="menu_history">Shift History</string>
     <string name="menu_insights">Yearly Insights</string>
     <string name="menu_mental_wellbeing">Mental Wellbeing</string>
     <string name="menu_section_settings">SETTINGS &amp; PREFERENCES</string>
     <string name="menu_default_schedule">Default Schedule</string>
     <string name="menu_buffer_grace_time">Buffer &amp; Grace Time</string>
-    <string name="menu_backup_restore">Backup &amp; Restore (JSON)</string>
+    <string name="menu_backup_restore">Backup &amp; Restore</string>
     <string name="menu_about">About This App</string>
     <string name="menu_footer">Room Offline Persistence • M3 Native</string>
 
     <!-- Shift History Screen Filters & Quick Chips -->
-    <string name="history_search_placeholder">Search by date or notes...</string>
+    <string name="history_search_placeholder">Search by date or notes…</string>
     <string name="history_filter_by_date_desc">Filter by date</string>
     <string name="history_filter_by_date_range">Filter by Date Range</string>
     <string name="history_start_date_label">Start Date</string>
@@ -210,7 +210,7 @@
 
     <!-- Material 3: Stress Reduction Techniques -->
     <string name="wellbeing_mat_breathing_title">Instant Stress Reduction: Box Breathing Method</string>
-    <string name="wellbeing_mat_breathing_desc">Use the 4-4-4-4 Box Breathing technique when feeling overwhelmed on shift:</string>
+    <string name="wellbeing_mat_breathing_desc">Use the 4–4–4–4 Box Breathing technique when feeling overwhelmed on shift:</string>
     <string name="wellbeing_mat_breathing_step1">1. Inhale through your nose slowly for 4 seconds.</string>
     <string name="wellbeing_mat_breathing_step2">2. Hold your breath for 4 seconds.</string>
     <string name="wellbeing_mat_breathing_step3">3. Exhale smoothly through your mouth for 4 seconds.</string>
@@ -277,7 +277,7 @@
     <string name="onboarding_feature_privacy_title">Data Privacy</string>
     <string name="onboarding_feature_privacy_desc">100% local storage &amp; zero data tracking.</string>
     <string name="onboarding_preset_9to5_title">Standard 9 to 5 Work Week</string>
-    <string name="onboarding_preset_9to5_desc">Apply 09:00 – 17:00 to Monday through Friday.</string>
+    <string name="onboarding_preset_9to5_desc">Apply 09:00 – 17:00 to Monday - Friday.</string>
     <string name="onboarding_btn_apply">Apply</string>
 
     <!-- Redo Onboarding Warning Dialog -->
