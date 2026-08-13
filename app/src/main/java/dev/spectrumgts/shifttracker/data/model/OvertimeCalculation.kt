@@ -62,8 +62,16 @@ object OvertimeCalculator {
 
         val scheduled = maxOf(0, calculateDuration(workStartMinutes, workEndMinutes, cutoffTimeMinutes))
 
-        // Early overtime: Time worked before workStart minus bufferBefore (unless ignoreEarlyClockIns is true)
-        val earlyOvertime = if (ignoreEarlyClockIns) {
+        val isEarlyClockOut = isClockOutEarlierThanWorkEnd(
+            workStartMinutes = workStartMinutes,
+            workEndMinutes = workEndMinutes,
+            clockInMinutes = clockInMinutes,
+            clockOutMinutes = clockOutMinutes,
+            cutoffTimeMinutes = cutoffTimeMinutes
+        )
+
+        // Early overtime: Time worked before workStart minus bufferBefore (unless ignoreEarlyClockIns or isEarlyClockOut is true)
+        val earlyOvertime = if (ignoreEarlyClockIns || isEarlyClockOut) {
             0
         } else {
             val earlyMinutes = maxOf(0, calculateDuration(clockInMinutes, workStartMinutes, cutoffTimeMinutes))
@@ -71,10 +79,10 @@ object OvertimeCalculator {
         }
 
         // Late overtime: Time worked after workEnd minus bufferAfter
-        val lateMinutes = maxOf(0, calculateDuration(workEndMinutes, clockOutMinutes, cutoffTimeMinutes))
-        val lateOvertime = maxOf(0, lateMinutes - bufferAfterMinutes)
+        val lateMinutes = if (isEarlyClockOut) 0 else maxOf(0, calculateDuration(workEndMinutes, clockOutMinutes, cutoffTimeMinutes))
+        val lateOvertime = if (isEarlyClockOut) 0 else maxOf(0, lateMinutes - bufferAfterMinutes)
 
-        val totalOvertime = earlyOvertime + lateOvertime
+        val totalOvertime = if (isEarlyClockOut) 0 else earlyOvertime + lateOvertime
 
         return OvertimeSummary(
             scheduledMinutes = scheduled,
@@ -94,6 +102,27 @@ object OvertimeCalculator {
             endMinutes
         }
         return effectiveEnd - startMinutes
+    }
+
+    fun isClockOutEarlierThanWorkEnd(
+        workStartMinutes: Int,
+        workEndMinutes: Int,
+        clockInMinutes: Int,
+        clockOutMinutes: Int,
+        cutoffTimeMinutes: Int = 300
+    ): Boolean {
+        val startRef = minOf(workStartMinutes, clockInMinutes)
+        val effectiveWorkEnd = if (workEndMinutes < startRef || (workEndMinutes <= cutoffTimeMinutes && startRef > cutoffTimeMinutes)) {
+            workEndMinutes + 1440
+        } else {
+            workEndMinutes
+        }
+        val effectiveClockOut = if (clockOutMinutes < startRef || (clockOutMinutes <= cutoffTimeMinutes && startRef > cutoffTimeMinutes)) {
+            clockOutMinutes + 1440
+        } else {
+            clockOutMinutes
+        }
+        return effectiveClockOut < effectiveWorkEnd
     }
 
     fun formatMinutesToTime(minutes: Int): String {

@@ -74,6 +74,9 @@
     <string name="confirm_save_desc">Are you sure you want to save this shift log entry for %1$s?</string>
     <string name="overwrite_btn">Overwrite</string>
     <string name="save_btn">Save</string>
+    <string name="early_clock_out_title">Early Clock Out Detected</string>
+    <string name="early_clock_out_desc">Your actual clock out time (%1$s) is earlier than your scheduled work end time (%2$s). Would you like to set your scheduled work end time for this day to %1$s?</string>
+    <string name="early_clock_out_confirm">Set Scheduled End &amp; Save</string>
     <string name="future_date_warning_title">Future Date Warning</string>
     <string name="future_date_warning_desc">You are logging an entry for a future date (%1$s). Are you sure you want to proceed?</string>
     <string name="confirm_btn">Confirm</string>

@@ -105,4 +105,79 @@ class ExampleUnitTest {
     assertEquals(480, summaryNoSub.actualWorkedMinutes)
     assertEquals(480, summaryNoSub.totalOvertimeMinutes)
   }
+
+  @Test
+  fun testIsClockOutEarlierThanWorkEnd() {
+    // 09:00 (540) to 17:00 (1020) work day
+    // Clock out at 16:30 (990) -> earlier than 17:00 (1020)
+    assertTrue(
+      OvertimeCalculator.isClockOutEarlierThanWorkEnd(
+        workStartMinutes = 540,
+        workEndMinutes = 1020,
+        clockInMinutes = 540,
+        clockOutMinutes = 990
+      )
+    )
+
+    // Clock out at 17:00 (1020) -> equal to 17:00
+    assertFalse(
+      OvertimeCalculator.isClockOutEarlierThanWorkEnd(
+        workStartMinutes = 540,
+        workEndMinutes = 1020,
+        clockInMinutes = 540,
+        clockOutMinutes = 1020
+      )
+    )
+
+    // Clock out at 17:30 (1050) -> later than 17:00
+    assertFalse(
+      OvertimeCalculator.isClockOutEarlierThanWorkEnd(
+        workStartMinutes = 540,
+        workEndMinutes = 1020,
+        clockInMinutes = 540,
+        clockOutMinutes = 1050
+      )
+    )
+
+    // Overnight shift: 22:00 (1320) to 06:00 (360)
+    // Clock out at 05:00 (300) -> earlier than 06:00
+    assertTrue(
+      OvertimeCalculator.isClockOutEarlierThanWorkEnd(
+        workStartMinutes = 1320,
+        workEndMinutes = 360,
+        clockInMinutes = 1320,
+        clockOutMinutes = 300,
+        cutoffTimeMinutes = 300
+      )
+    )
+
+    // Overnight shift: clock out at 06:00 (360) -> equal to 06:00
+    assertFalse(
+      OvertimeCalculator.isClockOutEarlierThanWorkEnd(
+        workStartMinutes = 1320,
+        workEndMinutes = 360,
+        clockInMinutes = 1320,
+        clockOutMinutes = 360,
+        cutoffTimeMinutes = 300
+      )
+    )
+  }
+
+  @Test
+  fun testNetExtraTimeZeroOnEarlyClockOut() {
+    // Work hours 09:00 (540) to 17:00 (1020).
+    // Clock in early at 08:30 (510), but clock out early at 16:30 (990).
+    val summary = OvertimeCalculator.calculate(
+      workStartMinutes = 540,
+      workEndMinutes = 1020,
+      clockInMinutes = 510,
+      clockOutMinutes = 990,
+      bufferBeforeMinutes = 0,
+      bufferAfterMinutes = 0,
+      isWorkDay = true
+    )
+    assertEquals(0, summary.earlyOvertimeMinutes)
+    assertEquals(0, summary.lateOvertimeMinutes)
+    assertEquals(0, summary.totalOvertimeMinutes)
+  }
 }
