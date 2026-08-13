@@ -98,7 +98,7 @@
     <string name="menu_buffer_grace_time">Buffer &amp; Grace Time</string>
     <string name="menu_backup_restore">Backup &amp; Restore</string>
     <string name="menu_about">About This App</string>
-    <string name="menu_footer">Room Offline Persistence • M3 Native</string>
+    <string name="menu_footer" translatable="false">Room Offline Persistence • M3 Native</string>
 
     <!-- Shift History Screen Filters & Quick Chips -->
     <string name="history_search_placeholder">Search by date or notes…</string>
@@ -163,6 +163,10 @@
     <string name="dashboard_no_shifts_this_week">No Shifts Logged This Week</string>
     <string name="dashboard_tap_plus_hint">Tap the \'+\' button below to log a shift.</string>
     <string name="dashboard_view_all">View All (%1$d)</string>
+    <string name="dashboard_today_prefix">Today (%1$s)</string>
+    <string name="dashboard_scheduled_prefix">Scheduled: %1$s - %2$s</string>
+    <string name="dashboard_shift_ends_in">Shift ends in %1$dh %2$dm (%3$dm)</string>
+    <string name="dashboard_scheduled_off">Scheduled: Non-working day / Off</string>
     <string name="confirm_btn_text">Confirm</string>
 
     <!-- Cutoff Warning & Notes Counter -->
@@ -170,6 +174,16 @@
     <string name="cutoff_warning_desc">Actual clock out time (%1$s) exceeds the overnight cutoff time (%2$s). Discard the exceeded portion and change clock out time back to %2$s?</string>
     <string name="cutoff_warning_confirm">Discard &amp; Set to Cutoff</string>
     <string name="notes_limit_counter">%1$d/32 chars (%2$d words)</string>
+
+    <!-- Shift Card & Log UI -->
+    <string name="card_extra_suffix">+%1$s Extra</string>
+    <string name="card_scheduled_label">Scheduled</string>
+    <string name="card_actual_clock_label">Actual Clock In/Out</string>
+    <string name="card_worked_label">Worked</string>
+    <string name="card_notes_prefix">Notes: %1$s</string>
+    <string name="card_edit_desc">Edit Shift</string>
+    <string name="card_delete_desc">Delete Shift</string>
+    <string name="card_off_day_desc">Non-Work Day / Off</string>
 
     <!-- Mental Wellbeing Screen -->
     <string name="title_mental_wellbeing">Mental Wellbeing</string>
@@ -284,4 +298,18 @@
     <string name="backup_redo_onboarding_dialog_title">Overwrite Current Settings?</string>
     <string name="backup_redo_onboarding_dialog_msg">Redoing the onboarding setup will overwrite your current settings. Are you sure you want to proceed?</string>
     <string name="backup_redo_onboarding_dialog_confirm">Proceed</string>
+
+    <!-- Insights Screen -->
+    <string name="insights_yearly_trends">Work Time Yearly Trends</string>
+    <string name="insights_yearly_trends_desc">Analyze your total working hours trends across %1$s</string>
+    <string name="insights_total_working_time">TOTAL WORKING TIME (%1$s)</string>
+    <string name="insights_monthly_trend">Monthly Work Time Trend (%1$s)</string>
+    <string name="insights_monthly_breakdown">Monthly Breakdown</string>
+    <string name="insights_month_year_format">%1$s %2$s</string>
+
+    <!-- Duration Formatting -->
+    <string name="duration_hours_minutes">%1$dh %2$dm</string>
+    <string name="duration_hours">%1$dh</string>
+    <string name="duration_minutes">%1$dm</string>
+    <string name="duration_zero">0m</string>
 </resources>

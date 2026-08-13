@@ -106,14 +106,14 @@ fun OvertimeTrackerApp(viewModel: OvertimeViewModel) {
                         title = {
                             Text(
                                 text = when (currentScreen) {
-                                    ScreenDestination.DASHBOARD -> "Shift Tracker"
-                                    ScreenDestination.DEFAULT_SCHEDULES -> "Default Schedule"
-                                    ScreenDestination.SETTINGS -> "Buffer Settings"
-                                    ScreenDestination.HISTORY -> "Shift History"
-                                    ScreenDestination.INSIGHTS -> "Yearly Insights"
+                                    ScreenDestination.DASHBOARD -> stringResource(R.string.app_name)
+                                    ScreenDestination.DEFAULT_SCHEDULES -> stringResource(R.string.menu_default_schedule)
+                                    ScreenDestination.SETTINGS -> stringResource(R.string.menu_buffer_grace_time)
+                                    ScreenDestination.HISTORY -> stringResource(R.string.menu_history)
+                                    ScreenDestination.INSIGHTS -> stringResource(R.string.menu_insights)
                                     ScreenDestination.MENTAL_WELLBEING -> stringResource(R.string.title_mental_wellbeing)
-                                    ScreenDestination.BACKUP_RESTORE -> "Backup & Restore"
-                                    ScreenDestination.ABOUT -> "About This App"
+                                    ScreenDestination.BACKUP_RESTORE -> stringResource(R.string.menu_backup_restore)
+                                    ScreenDestination.ABOUT -> stringResource(R.string.menu_about)
                                 },
                                 fontWeight = FontWeight.Bold
                             )

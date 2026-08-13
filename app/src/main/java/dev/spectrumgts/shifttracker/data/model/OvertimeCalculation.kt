@@ -129,13 +129,10 @@ object OvertimeCalculator {
         val m = ((minutes % 1440) + 1440) % 1440
         val hours = m / 60
         val mins = m % 60
-        val amPm = if (hours >= 12) "PM" else "AM"
-        val displayHour = when {
-            hours == 0 -> 12
-            hours > 12 -> hours - 12
-            else -> hours
-        }
-        return String.format(Locale.getDefault(), "%02d:%02d %s", displayHour, mins, amPm)
+        val calendar = java.util.Calendar.getInstance()
+        calendar.set(java.util.Calendar.HOUR_OF_DAY, hours)
+        calendar.set(java.util.Calendar.MINUTE, mins)
+        return java.text.SimpleDateFormat.getTimeInstance(java.text.DateFormat.SHORT, Locale.getDefault()).format(calendar.time)
     }
 
     fun formatMinutesTo24H(minutes: Int): String {
@@ -157,16 +154,19 @@ object OvertimeCalculator {
     }
 
     fun getDayOfWeekName(dayOfWeek: Int): String {
-        return when (dayOfWeek) {
-            1 -> "Monday"
-            2 -> "Tuesday"
-            3 -> "Wednesday"
-            4 -> "Thursday"
-            5 -> "Friday"
-            6 -> "Saturday"
-            7 -> "Sunday"
-            else -> "Day $dayOfWeek"
+        val calendar = java.util.Calendar.getInstance()
+        val calDay = when (dayOfWeek) {
+            1 -> java.util.Calendar.MONDAY
+            2 -> java.util.Calendar.TUESDAY
+            3 -> java.util.Calendar.WEDNESDAY
+            4 -> java.util.Calendar.THURSDAY
+            5 -> java.util.Calendar.FRIDAY
+            6 -> java.util.Calendar.SATURDAY
+            7 -> java.util.Calendar.SUNDAY
+            else -> return "Day $dayOfWeek"
         }
+        calendar.set(java.util.Calendar.DAY_OF_WEEK, calDay)
+        return calendar.getDisplayName(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.LONG, Locale.getDefault()) ?: "Day $dayOfWeek"
     }
 
     fun calculateOverlap(startA: Int, endA: Int, startB: Int, endB: Int): Int {

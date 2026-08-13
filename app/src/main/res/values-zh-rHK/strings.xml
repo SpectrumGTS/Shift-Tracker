@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings Screen -->
+    <string name="overtime_grace_cutoff_settings">加班寬限及截止設置</string>
+    <string name="configure_grace_buffer_desc">配置加班計算的寬限緩衝期及通宵換排班截止時間。</string>
+    <string name="before_working_hours_buffer">上班前緩衝期</string>
+    <string name="grace_period_prior_to_start">工作開始前的寬限期</string>
+    <string name="mins_suffix">%1$d 分鐘</string>
+    <string name="always_ignore_early_clock_ins">始終忽略提前打卡</string>
+    <string name="disregard_early_work">忽略正式開始時間之前的任何工作。</string>
+    <string name="desc_early_clockins_disabled">• 已停用提前打卡：所有提前到達時間均會被忽略（0 提前加班）。</string>
+    <string name="desc_no_buffer_early">• 無緩衝：所有提前到達時間均計為加班。</string>
+    <string name="desc_buffer_early_active">• 在開始前 %1$d 分鐘內打卡將被視為到達寬限時間，不計入加班。</string>
+    <string name="after_working_hours_buffer">下班後緩衝期</string>
+    <string name="grace_period_after_end">工作結束後的寬限期</string>
+    <string name="desc_no_buffer_late">• 無緩衝：所有延遲離開時間均計為加班。</string>
+    <string name="desc_buffer_late_active">• 在結束後 %1$d 分鐘內打卡將被視為離開寬限時間，不計入加班。</string>
+    <string name="overnight_shift_cutoff_time">通宵排班截止時間</string>
+    <string name="default_cutoff_time">預設：上午 05:00</string>
+    <string name="custom_cutoff_time">自定義截止時間：%1$s</string>
+    <string name="cutoff_time_hint">• 如果打卡時間超過午夜但早於或等於 %1$s，額外時數將計入午夜前的一天。</string>
+    <string name="invalid_cutoff_time">無效的截止時間</string>
+
+    <!-- Lunch Break Settings -->
+    <string name="lunch_break_range">午膳時間範圍</string>
+    <string name="default_lunch_break">預設：下午 12:00 至 下午 12:30</string>
+    <string name="lunch_start_prefix">開始：%1$s</string>
+    <string name="lunch_end_prefix">結束：%1$s</string>
+    <string name="subtract_lunch_workdays">工作日扣除</string>
+    <string name="subtract_lunch_workdays_desc">在預定工作日自動從總工作時數中扣除午膳時間。</string>
+    <string name="subtract_lunch_offdays">非工作日扣除</string>
+    <string name="subtract_lunch_offdays_desc">在週末和非工作日自動從總工作/加班時數中扣除午膳時間。</string>
+    <string name="select_lunch_start_title">選擇午膳開始時間</string>
+    <string name="select_lunch_end_title">選擇午膳結束時間</string>
+    <string name="select_cutoff_title">選擇通宵截止時間</string>
+
+    <!-- Add/Edit Shift Dialog -->
+    <string name="save_shift">儲存排班</string>
+    <string name="cancel_btn">取消</string>
+    <string name="add_shift">記錄排班</string>
+    <string name="edit_shift">編輯排班記錄</string>
+    <string name="work_day">工作日</string>
+    <string name="off_day">休息日</string>
+    <string name="scheduled_work_day">預定工作日</string>
+    <string name="scheduled_work_day_desc">套用標準工作時間表</string>
+    <string name="scheduled_off_day_desc">非工作日（所有工作時間均為額外時數）</string>
+    <string name="scheduled_working_hours">預定工作時數</string>
+    <string name="actual_clock_in_out">實際打卡時間</string>
+    <string name="work_start_label">工作開始</string>
+    <string name="work_end_label">工作結束</string>
+    <string name="clock_in_label">上班打卡</string>
+    <string name="clock_out_label">下班打卡</string>
+    <string name="date_label">日期 (YYYY-MM-DD)</string>
+    <string name="net_extra_time">淨額外時數</string>
+    <string name="early_arrival_overtime">提前到達加班 (-%1$dm 緩衝)：</string>
+    <string name="late_departure_overtime">延遲離開加班 (-%1$dm 緩衝)：</string>
+    <string name="non_working_day_desc">非工作日記錄：整個工作時長均計為加班。</string>
+    <string name="lunch_break_subtracted">已扣除午膳時間：</string>
+    <string name="total_worked_duration">總工作時長：</string>
+    <string name="notes_label">備註 / 項目 / 原因（可選）</string>
+
+    <!-- Time Pickers -->
+    <string name="select_scheduled_start">選擇預定工作開始時間</string>
+    <string name="select_scheduled_end">選擇預定工作結束時間</string>
+    <string name="select_clock_in">選擇上班打卡時間</string>
+    <string name="select_clock_out">選擇下班打卡時間</string>
+
+    <!-- Dialog Confirmation -->
+    <string name="confirm_overwrite_title">確認覆蓋現有記錄？</string>
+    <string name="confirm_save_title">確認儲存排班記錄？</string>
+    <string name="confirm_overwrite_desc">您確定要覆蓋 %1$s 的現有排班記錄嗎？</string>
+    <string name="confirm_save_desc">您確定要儲存 %1$s 的排班記錄嗎？</string>
+    <string name="overwrite_btn">覆蓋</string>
+    <string name="save_btn">儲存</string>
+    <string name="early_clock_out_title">檢測到提前下班</string>
+    <string name="early_clock_out_desc">您的實際下班時間 (%1$s) 早於預定工作結束時間 (%2$s)。您是否要將此日的預定工作結束時間設置為 %1$s？</string>
+    <string name="early_clock_out_confirm">設置預定結束時間並儲存</string>
+    <string name="future_date_warning_title">未來日期警告</string>
+    <string name="future_date_warning_desc">您正在記錄未來日期 (%1$s) 的條目。您確定要繼續嗎？</string>
+    <string name="confirm_btn">確認</string>
+    <string name="dashboard_extra_time">額外時數 (%1$s)</string>
+    <string name="dashboard_shifts_this_month">本月排班：%1$d</string>
+    <string name="dashboard_total_worked_label">總工作</string>
+    <string name="dashboard_extra_time_label">額外時數</string>
+    <string name="dashboard_month_summary">%1$s 概覽</string>
+
+
+    <!-- Navigation Drawer Menu Items -->
+    <string name="menu_subtitle">工作生活平衡</string>
+    <string name="menu_dashboard">儀表板</string>
+    <string name="menu_history">排班歷史</string>
+    <string name="menu_insights">年度洞察</string>
+    <string name="menu_mental_wellbeing">心理健康</string>
+    <string name="menu_section_settings">設置及偏好</string>
+    <string name="menu_default_schedule">預設時間表</string>
+    <string name="menu_buffer_grace_time">緩衝及寬限時間</string>
+    <string name="menu_backup_restore">備份及還原</string>
+    <string name="menu_about">關於此應用程式</string>
+
+
+    <!-- Shift History Screen Filters & Quick Chips -->
+    <string name="history_search_placeholder">按日期或備註搜尋…</string>
+    <string name="history_filter_by_date_desc">按日期篩選</string>
+    <string name="history_filter_by_date_range">按日期範圍篩選</string>
+    <string name="history_start_date_label">開始日期</string>
+    <string name="history_end_date_label">結束日期</string>
+    <string name="history_filter_any_value">任何</string>
+    <string name="history_clear_date_filters_desc">清除日期篩選</string>
+    <string name="history_chip_last_week">上週</string>
+    <string name="history_chip_last_month">上月</string>
+    <string name="history_chip_this_quarter">本季度</string>
+    <string name="history_chip_last_year">去年</string>
+    <string name="history_validation_error_end_before_start">結束日期不能早於開始日期。</string>
+    <string name="history_validation_error_range_too_long">選擇範圍不能超過 367 天。</string>
+    <string name="history_icon_content_desc_error">錯誤</string>
+    <string name="history_matching_logs_label">匹配記錄：%1$d</string>
+    <string name="history_total_logs_label">總記錄：%1$d</string>
+    <string name="history_total_extra_label">總額外時數：%1$s</string>
+    <string name="history_no_matching_found">找不到匹配的排班記錄</string>
+    <string name="history_no_history_recorded">未記錄排班歷史</string>
+    <string name="history_fab_log_shift_desc">記錄排班</string>
+
+    <!-- Backup Restore Screen -->
+    <string name="backup_confirm_overwrite_title">確認覆蓋</string>
+    <string name="backup_overwrite_import_btn">覆蓋並還原</string>
+    <string name="backup_db_title">資料庫備份及還原</string>
+    <string name="backup_db_subtitle">將您的排班記錄和設置匯出為 JSON 備份文件，或從以前的備份還原。</string>
+    <string name="backup_unified_title">統一備份文件 (JSON)</string>
+    <string name="backup_unified_subtitle">將排班記錄和偏好備份到單個文件中（%1$d 個排班，%2$d 個預設時間表）。</string>
+    <string name="backup_export_json_btn">匯出 JSON</string>
+    <string name="backup_import_json_btn">匯入 JSON</string>
+    <string name="backup_export_success_unified">統一資料庫備份已成功匯出至 JSON。</string>
+    <string name="backup_import_success_unified">備份數據已成功從 JSON 還原。</string>
+    <string name="backup_export_failed">匯出失敗：%1$s</string>
+    <string name="backup_import_failed">匯入失敗：%1$s</string>
+    <string name="backup_import_checksum_failed">備份文件完整性檢查失敗。文件已被修改或損壞。</string>
+    <string name="backup_restore_dialog_intro">選擇要從此 JSON 文件還原的數據部分：</string>
+    <string name="backup_restore_option_logs">排班記錄 (%1$d 條)</string>
+    <string name="backup_restore_option_schedules">預設時間表 (%1$d 天) 及設置</string>
+    <string name="backup_export_option_logs">排班記錄 (%1$d 條)</string>
+    <string name="backup_export_option_schedules">預設時間表 (%1$d 天) 及設置</string>
+    <string name="backup_export_dialog_intro">選擇要匯出到此 JSON 文件的數據部分：</string>
+
+    <!-- Default Schedules Screen -->
+    <string name="schedule_info_title">預設每週工作時數</string>
+    <string name="schedule_info_desc">定義每週每天的標準排班時間。記錄排班時，這些預設時間將自動預填。</string>
+    <string name="schedule_apply_all_title">將時間套用到所有工作日？</string>
+    <string name="schedule_apply_all_desc">您確定要將 %1$s – %2$s 套用到所有預設工作日（週一至週五）嗎？現有的工作日時間表將被覆蓋。</string>
+    <string name="schedule_apply_overwrite_btn">套用並覆蓋</string>
+    <string name="schedule_work_start_title">%1$s：預設工作開始</string>
+    <string name="schedule_work_end_title">%1$s：預設工作結束</string>
+    <string name="schedule_default_start_label">預設開始</string>
+    <string name="schedule_default_end_label">預設結束</string>
+    <string name="schedule_apply_to_all_btn">將此時間套用到所有工作日</string>
+
+    <!-- Shift Card & General UI -->
+    <string name="delete_shift_title">刪除排班記錄？</string>
+    <string name="delete_shift_desc">您確定要刪除 %1$s 的排班記錄嗎？此操作無法撤銷。</string>
+    <string name="delete_btn">刪除</string>
+    <string name="dashboard_recent_shifts">最近排班（本週）</string>
+    <string name="dashboard_no_shifts_this_week">本週沒有記錄排班</string>
+    <string name="dashboard_tap_plus_hint">點擊下方的「+」按鈕記錄排班。</string>
+    <string name="dashboard_view_all">查看全部 (%1$d)</string>
+    <string name="dashboard_today_prefix">今天 (%1$s)</string>
+    <string name="dashboard_scheduled_prefix">預定：%1$s - %2$s</string>
+    <string name="dashboard_shift_ends_in">距離下班還有 %1$d 小時 %2$d 分鐘 (%3$d 分鐘)</string>
+    <string name="dashboard_scheduled_off">預定：非工作日 / 休息</string>
+    <string name="confirm_btn_text">確認</string>
+
+    <!-- Cutoff Warning & Notes Counter -->
+    <string name="cutoff_warning_title">超過加班截止時間</string>
+    <string name="cutoff_warning_desc">實際下班時間 (%1$s) 超過了通宵截止時間 (%2$s)。是否捨棄超出部分並將下班時間改回 %2$s？</string>
+    <string name="cutoff_warning_confirm">捨棄並設置為截止時間</string>
+    <string name="notes_limit_counter">%1$d/32 字符 (%2$d 個單詞)</string>
+
+    <!-- Shift Card & Log UI -->
+    <string name="card_extra_suffix">+%1$s 額外</string>
+    <string name="card_scheduled_label">預定</string>
+    <string name="card_actual_clock_label">實際打卡</string>
+    <string name="card_worked_label">已工作</string>
+    <string name="card_notes_prefix">備註：%1$s</string>
+    <string name="card_edit_desc">編輯排班</string>
+    <string name="card_delete_desc">刪除排班</string>
+    <string name="card_off_day_desc">非工作日 / 休息</string>
+
+    <!-- Mental Wellbeing Screen -->
+    <string name="title_mental_wellbeing">心理健康</string>
+    <string name="wellbeing_headline">職場心理健康</string>
+    <string name="wellbeing_subtitle">基於每月加班壓力和職業健康資源的健康評估。</string>
+    <string name="wellbeing_monthly_overtime_label">每月加班壓力</string>
+    <string name="wellbeing_readonly_badge">唯讀分析</string>
+
+    <!-- Healthiness Ratings -->
+    <string name="wellbeing_rating_optimal">理想平衡</string>
+    <string name="wellbeing_rating_moderate">中度壓力</string>
+    <string name="wellbeing_rating_high">疲勞風險偏高</string>
+    <string name="wellbeing_rating_critical">嚴重過勞警告</string>
+
+    <string name="wellbeing_desc_optimal">每月加班壓力低 (%1$s)。您的工作與休息平衡處於健康、可持續的範圍內。請繼續優先考慮規律的休息時間。</string>
+    <string name="wellbeing_desc_moderate">累積了明顯的加班時間 (%1$s)。請留意工作量水平，並確保在長班期間有足夠的微休息。</string>
+    <string name="wellbeing_desc_high">記錄了大量加班時間 (%1$s)。您正承受較大壓力。考慮與主管討論工作量界限，以防止筋疲力竭。</string>
+    <string name="wellbeing_desc_critical">加班負荷極重 (%1$s)。長期維持此水平的加班會帶來極高的過勞和慢性疲勞風險。強烈建議立即休息恢復。</string>
+
+    <!-- Mental Health Materials Sections -->
+    <string name="wellbeing_section_resources">職場健康及福祉資源</string>
+
+    <!-- Material 1: Burnout Signs -->
+    <string name="wellbeing_mat_burnout_title">識別早期過勞及疲勞跡象</string>
+    <string name="wellbeing_mat_burnout_desc">加班疲勞在影響日常心理健康之前可能會微妙地累積。請留意以下生理和心理警告訊號：</string>
+    <string name="wellbeing_mat_burnout_item1">• 慢性生理疲憊：即使睡眠充足後仍感到持續疲勞。</string>
+    <string name="wellbeing_mat_burnout_item2">• 認知迷霧：注意力下降、錯誤增加或決策延遲。</string>
+    <string name="wellbeing_mat_burnout_item3">• 情緒疏離：感到憤世嫉俗、易怒或工作成就感喪失。</string>
+    <string name="wellbeing_mat_burnout_item4">• 睡眠干擾：由於工作壓力或晚下班而難以入睡。</string>
+
+    <!-- Material 2: Shift Work Strategies -->
+    <string name="wellbeing_mat_strategies_title">加班恢復策略</string>
+    <string name="wellbeing_mat_strategies_desc">保護心理清晰度的工作微習慣（適用於長時間工作）：</string>
+    <string name="wellbeing_mat_strategies_item1">• 微休息節奏：每 90 分鐘專注工作後休息 3–5 分鐘進行呼吸調整。</string>
+    <string name="wellbeing_mat_strategies_item2">• 數位離線：嚴格規定下班後不查看工作電郵或通訊軟體。</string>
+    <string name="wellbeing_mat_strategies_item3">• 班後放鬆：睡前進行非螢幕轉換活動（如散步、輕度伸展）。</string>
+    <string name="wellbeing_mat_strategies_item4">• 水分與營養：維持能量需要持續補充水分，通宵班期間需攝取平衡膳食。</string>
+
+    <!-- Material 3: Stress Reduction Techniques -->
+    <string name="wellbeing_mat_breathing_title">即時減壓：箱式呼吸法</string>
+    <string name="wellbeing_mat_breathing_desc">在排班中感到不知所措時使用 4-4-4-4 箱式呼吸技術：</string>
+    <string name="wellbeing_mat_breathing_step1">1. 用鼻子慢慢吸氣 4 秒。</string>
+    <string name="wellbeing_mat_breathing_step2">2. 憋氣 4 秒。</string>
+    <string name="wellbeing_mat_breathing_step3">3. 用嘴平穩呼氣 4 秒。</string>
+    <string name="wellbeing_mat_breathing_step4">4. 再次憋氣 4 秒後進行下一次呼吸。</string>
+
+    <!-- Material 4: Professional Support -->
+    <string name="wellbeing_mat_support_title">何時尋求支援</string>
+    <string name="wellbeing_mat_support_desc">如果工作壓力影響了您的個人健康或人際關係，請尋求專業資源：</string>
+    <string name="wellbeing_mat_support_item1">• 員工支援計劃 (EAP)：許多僱主提供的機密輔導。</string>
+    <string name="wellbeing_mat_support_item2">• 職業健康服務：專門研究輪班工作安全的職場健康顧問。</string>
+    <string name="wellbeing_mat_support_item3">• 醫療專業人員：諮詢您的全科醫生以獲取心理健康支援。</string>
+
+    <!-- About Screen -->
+    <string name="about_title">關於此應用程式</string>
+    <string name="about_subtitle">了解支援 Shift Tracker 的架構、框架和許可證，旨在支援工作生活平衡和心理健康。</string>
+    <string name="about_tech_stack_header">技術棧</string>
+    <string name="about_m3_title">原生 Material 3 UI</string>
+    <string name="about_m3_desc">此應用程式使用現代 Jetpack Compose 構建，並嚴格遵循 Material Design 3 指南。它具有優雅的組件樣式、支援全螢幕渲染、無障礙觸控目標，以及利用 M3 色調提升和充足負空間的統一主題。</string>
+    <string name="about_kotlin_title">Kotlin 語言</string>
+    <string name="about_kotlin_desc">整個程式碼庫使用 Kotlin 編寫。它利用了 Kotlin 的高級功能，包括絕對類型安全、使用 Coroutines 和 Flow 實現無縫響應式狀態更新的結構化並行，以及標準的現代編碼實踐。</string>
+    <string name="about_room_title">離線 Room 資料庫</string>
+    <string name="about_room_desc">您的數據保持私密和安全。應用程式通過 Android Jetpack Room 整合了離線 SQLite 資料庫。這確保了可靠的離線數據持續性、原子資料庫事務以及流暢的本地狀態管理，而不依賴於外部雲端 API。</string>
+    <string name="about_licensing_header">許可證與法律</string>
+    <string name="about_gpl_title">GNU GPL v3 許可證摘要</string>
+    <string name="about_gpl_desc">此應用程式根據 GNU 通用公共許可證第 3 版 (GPL v3) 發佈。</string>
+    <string name="about_gpl_permissions_title">權限</string>
+    <string name="about_gpl_permissions_desc">只要保留作者屬性、許可通知並提供原始碼，您就被允許在商業或私下運行、複製、分發、修改和傳達該程序。</string>
+    <string name="about_gpl_copyleft_title">Copyleft 規則</string>
+    <string name="about_gpl_copyleft_desc">原始碼的修改版本也必須根據 GPL v3 獲得許可。任何分發該軟體修改版本的人都必須按照相同的條款發佈其原始碼。</string>
+    <string name="about_gpl_nowarranty_title">免責聲明</string>
+    <string name="about_gpl_nowarranty_desc">本軟體按「原樣」提供，不提供任何形式的保證。作者和版權持有人對因使用本軟體而產生的任何損害或問題不承擔任何責任。</string>
+    <string name="about_build_info_header">版本及構建資訊</string>
+
+    <!-- Onboarding OOBE Strings -->
+    <string name="onboarding_welcome_title">歡迎使用 Shift Tracker</string>
+    <string name="onboarding_welcome_subtitle">讓我們個性化您的體驗。配置您的緩衝規則、預設工作時間表，或從備份中還原以前的數據。</string>
+    <string name="onboarding_btn_restore_backup">從備份還原</string>
+    <string name="onboarding_step_1_title">緩衝及寬限時間</string>
+    <string name="onboarding_step_1_subtitle">自動化提前打卡和延遲下班的寬限期，以確保加班計算準確。</string>
+    <string name="onboarding_step_2_title">預設工作時間表</string>
+    <string name="onboarding_step_2_subtitle">配置您的每週工作日和標準時數，讓記錄排班變得輕而易舉。</string>
+    <string name="onboarding_step_3_title">數據隱私與安全</string>
+    <string name="onboarding_step_3_subtitle">您的排班記錄和個人數據在您的設備上保持 100% 私密和安全。</string>
+    <string name="onboarding_tip1_title">100% 本地存儲</string>
+    <string name="onboarding_tip1_desc">所有排班記錄和設置都儲存在您設備上的加密資料庫中。</string>
+    <string name="onboarding_tip2_title">離線優先架構</string>
+    <string name="onboarding_tip2_desc">不需要雲端帳戶或外部伺服器。應用程式完全離線運行。</string>
+    <string name="onboarding_tip3_title">安全備份與校驗和</string>
+    <string name="onboarding_tip3_desc">通過內置的校驗和驗證安全地匯出和匯入 JSON 備份文件。</string>
+    <string name="onboarding_tip4_title">零追蹤與分析</string>
+    <string name="onboarding_tip4_desc">我們從不收集、追蹤或傳輸您的工作記錄、個人數據或活動歷史。</string>
+    <string name="onboarding_btn_next">下一步</string>
+    <string name="onboarding_btn_back">返回</string>
+    <string name="onboarding_btn_skip">跳過設置</string>
+    <string name="onboarding_btn_get_started">開始使用</string>
+    <string name="onboarding_btn_done">完成設置</string>
+    <string name="backup_redo_onboarding_title">應用程式初始設置</string>
+    <string name="backup_redo_onboarding_subtitle">重新運行設置嚮導以重新配置您的排班緩衝設置和預設工作時間表。</string>
+    <string name="backup_redo_onboarding_btn">重新進行初始設置</string>
+    <string name="onboarding_feature_buffer_desc">排班前後的自動寬限期。</string>
+    <string name="onboarding_feature_schedule_desc">自定義每週排班時間表及一鍵預設。</string>
+    <string name="onboarding_feature_privacy_title">數據隱私</string>
+    <string name="onboarding_feature_privacy_desc">100% 本地存儲及零數據追蹤。</string>
+    <string name="onboarding_preset_9to5_title">標準朝九晚五工作週</string>
+    <string name="onboarding_preset_9to5_desc">將 09:00 – 17:00 套用到週一至週五。</string>
+    <string name="onboarding_btn_apply">套用</string>
+
+    <!-- Redo Onboarding Warning Dialog -->
+    <string name="backup_redo_onboarding_dialog_title">覆蓋當前設置？</string>
+    <string name="backup_redo_onboarding_dialog_msg">重新進行初始設置將覆蓋您當前的設置。您確定要繼續嗎？</string>
+    <string name="backup_redo_onboarding_dialog_confirm">繼續</string>
+
+    <!-- Insights Screen -->
+    <string name="insights_yearly_trends">年度工作時數趨勢</string>
+    <string name="insights_yearly_trends_desc">分析您在 %1$s 年的總工作時數趨勢</string>
+    <string name="insights_total_working_time">總工作時長 (%1$s)</string>
+    <string name="insights_monthly_trend">每月工作時數趨勢 (%1$s)</string>
+    <string name="insights_monthly_breakdown">每月明細</string>
+    <string name="insights_month_year_format">%1$s %2$s</string>
+
+    <!-- Duration Formatting -->
+    <string name="duration_hours_minutes">%1$d 小時 %2$d 分鐘</string>
+    <string name="duration_hours">%1$d 小時</string>
+    <string name="duration_minutes">%1$d 分鐘</string>
+    <string name="duration_zero">0 分鐘</string>
+</resources>

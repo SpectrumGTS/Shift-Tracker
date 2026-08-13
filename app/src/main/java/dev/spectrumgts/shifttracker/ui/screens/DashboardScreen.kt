@@ -338,7 +338,7 @@ fun DashboardScreen(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "Today (${OvertimeCalculator.getDayOfWeekName(todayDayOfWeek)})",
+                                    text = stringResource(R.string.dashboard_today_prefix, OvertimeCalculator.getDayOfWeekName(todayDayOfWeek)),
                                     style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -346,7 +346,11 @@ fun DashboardScreen(
                             Spacer(modifier = Modifier.height(4.dp))
                             if (todaySchedule != null && todaySchedule.isWorkDay) {
                                 Text(
-                                    text = "Scheduled: ${OvertimeCalculator.formatMinutesToTime(todaySchedule.workStartMinutes)} - ${OvertimeCalculator.formatMinutesToTime(todaySchedule.workEndMinutes)}",
+                                    text = stringResource(
+                                        R.string.dashboard_scheduled_prefix,
+                                        OvertimeCalculator.formatMinutesToTime(todaySchedule.workStartMinutes),
+                                        OvertimeCalculator.formatMinutesToTime(todaySchedule.workEndMinutes)
+                                    ),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -361,7 +365,7 @@ fun DashboardScreen(
                                     val remainingMins = remainingMinutes % 60
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
-                                        text = "Shift ends in ${remainingHours}h ${remainingMins}m (${remainingMinutes}m)",
+                                        text = stringResource(R.string.dashboard_shift_ends_in, remainingHours, remainingMins, remainingMinutes),
                                         style = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.Medium,
                                         color = MaterialTheme.colorScheme.primary,
@@ -370,7 +374,7 @@ fun DashboardScreen(
                                 }
                             } else {
                                 Text(
-                                    text = "Scheduled: Non-working day / Off",
+                                    text = stringResource(R.string.dashboard_scheduled_off),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )

@@ -32,8 +32,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import dev.spectrumgts.shifttracker.R
 import dev.spectrumgts.shifttracker.data.model.AppSettings
 import dev.spectrumgts.shifttracker.data.model.OvertimeCalculator
 import dev.spectrumgts.shifttracker.data.model.ShiftLog
@@ -100,13 +102,13 @@ fun InsightsScreen(
         item {
             Column {
                 Text(
-                    text = "Work Time Yearly Trends",
+                    text = stringResource(R.string.insights_yearly_trends),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Analyze your total working hours trends across $selectedYear",
+                    text = stringResource(R.string.insights_yearly_trends_desc, selectedYear),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -129,16 +131,16 @@ fun InsightsScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
+                        Column {
                         Text(
-                            text = "TOTAL WORKING TIME ($selectedYear)",
+                            text = stringResource(R.string.insights_total_working_time, selectedYear),
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = OvertimeCalculator.formatDurationMinutes(totalYearWorkingTime),
+                            text = formatDuration(totalYearWorkingTime),
                             style = MaterialTheme.typography.headlineLarge,
                             fontWeight = FontWeight.ExtraBold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -179,7 +181,7 @@ fun InsightsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Monthly Work Time Trend ($selectedYear)",
+                            text = stringResource(R.string.insights_monthly_trend, selectedYear),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
@@ -258,7 +260,7 @@ fun InsightsScreen(
         // Monthly Breakdown List
         item {
             Text(
-                text = "Monthly Breakdown",
+                text = stringResource(R.string.insights_monthly_breakdown),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(top = 8.dp)
@@ -290,13 +292,13 @@ fun InsightsScreen(
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
-                                text = "$monthName $selectedYear",
+                                text = stringResource(R.string.insights_month_year_format, monthName, selectedYear),
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.SemiBold
                             )
                         }
                         Text(
-                            text = OvertimeCalculator.formatDurationMinutes(mins),
+                            text = formatDuration(mins),
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
@@ -304,6 +306,21 @@ fun InsightsScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun formatDuration(minutes: Int): String {
+    return if (minutes <= 0) {
+        stringResource(R.string.duration_zero)
+    } else {
+        val hours = minutes / 60
+        val mins = minutes % 60
+        when {
+            hours > 0 && mins > 0 -> stringResource(R.string.duration_hours_minutes, hours, mins)
+            hours > 0 -> stringResource(R.string.duration_hours, hours)
+            else -> stringResource(R.string.duration_minutes, mins)
         }
     }
 }

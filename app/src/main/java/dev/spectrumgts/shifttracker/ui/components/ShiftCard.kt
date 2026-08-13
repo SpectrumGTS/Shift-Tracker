@@ -104,7 +104,7 @@ fun ShiftCard(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = if (shift.isWorkDay) "Work Day" else "Non-Work Day / Off",
+                        text = if (shift.isWorkDay) stringResource(R.string.work_day) else stringResource(R.string.card_off_day_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -129,7 +129,7 @@ fun ShiftCard(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "+${OvertimeCalculator.formatDurationMinutes(summary.totalOvertimeMinutes)} Extra",
+                            text = stringResource(R.string.card_extra_suffix, OvertimeCalculator.formatDurationMinutes(summary.totalOvertimeMinutes)),
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold,
                             color = if (summary.totalOvertimeMinutes > 0) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer
@@ -152,7 +152,7 @@ fun ShiftCard(
                 if (shift.isWorkDay) {
                     Column {
                         Text(
-                            text = "Scheduled",
+                            text = stringResource(R.string.card_scheduled_label),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.outline
                         )
@@ -166,7 +166,7 @@ fun ShiftCard(
 
                 Column {
                     Text(
-                        text = "Actual Clock In/Out",
+                        text = stringResource(R.string.card_actual_clock_label),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.outline
                     )
@@ -180,7 +180,7 @@ fun ShiftCard(
 
                 Column {
                     Text(
-                        text = "Worked",
+                        text = stringResource(R.string.card_worked_label),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.outline
                     )
@@ -195,7 +195,7 @@ fun ShiftCard(
             if (shift.notes.isNotBlank()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Notes: ${shift.notes}",
+                    text = stringResource(R.string.card_notes_prefix, shift.notes),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -215,7 +215,7 @@ fun ShiftCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Edit,
-                        contentDescription = "Edit Shift",
+                        contentDescription = stringResource(R.string.card_edit_desc),
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
@@ -225,7 +225,7 @@ fun ShiftCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.DeleteOutline,
-                        contentDescription = "Delete Shift",
+                        contentDescription = stringResource(R.string.card_delete_desc),
                         tint = MaterialTheme.colorScheme.error
                     )
                 }
