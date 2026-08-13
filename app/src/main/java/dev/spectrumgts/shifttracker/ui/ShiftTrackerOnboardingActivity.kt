@@ -2,7 +2,6 @@ package dev.spectrumgts.shifttracker.ui
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -43,7 +42,7 @@ class ShiftTrackerOnboardingActivity : ComponentActivity() {
                         viewModel.applyDefaultScheduleToAllWorkingDays(workStart, workEnd)
                     },
                     onFinishOnboarding = {
-                        val prefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+                        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
                         prefs.edit().putBoolean("has_completed_onboarding", true).apply()
 
                         startActivity(Intent(this, ShiftTrackerMainActivity::class.java))

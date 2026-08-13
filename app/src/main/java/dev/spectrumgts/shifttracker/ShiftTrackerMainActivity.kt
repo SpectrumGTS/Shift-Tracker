@@ -7,7 +7,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import dev.spectrumgts.shifttracker.ui.ShiftTrackerOnboardingActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -26,16 +25,14 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.ui.res.stringResource
+import dev.spectrumgts.shifttracker.ui.ShiftTrackerOnboardingActivity
 import dev.spectrumgts.shifttracker.ui.navigation.AppNavigationDrawerSheet
 import dev.spectrumgts.shifttracker.ui.screens.AboutScreen
 import dev.spectrumgts.shifttracker.ui.screens.AddEditShiftDialog
@@ -44,7 +41,6 @@ import dev.spectrumgts.shifttracker.ui.screens.DashboardScreen
 import dev.spectrumgts.shifttracker.ui.screens.DefaultScheduleScreen
 import dev.spectrumgts.shifttracker.ui.screens.InsightsScreen
 import dev.spectrumgts.shifttracker.ui.screens.MentalWellbeingScreen
-import dev.spectrumgts.shifttracker.ui.screens.OnboardingScreen
 import dev.spectrumgts.shifttracker.ui.screens.SettingsScreen
 import dev.spectrumgts.shifttracker.ui.screens.ShiftHistoryScreen
 import dev.spectrumgts.shifttracker.ui.theme.MyApplicationTheme
@@ -61,7 +57,7 @@ class ShiftTrackerMainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val prefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
         if (!prefs.getBoolean("has_completed_onboarding", false)) {
             startActivity(Intent(this, ShiftTrackerOnboardingActivity::class.java))
             finish()

@@ -252,7 +252,6 @@ fun BackupRestoreScreen(
                 Text(
                     text = stringResource(R.string.backup_redo_onboarding_dialog_title),
                     style = WarningDialogTitleStyle,
-                    fontWeight = FontWeight.Bold
                 )
             },
             text = {

@@ -1,6 +1,5 @@
 package dev.spectrumgts.shifttracker.ui
 
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -115,7 +114,9 @@ class BackupImportActivity : ComponentActivity() {
                                     ) { success, message ->
                                         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
                                         if (success) {
-                                            val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+                                            val prefs = context.getSharedPreferences("app_prefs",
+                                                MODE_PRIVATE
+                                            )
                                             prefs.edit().putBoolean("has_completed_onboarding", true).apply()
 
                                             val intent = Intent(context, ShiftTrackerMainActivity::class.java).apply {

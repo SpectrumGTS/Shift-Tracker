@@ -1,17 +1,13 @@
 package dev.spectrumgts.shifttracker.ui.screens
 
 import android.content.Intent
-import android.net.Uri
-import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import dev.spectrumgts.shifttracker.ui.BackupImportActivity
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -33,14 +29,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MoreTime
 import androidx.compose.material.icons.filled.Restore
-import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Tune
@@ -76,6 +71,7 @@ import androidx.compose.ui.unit.dp
 import dev.spectrumgts.shifttracker.R
 import dev.spectrumgts.shifttracker.data.model.AppSettings
 import dev.spectrumgts.shifttracker.data.model.DayDefaultSchedule
+import dev.spectrumgts.shifttracker.ui.BackupImportActivity
 import dev.spectrumgts.shifttracker.ui.components.BufferAfterCard
 import dev.spectrumgts.shifttracker.ui.components.BufferBeforeCard
 import dev.spectrumgts.shifttracker.ui.components.CutoffTimeCard
@@ -161,11 +157,11 @@ fun OnboardingScreen(
                 targetState = currentStep,
                 transitionSpec = {
                     if (targetState > initialState) {
-                        slideInHorizontally { width -> width } + fadeIn() with
-                                slideOutHorizontally { width -> -width } + fadeOut()
+                        (slideInHorizontally { width -> width } + fadeIn()).togetherWith(
+                            slideOutHorizontally { width -> -width } + fadeOut())
                     } else {
-                        slideInHorizontally { width -> -width } + fadeIn() with
-                                slideOutHorizontally { width -> width } + fadeOut()
+                        (slideInHorizontally { width -> -width } + fadeIn()).togetherWith(
+                            slideOutHorizontally { width -> width } + fadeOut())
                     }
                 },
                 modifier = Modifier.weight(1f)
@@ -381,7 +377,7 @@ private fun OnboardingWelcomeStep(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Icon(
-                    imageVector = Icons.Default.ArrowForward,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                     contentDescription = null,
                     modifier = Modifier.size(18.dp)
                 )
@@ -765,7 +761,7 @@ private fun OobeBottomBar(
                 modifier = Modifier.testTag("onboarding_back_btn")
             ) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = null,
                     modifier = Modifier.size(16.dp)
                 )
@@ -791,7 +787,7 @@ private fun OobeBottomBar(
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Icon(
-                    imageVector = if (currentStep < totalSteps) Icons.Default.ArrowForward else Icons.Default.Check,
+                    imageVector = if (currentStep < totalSteps) Icons.AutoMirrored.Filled.ArrowForward else Icons.Default.Check,
                     contentDescription = null,
                     modifier = Modifier.size(16.dp)
                 )
