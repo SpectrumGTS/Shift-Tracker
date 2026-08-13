@@ -11,18 +11,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Notes
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.EditCalendar
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Notes
-import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -43,8 +40,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import dev.spectrumgts.shifttracker.ui.theme.WarningDialogBodyStyle
-import dev.spectrumgts.shifttracker.ui.theme.WarningDialogTitleStyle
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,6 +52,8 @@ import dev.spectrumgts.shifttracker.R
 import dev.spectrumgts.shifttracker.data.model.AppSettings
 import dev.spectrumgts.shifttracker.data.model.OvertimeCalculator
 import dev.spectrumgts.shifttracker.ui.components.M3TimePickerDialog
+import dev.spectrumgts.shifttracker.ui.theme.WarningDialogBodyStyle
+import dev.spectrumgts.shifttracker.ui.theme.WarningDialogTitleStyle
 import dev.spectrumgts.shifttracker.ui.viewmodel.ShiftInputState
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -515,7 +512,7 @@ fun AddEditShiftDialog(
                         )
                     },
                     leadingIcon = {
-                        Icon(Icons.Default.Notes, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Filled.Notes, contentDescription = null)
                     },
                     modifier = Modifier
                         .fillMaxWidth()

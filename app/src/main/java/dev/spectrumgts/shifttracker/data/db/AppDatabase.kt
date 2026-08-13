@@ -37,7 +37,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "overtime_tracker_database"
                 )
-                .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration(true)
                 .addCallback(DatabaseCallback())
                 .build()
                 INSTANCE = instance
@@ -45,7 +45,7 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
-        private class DatabaseCallback : RoomDatabase.Callback() {
+        private class DatabaseCallback : Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
                 INSTANCE?.let { database ->
