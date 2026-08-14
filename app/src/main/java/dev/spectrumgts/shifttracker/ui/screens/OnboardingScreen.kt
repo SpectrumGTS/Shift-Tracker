@@ -34,7 +34,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.MoreTime
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Storage
@@ -64,6 +63,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -71,11 +71,13 @@ import androidx.compose.ui.unit.dp
 import dev.spectrumgts.shifttracker.R
 import dev.spectrumgts.shifttracker.data.model.AppSettings
 import dev.spectrumgts.shifttracker.data.model.DayDefaultSchedule
+import dev.spectrumgts.shifttracker.data.model.OvertimeCalculator
 import dev.spectrumgts.shifttracker.ui.BackupImportActivity
 import dev.spectrumgts.shifttracker.ui.components.BufferAfterCard
 import dev.spectrumgts.shifttracker.ui.components.BufferBeforeCard
 import dev.spectrumgts.shifttracker.ui.components.CutoffTimeCard
 import dev.spectrumgts.shifttracker.ui.components.DefaultScheduleSettingsCard
+import dev.spectrumgts.shifttracker.ui.components.InvalidCutoffTimeDialog
 import dev.spectrumgts.shifttracker.ui.components.LunchBreakCard
 import dev.spectrumgts.shifttracker.ui.components.M3TimePickerDialog
 
@@ -116,6 +118,33 @@ fun OnboardingScreen(
     var showCutoffTimePicker by remember { mutableStateOf(false) }
     var showLunchStartTimePicker by remember { mutableStateOf(false) }
     var showLunchEndTimePicker by remember { mutableStateOf(false) }
+
+    var showCutoffErrorDialog by remember { mutableStateOf(false) }
+    var cutoffErrorMessage by remember { mutableStateOf("") }
+
+    val minWorkStart = remember(defaultSchedules) {
+        val workDays = defaultSchedules.filter { it.isWorkDay }
+        if (workDays.isNotEmpty()) {
+            workDays.minOf { it.workStartMinutes }
+        } else if (defaultSchedules.isNotEmpty()) {
+            defaultSchedules.minOf { it.workStartMinutes }
+        } else {
+            540
+        }
+    }
+
+    val tryUpdateCutoff: (Int) -> Unit = { newCutoff ->
+        if (newCutoff > minWorkStart) {
+            cutoffErrorMessage = context.getString(
+                R.string.invalid_cutoff_time_desc,
+                OvertimeCalculator.formatMinutesToTime(newCutoff),
+                OvertimeCalculator.formatMinutesToTime(minWorkStart)
+            )
+            showCutoffErrorDialog = true
+        } else {
+            cutoffTime = newCutoff
+        }
+    }
 
     // Synchronize settings changes only after user pressed Get Started on welcome screen
     LaunchedEffect(hasPressedGetStarted, bufferBefore, bufferAfter, cutoffTime, ignoreEarlyClockIns, lunchStart, lunchEnd, subtractLunchWorkDays, subtractLunchOffDays) {
@@ -177,13 +206,18 @@ fun OnboardingScreen(
                         },
                         onSkipSetup = onFinishOnboarding
                     )
-                    1 -> OnboardingStep1Buffer(
+                    1 -> OnboardingStep2Schedule(
+                        schedules = defaultSchedules,
+                        onSaveSchedule = onSaveSchedule,
+                        onApplyToAllWorkingDays = onApplyToAllWorkingDays
+                    )
+                    2 -> OnboardingStep1Buffer(
                         bufferBefore = bufferBefore,
                         onBufferBeforeChange = { bufferBefore = it },
                         bufferAfter = bufferAfter,
                         onBufferAfterChange = { bufferAfter = it },
                         cutoffTime = cutoffTime,
-                        onCutoffTimeChange = { cutoffTime = it },
+                        onCutoffTimeChange = { tryUpdateCutoff(it) },
                         ignoreEarlyClockIns = ignoreEarlyClockIns,
                         onIgnoreEarlyChange = { ignoreEarlyClockIns = it },
                         lunchStart = lunchStart,
@@ -195,11 +229,6 @@ fun OnboardingScreen(
                         subtractLunchOffDays = subtractLunchOffDays,
                         onSubtractOffDaysChange = { subtractLunchOffDays = it },
                         onShowCutoffPicker = { showCutoffTimePicker = true }
-                    )
-                    2 -> OnboardingStep2Schedule(
-                        schedules = defaultSchedules,
-                        onSaveSchedule = onSaveSchedule,
-                        onApplyToAllWorkingDays = onApplyToAllWorkingDays
                     )
                     3 -> OnboardingStep3Privacy()
                 }
@@ -256,9 +285,16 @@ fun OnboardingScreen(
             initialMinutesFromMidnight = cutoffTime,
             onDismissRequest = { showCutoffTimePicker = false },
             onTimeSelected = { selectedMins ->
-                cutoffTime = selectedMins
+                tryUpdateCutoff(selectedMins)
                 showCutoffTimePicker = false
             }
+        )
+    }
+
+    if (showCutoffErrorDialog) {
+        InvalidCutoffTimeDialog(
+            onDismiss = { showCutoffErrorDialog = false },
+            errorMessage = cutoffErrorMessage
         )
     }
 }
@@ -291,7 +327,7 @@ private fun OnboardingWelcomeStep(
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
-                        imageVector = Icons.Default.MoreTime,
+                        painter = painterResource(id = R.drawable.ic_work_time),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onPrimaryContainer,
                         modifier = Modifier.size(44.dp)
@@ -334,14 +370,14 @@ private fun OnboardingWelcomeStep(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     WelcomeFeatureRow(
-                        icon = Icons.Default.Tune,
-                        title = stringResource(R.string.onboarding_step_1_title),
-                        desc = stringResource(R.string.onboarding_feature_buffer_desc)
-                    )
-                    WelcomeFeatureRow(
                         icon = Icons.Default.CalendarMonth,
                         title = stringResource(R.string.onboarding_step_2_title),
                         desc = stringResource(R.string.onboarding_feature_schedule_desc)
+                    )
+                    WelcomeFeatureRow(
+                        icon = Icons.Default.Tune,
+                        title = stringResource(R.string.onboarding_step_1_title),
+                        desc = stringResource(R.string.onboarding_feature_buffer_desc)
                     )
                     WelcomeFeatureRow(
                         icon = Icons.Default.Security,
@@ -483,8 +519,8 @@ private fun OobeHeader(
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = when (currentStep) {
-                            1 -> Icons.Default.Tune
-                            2 -> Icons.Default.CalendarMonth
+                            1 -> Icons.Default.CalendarMonth
+                            2 -> Icons.Default.Tune
                             else -> Icons.Default.Lock
                         },
                         contentDescription = null,
@@ -498,8 +534,8 @@ private fun OobeHeader(
 
             Text(
                 text = when (currentStep) {
-                    1 -> stringResource(R.string.onboarding_step_1_title)
-                    2 -> stringResource(R.string.onboarding_step_2_title)
+                    1 -> stringResource(R.string.onboarding_step_2_title)
+                    2 -> stringResource(R.string.onboarding_step_1_title)
                     else -> stringResource(R.string.onboarding_step_3_title)
                 },
                 style = MaterialTheme.typography.titleLarge,
@@ -512,8 +548,8 @@ private fun OobeHeader(
 
             Text(
                 text = when (currentStep) {
-                    1 -> stringResource(R.string.onboarding_step_1_subtitle)
-                    2 -> stringResource(R.string.onboarding_step_2_subtitle)
+                    1 -> stringResource(R.string.onboarding_step_2_subtitle)
+                    2 -> stringResource(R.string.onboarding_step_1_subtitle)
                     else -> stringResource(R.string.onboarding_step_3_subtitle)
                 },
                 style = MaterialTheme.typography.bodyMedium,

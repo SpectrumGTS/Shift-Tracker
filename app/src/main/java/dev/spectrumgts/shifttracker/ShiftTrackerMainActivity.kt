@@ -86,158 +86,157 @@ fun OvertimeTrackerApp(viewModel: OvertimeViewModel) {
     val shiftInputState by viewModel.shiftInputState.collectAsStateWithLifecycle()
 
     ModalNavigationDrawer(
-            drawerState = drawerState,
-            drawerContent = {
-                AppNavigationDrawerSheet(
-                    currentDestination = currentScreen,
-                    onDestinationSelected = { destination ->
-                        viewModel.navigateTo(destination)
+        drawerState = drawerState,
+        drawerContent = {
+            AppNavigationDrawerSheet(
+                currentDestination = currentScreen,
+                onDestinationSelected = { destination ->
+                    viewModel.navigateTo(destination)
+                },
+                onCloseDrawer = {
+                    coroutineScope.launch { drawerState.close() }
+                }
+            )
+        }
+    ) {
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = when (currentScreen) {
+                                ScreenDestination.DASHBOARD -> stringResource(R.string.app_name)
+                                ScreenDestination.DEFAULT_SCHEDULES -> stringResource(R.string.menu_default_schedule)
+                                ScreenDestination.SETTINGS -> stringResource(R.string.menu_buffer_grace_time)
+                                ScreenDestination.HISTORY -> stringResource(R.string.menu_history)
+                                ScreenDestination.INSIGHTS -> stringResource(R.string.menu_insights)
+                                ScreenDestination.MENTAL_WELLBEING -> stringResource(R.string.title_mental_wellbeing)
+                                ScreenDestination.BACKUP_RESTORE -> stringResource(R.string.menu_backup_restore)
+                                ScreenDestination.ABOUT -> stringResource(R.string.menu_about)
+                            },
+                            fontWeight = FontWeight.Bold
+                        )
                     },
-                    onCloseDrawer = {
-                        coroutineScope.launch { drawerState.close() }
-                    }
+                    navigationIcon = {
+                        IconButton(
+                            onClick = {
+                                coroutineScope.launch {
+                                    if (drawerState.isClosed) drawerState.open() else drawerState.close()
+                                }
+                            },
+                            modifier = Modifier.testTag("hamburger_menu_btn")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Menu,
+                                contentDescription = stringResource(R.string.content_desc_nav_menu)
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        titleContentColor = MaterialTheme.colorScheme.onSurface
+                    )
                 )
             }
-        ) {
-            Scaffold(
-                modifier = Modifier.fillMaxSize(),
-                topBar = {
-                    TopAppBar(
-                        title = {
-                            Text(
-                                text = when (currentScreen) {
-                                    ScreenDestination.DASHBOARD -> stringResource(R.string.app_name)
-                                    ScreenDestination.DEFAULT_SCHEDULES -> stringResource(R.string.menu_default_schedule)
-                                    ScreenDestination.SETTINGS -> stringResource(R.string.menu_buffer_grace_time)
-                                    ScreenDestination.HISTORY -> stringResource(R.string.menu_history)
-                                    ScreenDestination.INSIGHTS -> stringResource(R.string.menu_insights)
-                                    ScreenDestination.MENTAL_WELLBEING -> stringResource(R.string.title_mental_wellbeing)
-                                    ScreenDestination.BACKUP_RESTORE -> stringResource(R.string.menu_backup_restore)
-                                    ScreenDestination.ABOUT -> stringResource(R.string.menu_about)
-                                },
-                                fontWeight = FontWeight.Bold
-                            )
-                        },
-                        navigationIcon = {
-                            IconButton(
-                                onClick = {
-                                    coroutineScope.launch {
-                                        if (drawerState.isClosed) drawerState.open() else drawerState.close()
-                                    }
-                                },
-                                modifier = Modifier.testTag("hamburger_menu_btn")
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Menu,
-                                    contentDescription = "Open slide-in navigation menu"
-                                )
-                            }
-                        },
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            titleContentColor = MaterialTheme.colorScheme.onSurface
+        ) { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+                when (currentScreen) {
+                    ScreenDestination.DASHBOARD -> {
+                        DashboardScreen(
+                            shifts = shifts,
+                            defaultSchedules = defaultSchedules,
+                            appSettings = appSettings,
+                            onLogNewShift = { viewModel.openNewShiftDialog() },
+                            onEditShift = { shift -> viewModel.openEditShiftDialog(shift) },
+                            onDeleteShift = { shift -> viewModel.deleteShift(shift) },
+                            onNavigateToHistory = { viewModel.navigateTo(ScreenDestination.HISTORY) }
                         )
-                    )
-                }
-            ) { innerPadding ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding)
-                ) {
-                    when (currentScreen) {
-                        ScreenDestination.DASHBOARD -> {
-                            DashboardScreen(
-                                shifts = shifts,
-                                defaultSchedules = defaultSchedules,
-                                appSettings = appSettings,
-                                onLogNewShift = { viewModel.openNewShiftDialog() },
-                                onEditShift = { shift -> viewModel.openEditShiftDialog(shift) },
-                                onDeleteShift = { shift -> viewModel.deleteShift(shift) },
-                                onNavigateToHistory = { viewModel.navigateTo(ScreenDestination.HISTORY) }
-                            )
-                        }
-                        ScreenDestination.DEFAULT_SCHEDULES -> {
-                            DefaultScheduleScreen(
-                                schedules = defaultSchedules,
-                                onSaveSchedule = { dayOfWeek, isWorkDay, workStart, workEnd ->
-                                    viewModel.saveDefaultSchedule(dayOfWeek, isWorkDay, workStart, workEnd)
-                                },
-                                onApplyToAllWorkingDays = { workStart, workEnd ->
-                                    viewModel.applyDefaultScheduleToAllWorkingDays(workStart, workEnd)
-                                }
-                            )
-                        }
-                        ScreenDestination.SETTINGS -> {
-                            SettingsScreen(
-                                appSettings = appSettings,
-                                defaultSchedules = defaultSchedules,
-                                onSaveSettings = { bufferBefore, bufferAfter, cutoffTime, ignoreEarly, lunchStart, lunchEnd, subWork, subOff ->
-                                    viewModel.saveAppSettings(bufferBefore, bufferAfter, cutoffTime, ignoreEarly, lunchStart, lunchEnd, subWork, subOff)
-                                }
-                            )
-                        }
-                        ScreenDestination.HISTORY -> {
-                            ShiftHistoryScreen(
-                                shifts = shifts,
-                                onLogNewShift = { viewModel.openNewShiftDialog() },
-                                onEditShift = { shift -> viewModel.openEditShiftDialog(shift) },
-                                onDeleteShift = { shift -> viewModel.deleteShift(shift) },
-                                appSettings = appSettings
-                            )
-                        }
-                        ScreenDestination.INSIGHTS -> {
-                            InsightsScreen(
-                                shifts = shifts,
-                                appSettings = appSettings
-                            )
-                        }
-                        ScreenDestination.MENTAL_WELLBEING -> {
-                            MentalWellbeingScreen(
-                                shifts = shifts,
-                                appSettings = appSettings
-                            )
-                        }
-                        ScreenDestination.BACKUP_RESTORE -> {
-                            BackupRestoreScreen(
-                                shifts = shifts,
-                                defaultSchedules = defaultSchedules,
-                                onExportUnifiedBackup = { uri, includeShifts, includeSettings ->
-                                    viewModel.exportUnifiedBackupToUri(uri, context, includeShifts, includeSettings)
-                                },
-                                onRedoOnboarding = {
-                                    context.startActivity(Intent(context, ShiftTrackerOnboardingActivity::class.java))
-                                }
-                            )
-                        }
-                        ScreenDestination.ABOUT -> {
-                            AboutScreen()
-                        }
                     }
-
-                    // Active Shift Input / Edit Dialog
-                    shiftInputState?.let { input ->
-                        AddEditShiftDialog(
-                            inputState = input,
-                            onDateChanged = { newDate -> viewModel.updateShiftDate(newDate) },
-                            onTimesUpdated = { workStart, workEnd, clockIn, clockOut, bufferBefore, bufferAfter, isWorkDay, notes ->
-                                viewModel.updateShiftTimes(
-                                    workStart,
-                                    workEnd,
-                                    clockIn,
-                                    clockOut,
-                                    bufferBefore,
-                                    bufferAfter,
-                                    isWorkDay,
-                                    notes
-                                )
+                    ScreenDestination.DEFAULT_SCHEDULES -> {
+                        DefaultScheduleScreen(
+                            schedules = defaultSchedules,
+                            onSaveSchedule = { dayOfWeek, isWorkDay, workStart, workEnd ->
+                                viewModel.saveDefaultSchedule(dayOfWeek, isWorkDay, workStart, workEnd)
                             },
-                            onDismiss = { viewModel.dismissShiftDialog() },
-                            onSave = { viewModel.saveCurrentShift() },
+                            onApplyToAllWorkingDays = { workStart, workEnd ->
+                                viewModel.applyDefaultScheduleToAllWorkingDays(workStart, workEnd)
+                            }
+                        )
+                    }
+                    ScreenDestination.SETTINGS -> {
+                        SettingsScreen(
+                            appSettings = appSettings,
+                            defaultSchedules = defaultSchedules,
+                            onSaveSettings = { bufferBefore, bufferAfter, cutoffTime, ignoreEarly, lunchStart, lunchEnd, subWork, subOff ->
+                                viewModel.saveAppSettings(bufferBefore, bufferAfter, cutoffTime, ignoreEarly, lunchStart, lunchEnd, subWork, subOff)
+                            }
+                        )
+                    }
+                    ScreenDestination.HISTORY -> {
+                        ShiftHistoryScreen(
+                            shifts = shifts,
+                            onLogNewShift = { viewModel.openNewShiftDialog() },
+                            onEditShift = { shift -> viewModel.openEditShiftDialog(shift) },
+                            onDeleteShift = { shift -> viewModel.deleteShift(shift) },
                             appSettings = appSettings
                         )
                     }
+                    ScreenDestination.INSIGHTS -> {
+                        InsightsScreen(
+                            shifts = shifts,
+                            appSettings = appSettings
+                        )
+                    }
+                    ScreenDestination.MENTAL_WELLBEING -> {
+                        MentalWellbeingScreen(
+                            shifts = shifts,
+                            appSettings = appSettings
+                        )
+                    }
+                    ScreenDestination.BACKUP_RESTORE -> {
+                        BackupRestoreScreen(
+                            shifts = shifts,
+                            onExportUnifiedBackup = { uri, includeShifts, includeSettings ->
+                                viewModel.exportUnifiedBackupToUri(uri, context, includeShifts, includeSettings)
+                            },
+                            onRedoOnboarding = {
+                                context.startActivity(Intent(context, ShiftTrackerOnboardingActivity::class.java))
+                            }
+                        )
+                    }
+                    ScreenDestination.ABOUT -> {
+                        AboutScreen()
+                    }
+                }
+
+                // Active Shift Input / Edit Dialog
+                shiftInputState?.let { input ->
+                    AddEditShiftDialog(
+                        inputState = input,
+                        onDateChanged = { newDate -> viewModel.updateShiftDate(newDate) },
+                        onTimesUpdated = { workStart, workEnd, clockIn, clockOut, bufferBefore, bufferAfter, isWorkDay, notes ->
+                            viewModel.updateShiftTimes(
+                                workStart,
+                                workEnd,
+                                clockIn,
+                                clockOut,
+                                bufferBefore,
+                                bufferAfter,
+                                isWorkDay,
+                                notes
+                            )
+                        },
+                        onDismiss = { viewModel.dismissShiftDialog() },
+                        onSave = { viewModel.saveCurrentShift() },
+                        appSettings = appSettings
+                    )
                 }
             }
         }
     }
+}

@@ -89,6 +89,12 @@ data class ShiftInputState(
     val isEditing: Boolean = false
 )
 
+data class BackupPreviewInfo(
+    val shiftCount: Int = 0,
+    val scheduleCount: Int = 0,
+    val hasSettings: Boolean = false
+)
+
 class OvertimeViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: OvertimeRepository
@@ -138,6 +144,9 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
 
     private val _shiftInputState = MutableStateFlow<ShiftInputState?>(null)
     val shiftInputState: StateFlow<ShiftInputState?> = _shiftInputState.asStateFlow()
+
+    private val _backupPreviewInfo = MutableStateFlow<BackupPreviewInfo?>(null)
+    val backupPreviewInfo: StateFlow<BackupPreviewInfo?> = _backupPreviewInfo.asStateFlow()
 
     fun navigateTo(destination: ScreenDestination) {
         _currentScreen.value = destination
@@ -218,10 +227,10 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
     fun updateShiftDate(newDate: String) {
         viewModelScope.launch {
             if (_shiftInputState.value == null) return@launch
-            
+
             // Check if a shift already exists for the NEW date
             val existing = repository.getShiftByDate(newDate)
-            
+
             if (existing != null) {
                 // If it exists, switch to editing THAT shift
                 _shiftInputState.value = ShiftInputState(
@@ -449,6 +458,36 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
         onResult: ((Boolean, String) -> Unit)? = null
     ) {
         importBackupFromUri(uri, context, restoreShifts = restoreShifts, restoreSettings = restoreSettings, onResult = onResult)
+    }
+
+    fun peekBackupFromUri(
+        uri: Uri,
+        context: android.content.Context
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val content = context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                    BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8)).use { reader ->
+                        reader.readText()
+                    }
+                } ?: return@launch
+
+                val jsonRoot = try {
+                    JSONObject(content)
+                } catch (e: Exception) {
+                    null
+                }
+
+                if (jsonRoot != null) {
+                    val shiftCount = jsonRoot.optJSONArray("shiftLogs")?.length() ?: 0
+                    val scheduleCount = jsonRoot.optJSONArray("defaultSchedules")?.length() ?: 0
+                    val hasSettings = jsonRoot.has("appSettings")
+                    _backupPreviewInfo.value = BackupPreviewInfo(shiftCount, scheduleCount, hasSettings)
+                }
+            } catch (e: Exception) {
+                _backupPreviewInfo.value = null
+            }
+        }
     }
 
     fun exportBackupToUri(

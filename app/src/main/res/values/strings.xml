@@ -21,6 +21,7 @@
     <string name="custom_cutoff_time">Custom Cutoff Time: %1$s</string>
     <string name="cutoff_time_hint">• If clock out passes midnight but is earlier than or equal to %1$s, extra hours are counted into the day before midnight.</string>
     <string name="invalid_cutoff_time">Invalid Cutoff Time</string>
+    <string name="invalid_cutoff_time_desc">Overnight cutoff time (%1$s) cannot be later than any default work start time (%2$s).</string>
     <string name="ok_btn" translatable="false">OK</string>
 
     <!-- Lunch Break Settings -->
@@ -54,13 +55,13 @@
     <string name="clock_out_label">Clock Out</string>
     <string name="date_label">Date (YYYY-MM-DD)</string>
     <string name="net_extra_time">NET EXTRA TIME</string>
-    <string name="early_arrival_overtime">Early Arrival Overtime (-%1$dm buffer):</string>
-    <string name="late_departure_overtime">Late Departure Overtime (-%1$dm buffer):</string>
+    <string name="early_arrival_overtime">Early Arrival Overtime (-%1$d mins buffer):</string>
+    <string name="late_departure_overtime">Late Departure Overtime (-%1$d mins buffer):</string>
     <string name="non_working_day_desc">Non-working day log: Entire worked duration is calculated as overtime.</string>
     <string name="lunch_break_subtracted">Lunch Break Subtracted:</string>
     <string name="total_worked_duration">Total Worked Duration:</string>
     <string name="notes_label">Notes / Project / Reason (Optional)</string>
-    
+
     <!-- Time Pickers -->
     <string name="select_scheduled_start">Select Scheduled Work Start</string>
     <string name="select_scheduled_end">Select Scheduled Work End</string>
@@ -128,7 +129,7 @@
     <string name="backup_db_title">Database Backup &amp; Restore</string>
     <string name="backup_db_subtitle">Export your shift logs and settings to JSON backup files or restore them from a previous backup.</string>
     <string name="backup_unified_title">Unified Backup File (JSON)</string>
-    <string name="backup_unified_subtitle">Backup both shift logs and preferences into a single file (%1$d shifts, %2$d default schedules).</string>
+    <string name="backup_unified_subtitle">Backup both shift logs and preferences into a single file (%1$d shifts).</string>
     <string name="backup_export_json_btn">Export JSON</string>
     <string name="backup_import_json_btn">Import JSON</string>
     <string name="backup_export_success_unified">Unified database backup successfully exported to JSON.</string>
@@ -138,9 +139,9 @@
     <string name="backup_import_checksum_failed">Backup file integrity check failed. The file has been modified or corrupted.</string>
     <string name="backup_restore_dialog_intro">Select which data sections you want to restore from this JSON file:</string>
     <string name="backup_restore_option_logs">Shift Logs (%1$d records)</string>
-    <string name="backup_restore_option_schedules">Default Schedules (%1$d days) &amp; Settings</string>
+    <string name="backup_restore_option_schedules">Default Schedules &amp; Settings</string>
     <string name="backup_export_option_logs">Shift Logs (%1$d records)</string>
-    <string name="backup_export_option_schedules">Default Schedules (%1$d days) &amp; Settings</string>
+    <string name="backup_export_option_schedules">Default Schedules &amp; Settings</string>
     <string name="backup_export_dialog_intro">Select which data sections you want to export to this JSON file:</string>
 
     <!-- Default Schedules Screen -->
@@ -169,6 +170,11 @@
     <string name="dashboard_scheduled_off">Scheduled: Non-working day / Off</string>
     <string name="confirm_btn_text">Confirm</string>
 
+    <!-- Accessibility / Content Descriptions -->
+    <string name="content_desc_app_icon">App Icon</string>
+    <string name="content_desc_nav_menu">Open slide-in navigation menu</string>
+    <string name="content_desc_select_time">Select Time</string>
+
     <!-- Cutoff Warning & Notes Counter -->
     <string name="cutoff_warning_title">Overtime Cutoff Exceeded</string>
     <string name="cutoff_warning_desc">Actual clock out time (%1$s) exceeds the overnight cutoff time (%2$s). Discard the exceeded portion and change clock out time back to %2$s?</string>
@@ -191,7 +197,7 @@
     <string name="wellbeing_subtitle">Healthiness assessment based on monthly overtime strain and occupational health resources.</string>
     <string name="wellbeing_monthly_overtime_label">MONTHLY OVERTIME STRAIN</string>
     <string name="wellbeing_readonly_badge">Read-Only Analytics</string>
-    
+
     <!-- Healthiness Ratings -->
     <string name="wellbeing_rating_optimal">Optimal Balance</string>
     <string name="wellbeing_rating_moderate">Moderate Strain</string>
@@ -205,7 +211,7 @@
 
     <!-- Mental Health Materials Sections -->
     <string name="wellbeing_section_resources">Workplace Health &amp; Wellbeing Resources</string>
-    
+
     <!-- Material 1: Burnout Signs -->
     <string name="wellbeing_mat_burnout_title">Recognizing Early Burnout &amp; Fatigue Signs</string>
     <string name="wellbeing_mat_burnout_desc">Overtime fatigue can build up subtly before impacting daily mental health. Watch for these physical and psychological warning signs:</string>

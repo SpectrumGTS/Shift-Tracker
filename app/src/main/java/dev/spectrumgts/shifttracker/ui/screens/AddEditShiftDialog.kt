@@ -248,7 +248,7 @@ fun AddEditShiftDialog(
                                     }
                                     showDatePicker = false
                                 }
-                             ) {
+                            ) {
                                 Text(stringResource(R.string.ok_btn))
                             }
                         },
@@ -293,7 +293,7 @@ fun AddEditShiftDialog(
                     )
                 }
 
-                 // Scheduled Working Hours Section
+                // Scheduled Working Hours Section
                 if (inputState.isWorkDay) {
                     Column {
                         Text(
@@ -442,7 +442,7 @@ fun AddEditShiftDialog(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                        
+
                         val isLunchSubtractedEnabled = if (inputState.isWorkDay) appSettings.subtractLunchWorkDays else appSettings.subtractLunchOffDays
                         if (isLunchSubtractedEnabled) {
                             Row(
@@ -460,7 +460,7 @@ fun AddEditShiftDialog(
                                     text = if (calcSummary.lunchSubtractedMinutes > 0) {
                                         "-${OvertimeCalculator.formatDurationMinutes(calcSummary.lunchSubtractedMinutes)}"
                                     } else {
-                                        "0m"
+                                        stringResource(R.string.duration_zero)
                                     },
                                     style = MaterialTheme.typography.bodySmall,
                                     color = if (calcSummary.lunchSubtractedMinutes > 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
@@ -778,7 +778,7 @@ private fun TimeSelectorCard(
                 )
                 Icon(
                     imageVector = Icons.Default.AccessTime,
-                    contentDescription = "Select Time",
+                    contentDescription = stringResource(R.string.content_desc_select_time),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(20.dp)
                 )

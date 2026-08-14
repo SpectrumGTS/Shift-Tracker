@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.NightlightRound
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
@@ -26,6 +27,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +37,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.spectrumgts.shifttracker.R
 import dev.spectrumgts.shifttracker.data.model.OvertimeCalculator
+import dev.spectrumgts.shifttracker.ui.theme.WarningDialogBodyStyle
+import dev.spectrumgts.shifttracker.ui.theme.WarningDialogTitleStyle
 
 @Composable
 fun BufferBeforeCard(
@@ -101,14 +105,16 @@ fun BufferBeforeCard(
             )
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 listOf(0, 5, 10, 15, 30).forEach { preset ->
                     FilterChip(
                         selected = bufferBefore.toInt() == preset,
                         onClick = { onBufferBeforeChange(preset.toFloat()) },
-                        label = { Text("${preset}m") },
+                        label = { Text(stringResource(R.string.duration_minutes, preset)) },
                         modifier = Modifier.testTag("buffer_before_preset_$preset")
                     )
                 }
@@ -221,14 +227,16 @@ fun BufferAfterCard(
             )
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 listOf(0, 5, 10, 15, 30).forEach { preset ->
                     FilterChip(
                         selected = bufferAfter.toInt() == preset,
                         onClick = { onBufferAfterChange(preset.toFloat()) },
-                        label = { Text("${preset}m") },
+                        label = { Text(stringResource(R.string.duration_minutes, preset)) },
                         modifier = Modifier.testTag("buffer_after_preset_$preset")
                     )
                 }
@@ -496,16 +504,12 @@ fun CutoffTimeCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 listOf(
-                    180 to "03:00 AM",
-                    240 to "04:00 AM",
-                    300 to "05:00 AM",
-                    360 to "06:00 AM",
-                    420 to "07:00 AM"
-                ).forEach { (presetMins, label) ->
+                    180, 240, 300, 360, 420
+                ).forEach { presetMins ->
                     FilterChip(
                         selected = cutoffTime == presetMins,
                         onClick = { onCutoffTimeChange(presetMins) },
-                        label = { Text(label) },
+                        label = { Text(OvertimeCalculator.formatMinutesToTime(presetMins)) },
                         modifier = Modifier.testTag("cutoff_preset_$presetMins")
                     )
                 }
@@ -534,4 +538,32 @@ fun CutoffTimeCard(
             )
         }
     }
+}
+
+@Composable
+fun InvalidCutoffTimeDialog(
+    onDismiss: () -> Unit,
+    errorMessage: String
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = stringResource(R.string.invalid_cutoff_time),
+                style = WarningDialogTitleStyle
+            )
+        },
+        text = {
+            Text(
+                text = errorMessage,
+                style = WarningDialogBodyStyle
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.ok_btn), fontWeight = FontWeight.Bold)
+            }
+        },
+        modifier = Modifier.testTag("invalid_cutoff_dialog")
+    )
 }

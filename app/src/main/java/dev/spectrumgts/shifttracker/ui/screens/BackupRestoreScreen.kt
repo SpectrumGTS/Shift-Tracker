@@ -25,7 +25,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.spectrumgts.shifttracker.R
-import dev.spectrumgts.shifttracker.data.model.DayDefaultSchedule
 import dev.spectrumgts.shifttracker.data.model.ShiftLog
 import dev.spectrumgts.shifttracker.ui.theme.WarningDialogBodyStyle
 import dev.spectrumgts.shifttracker.ui.theme.WarningDialogTitleStyle
@@ -33,7 +32,6 @@ import dev.spectrumgts.shifttracker.ui.theme.WarningDialogTitleStyle
 @Composable
 fun BackupRestoreScreen(
     shifts: List<ShiftLog>,
-    defaultSchedules: List<DayDefaultSchedule>,
     onExportUnifiedBackup: (Uri, Boolean, Boolean) -> Unit,
     onRedoOnboarding: () -> Unit = {}
 ) {
@@ -121,7 +119,7 @@ fun BackupRestoreScreen(
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    text = stringResource(R.string.backup_unified_subtitle, shifts.size, defaultSchedules.size),
+                                    text = stringResource(R.string.backup_unified_subtitle, shifts.size),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -161,7 +159,7 @@ fun BackupRestoreScreen(
                                 onCheckedChange = { exportSettingsChecked = it }
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(stringResource(R.string.backup_export_option_schedules, defaultSchedules.size))
+                            Text(stringResource(R.string.backup_export_option_schedules))
                         }
 
                         Row(

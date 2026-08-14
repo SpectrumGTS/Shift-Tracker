@@ -41,14 +41,14 @@ class BackupImportActivity : ComponentActivity() {
                 var restoreShiftsChecked by remember { mutableStateOf(true) }
                 var restoreSettingsChecked by remember { mutableStateOf(true) }
 
-                val shifts by viewModel.shifts.collectAsStateWithLifecycle()
-                val defaultSchedules by viewModel.defaultSchedules.collectAsStateWithLifecycle()
+                val previewInfo by viewModel.backupPreviewInfo.collectAsStateWithLifecycle()
 
                 val filePickerLauncher = rememberLauncherForActivityResult(
                     contract = ActivityResultContracts.OpenDocument()
                 ) { uri ->
                     if (uri != null) {
                         selectedUri = uri
+                        viewModel.peekBackupFromUri(uri, context)
                         showDialog = true
                     } else {
                         finish()
@@ -56,7 +56,7 @@ class BackupImportActivity : ComponentActivity() {
                 }
 
                 LaunchedEffect(Unit) {
-                    filePickerLauncher.launch(arrayOf("application/json", "text/plain", "*/*"))
+                    filePickerLauncher.launch(arrayOf("application/json"))
                 }
 
                 if (showDialog && selectedUri != null) {
@@ -87,7 +87,7 @@ class BackupImportActivity : ComponentActivity() {
                                         onCheckedChange = { restoreShiftsChecked = it }
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text(stringResource(R.string.backup_restore_option_logs, shifts.size))
+                                    Text(stringResource(R.string.backup_restore_option_logs, previewInfo?.shiftCount ?: 0))
                                 }
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
@@ -98,7 +98,7 @@ class BackupImportActivity : ComponentActivity() {
                                         onCheckedChange = { restoreSettingsChecked = it }
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text(stringResource(R.string.backup_restore_option_schedules, defaultSchedules.size))
+                                    Text(stringResource(R.string.backup_restore_option_schedules))
                                 }
                             }
                         },

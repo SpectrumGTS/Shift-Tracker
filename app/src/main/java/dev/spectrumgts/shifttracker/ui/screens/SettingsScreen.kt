@@ -15,13 +15,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -43,6 +42,7 @@ import dev.spectrumgts.shifttracker.data.model.OvertimeCalculator
 import dev.spectrumgts.shifttracker.ui.components.BufferAfterCard
 import dev.spectrumgts.shifttracker.ui.components.BufferBeforeCard
 import dev.spectrumgts.shifttracker.ui.components.CutoffTimeCard
+import dev.spectrumgts.shifttracker.ui.components.InvalidCutoffTimeDialog
 import dev.spectrumgts.shifttracker.ui.components.LunchBreakCard
 import dev.spectrumgts.shifttracker.ui.components.M3TimePickerDialog
 import dev.spectrumgts.shifttracker.ui.theme.WarningDialogBodyStyle
@@ -63,6 +63,7 @@ fun SettingsScreen(
         subtractLunchOffDays: Boolean
     ) -> Unit
 ) {
+    val context = LocalContext.current
     var bufferBefore by remember(appSettings) { mutableFloatStateOf(appSettings.bufferBeforeMinutes.toFloat()) }
     var bufferAfter by remember(appSettings) { mutableFloatStateOf(appSettings.bufferAfterMinutes.toFloat()) }
     var cutoffTime by remember(appSettings) { mutableIntStateOf(appSettings.cutoffTimeMinutes) }
@@ -92,7 +93,11 @@ fun SettingsScreen(
 
     val tryUpdateCutoff: (Int) -> Unit = { newCutoff ->
         if (newCutoff > minWorkStart) {
-            cutoffErrorMessage = "Overnight cutoff time (${OvertimeCalculator.formatMinutesToTime(newCutoff)}) cannot be later than any default work start time (${OvertimeCalculator.formatMinutesToTime(minWorkStart)})."
+            cutoffErrorMessage = context.getString(
+                R.string.invalid_cutoff_time_desc,
+                OvertimeCalculator.formatMinutesToTime(newCutoff),
+                OvertimeCalculator.formatMinutesToTime(minWorkStart)
+            )
             showCutoffErrorDialog = true
         } else {
             cutoffTime = newCutoff
@@ -237,25 +242,9 @@ fun SettingsScreen(
     }
 
     if (showCutoffErrorDialog) {
-        AlertDialog(
-            onDismissRequest = { showCutoffErrorDialog = false },
-            title = {
-                Text(
-                    text = stringResource(R.string.invalid_cutoff_time),
-                    style = WarningDialogTitleStyle
-                )
-            },
-            text = {
-                Text(
-                    text = cutoffErrorMessage,
-                    style = WarningDialogBodyStyle
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = { showCutoffErrorDialog = false }) {
-                    Text(stringResource(R.string.ok_btn), fontWeight = FontWeight.Bold)
-                }
-            }
+        InvalidCutoffTimeDialog(
+            onDismiss = { showCutoffErrorDialog = false },
+            errorMessage = cutoffErrorMessage
         )
     }
 }
