@@ -2,12 +2,7 @@
 .gradle
 .kotlin
 /local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+/.idea
 .DS_Store
 /build
 /captures
@@ -20,4 +15,3 @@ debug.keystore
 /app/debug
 /.artifacts
 /app/src/main/java/dev/spectrumgts/shifttracker/.artifacts
-/.idea
