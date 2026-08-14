@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -499,7 +498,7 @@ fun CutoffTimeCard(
                 listOf(
                     180 to "03:00 AM",
                     240 to "04:00 AM",
-                    300 to "05:00 AM (Default)",
+                    300 to "05:00 AM",
                     360 to "06:00 AM",
                     420 to "07:00 AM"
                 ).forEach { (presetMins, label) ->

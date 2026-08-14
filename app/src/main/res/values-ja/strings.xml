@@ -1,0 +1,315 @@
+<resources>
+    <string name="app_name" translatable="false">Shift Tracker</string>
+
+    <!-- Settings Screen -->
+    <string name="overtime_grace_cutoff_settings">残業猶予と締め切り設定</string>
+    <string name="configure_grace_buffer_desc">夜勤の残業計算のための猶予期間と締め切り時間を設定します。</string>
+    <string name="before_working_hours_buffer">勤務開始前のバッファ</string>
+    <string name="grace_period_prior_to_start">勤務開始前の猶予期間</string>
+    <string name="mins_suffix">%1$d 分</string>
+    <string name="always_ignore_early_clock_ins">常に早出を無視する</string>
+    <string name="disregard_early_work">正式な開始時間前の作業を無視します。</string>
+    <string name="desc_early_clockins_disabled">• 早出の無効化：すべての早出到着時間は無視されます（早出残業 0）。</string>
+    <string name="desc_no_buffer_early">• バッファなし：すべての早出到着時間を残業としてカウントします。</string>
+    <string name="desc_buffer_early_active">• 開始 %1$d 分以内の出勤は到着猶予時間として扱われ、残業から除外されます。</string>
+    <string name="after_working_hours_buffer">勤務終了後のバッファ</string>
+    <string name="grace_period_after_end">勤務終了後の猶予期間</string>
+    <string name="desc_no_buffer_late">• バッファなし：すべての遅い退勤時間を残業としてカウントします。</string>
+    <string name="desc_buffer_late_active">• 終了後 %1$d 分以内の退勤は出発猶予時間として扱われ、残業から除外されます。</string>
+    <string name="overnight_shift_cutoff_time">夜勤の締め切り時間</string>
+    <string name="default_cutoff_time">デフォルト: 05:00 AM</string>
+    <string name="custom_cutoff_time">カスタム締め切り時間: %1$s</string>
+    <string name="cutoff_time_hint">• 退勤が深夜を過ぎても %1$s 以前の場合、超過時間は深夜前の日の分としてカウントされます。</string>
+    <string name="invalid_cutoff_time">無効な締め切り時間</string>
+    <string name="ok_btn" translatable="false">OK</string>
+
+    <!-- Lunch Break Settings -->
+    <string name="lunch_break_range">昼休み時間</string>
+    <string name="default_lunch_break">デフォルト: 12:00 PM ～ 12:30 PM</string>
+    <string name="lunch_start_prefix">開始: %1$s</string>
+    <string name="lunch_end_prefix">終了: %1$s</string>
+    <string name="subtract_lunch_workdays">勤務日に差し引く</string>
+    <string name="subtract_lunch_workdays_desc">予定された勤務日の総労働時間から昼休みを自動的に差し引きます。</string>
+    <string name="subtract_lunch_offdays">非勤務日に差し引く</string>
+    <string name="subtract_lunch_offdays_desc">週末や休日の総労働/残業時間から昼休みを自動的に差し引きます。</string>
+    <string name="select_lunch_start_title">昼休み開始時間を選択</string>
+    <string name="select_lunch_end_title">昼休み終了時間を選択</string>
+    <string name="select_cutoff_title">夜勤締め切り時間を選択</string>
+
+    <!-- Add/Edit Shift Dialog -->
+    <string name="save_shift">シフトを保存</string>
+    <string name="cancel_btn">キャンセル</string>
+    <string name="add_shift">シフトを記録</string>
+    <string name="edit_shift">シフト記録を編集</string>
+    <string name="work_day">勤務日</string>
+    <string name="off_day">休日</string>
+    <string name="scheduled_work_day">予定された勤務日</string>
+    <string name="scheduled_work_day_desc">標準の勤務スケジュールを適用</string>
+    <string name="scheduled_off_day_desc">非勤務日（すべての労働時間が超過分となります）</string>
+    <string name="scheduled_working_hours">予定労働時間</string>
+    <string name="actual_clock_in_out">実際の出退勤</string>
+    <string name="work_start_label">勤務開始</string>
+    <string name="work_end_label">勤務終了</string>
+    <string name="clock_in_label">出勤</string>
+    <string name="clock_out_label">退勤</string>
+    <string name="date_label">日付 (YYYY-MM-DD)</string>
+    <string name="net_extra_time">正味の超過時間</string>
+    <string name="early_arrival_overtime">早出残業 (-%1$dm バッファ):</string>
+    <string name="late_departure_overtime">遅退残業 (-%1$dm バッファ):</string>
+    <string name="non_working_day_desc">非勤務日の記録: 全労働時間が残業として計算されます。</string>
+    <string name="lunch_break_subtracted">差し引かれた昼休み:</string>
+    <string name="total_worked_duration">総労働時間:</string>
+    <string name="notes_label">メモ / プロジェクト / 理由（任意）</string>
+
+    <!-- Time Pickers -->
+    <string name="select_scheduled_start">予定開始時間を選択</string>
+    <string name="select_scheduled_end">予定終了時間を選択</string>
+    <string name="select_clock_in">出勤時間を選択</string>
+    <string name="select_clock_out">退勤時間を選択</string>
+
+    <!-- Dialog Confirmation -->
+    <string name="confirm_overwrite_title">既存の記録を上書きしますか？</string>
+    <string name="confirm_save_title">シフト記録を保存しますか？</string>
+    <string name="confirm_overwrite_desc">%1$s の既存のシフト記録を上書きしてもよろしいですか？</string>
+    <string name="confirm_save_desc">%1$s のシフト記録を保存してもよろしいですか？</string>
+    <string name="overwrite_btn">上書き</string>
+    <string name="save_btn">保存</string>
+    <string name="early_clock_out_title">早退を検知</string>
+    <string name="early_clock_out_desc">実際の退勤時間 (%1$s) が予定終了時間 (%2$s) より早いです。この日の予定終了時間を %1$s に設定しますか？</string>
+    <string name="early_clock_out_confirm">予定終了を設定して保存</string>
+    <string name="future_date_warning_title">未来の日付の警告</string>
+    <string name="future_date_warning_desc">未来の日付 (%1$s) の記録を作成しようとしています。続行しますか？</string>
+    <string name="confirm_btn">確認</string>
+    <string name="dashboard_extra_time">超過時間 (%1$s)</string>
+    <string name="dashboard_shifts_this_month">今月のシフト: %1$d</string>
+    <string name="dashboard_total_worked_label">総労働</string>
+    <string name="dashboard_extra_time_label">超過時間</string>
+    <string name="dashboard_month_summary">%1$s の概要</string>
+
+
+    <!-- Navigation Drawer Menu Items -->
+    <string name="menu_subtitle">ワークライフバランス</string>
+    <string name="menu_dashboard">ダッシュボード</string>
+    <string name="menu_history">シフト履歴</string>
+    <string name="menu_insights">年間インサイト</string>
+    <string name="menu_mental_wellbeing">メンタルウェルビーイング</string>
+    <string name="menu_section_settings">設定と基本設定</string>
+    <string name="menu_default_schedule">デフォルトスケジュール</string>
+    <string name="menu_buffer_grace_time">バッファと猶予時間</string>
+    <string name="menu_backup_restore">バックアップと復元</string>
+    <string name="menu_about">アプリについて</string>
+    <string name="menu_footer" translatable="false">Room Offline Persistence • M3 Native</string>
+
+    <!-- Shift History Screen Filters & Quick Chips -->
+    <string name="history_search_placeholder">日付やメモで検索…</string>
+    <string name="history_filter_by_date_desc">日付でフィルタ</string>
+    <string name="history_filter_by_date_range">日付範囲でフィルタ</string>
+    <string name="history_start_date_label">開始日</string>
+    <string name="history_end_date_label">終了日</string>
+    <string name="history_filter_any_value">すべて</string>
+    <string name="history_clear_date_filters_desc">日付フィルタをクリア</string>
+    <string name="history_chip_last_week">先週</string>
+    <string name="history_chip_last_month">先月</string>
+    <string name="history_chip_this_quarter">今四半期</string>
+    <string name="history_chip_last_year">昨年</string>
+    <string name="history_validation_error_end_before_start">終了日は開始日より前にはできません。</string>
+    <string name="history_validation_error_range_too_long">選択範囲は 367 日を超えられません。</string>
+    <string name="history_icon_content_desc_error">エラー</string>
+    <string name="history_matching_logs_label">一致する記録: %1$d</string>
+    <string name="history_total_logs_label">総記録数: %1$d</string>
+    <string name="history_total_extra_label">総超過時間: %1$s</string>
+    <string name="history_no_matching_found">一致するシフト記録が見つかりません</string>
+    <string name="history_no_history_recorded">シフト履歴が記録されていません</string>
+    <string name="history_fab_log_shift_desc">シフトを記録</string>
+
+    <!-- Backup Restore Screen -->
+    <string name="backup_confirm_overwrite_title">上書きの確認</string>
+    <string name="backup_overwrite_import_btn">上書きして復元</string>
+    <string name="backup_db_title">データベースのバックアップと復元</string>
+    <string name="backup_db_subtitle">シフト記録と設定を JSON バックアップファイルにエクスポート、または以前のバックアップから復元します。</string>
+    <string name="backup_unified_title">統合バックアップファイル (JSON)</string>
+    <string name="backup_unified_subtitle">シフト記録と設定の両方を単一のファイルにバックアップします（%1$d シフト、%2$d デフォルトスケジュール）。</string>
+    <string name="backup_export_json_btn">JSON エクスポート</string>
+    <string name="backup_import_json_btn">JSON インポート</string>
+    <string name="backup_export_success_unified">統合データベースバックアップが JSON に正常にエクスポートされました。</string>
+    <string name="backup_import_success_unified">バックアップデータが JSON から正常に復元されました。</string>
+    <string name="backup_export_failed">エクスポート失敗: %1$s</string>
+    <string name="backup_import_failed">インポート失敗: %1$s</string>
+    <string name="backup_import_checksum_failed">バックアップファイルの整合性チェックに失敗しました。ファイルが変更されているか破損しています。</string>
+    <string name="backup_restore_dialog_intro">この JSON ファイルから復元するデータセクションを選択してください:</string>
+    <string name="backup_restore_option_logs">シフト記録 (%1$d 件)</string>
+    <string name="backup_restore_option_schedules">デフォルトスケジュール (%1$d 日分) と設定</string>
+    <string name="backup_export_option_logs">シフト記録 (%1$d 件)</string>
+    <string name="backup_export_option_schedules">デフォルトスケジュール (%1$d 日分) と設定</string>
+    <string name="backup_export_dialog_intro">この JSON ファイルにエクスポートするデータセクションを選択してください:</string>
+
+    <!-- Default Schedules Screen -->
+    <string name="schedule_info_title">デフォルトの週間労働時間</string>
+    <string name="schedule_info_desc">各曜日の標準シフト時間を定義します。シフトを記録する際、これらのデフォルト時間が自動的に入力されます。</string>
+    <string name="schedule_apply_all_title">すべての勤務時間に適用しますか？</string>
+    <string name="schedule_apply_all_desc">%1$s ～ %2$s をすべてのデフォルト勤務日（月曜日から金曜日）に適用してもよろしいですか？既存の勤務日スケジュールは上書きされます。</string>
+    <string name="schedule_apply_overwrite_btn">適用して上書き</string>
+    <string name="schedule_work_start_title">%1$s: デフォルト開始時間</string>
+    <string name="schedule_work_end_title">%1$s: デフォルト終了時間</string>
+    <string name="schedule_default_start_label">デフォルト開始</string>
+    <string name="schedule_default_end_label">デフォルト終了</string>
+    <string name="schedule_apply_to_all_btn">これらの時間をすべての勤務日に適用する</string>
+
+    <!-- Shift Card & General UI -->
+    <string name="delete_shift_title">シフト記録を削除しますか？</string>
+    <string name="delete_shift_desc">%1$s のシフト記録を削除してもよろしいですか？この操作は取り消せません。</string>
+    <string name="delete_btn">削除</string>
+    <string name="dashboard_recent_shifts">最近のシフト（今週）</string>
+    <string name="dashboard_no_shifts_this_week">今週はシフトが記録されていません</string>
+    <string name="dashboard_tap_plus_hint">下の「＋」ボタンをタップしてシフトを記録します。</string>
+    <string name="dashboard_view_all">すべて表示 (%1$d)</string>
+    <string name="dashboard_today_prefix">今日 (%1$s)</string>
+    <string name="dashboard_scheduled_prefix">予定: %1$s - %2$s</string>
+    <string name="dashboard_shift_ends_in">勤務終了まであと %1$d時間 %2$d分 (%3$d分)</string>
+    <string name="dashboard_scheduled_off">予定: 非勤務日 / 休み</string>
+    <string name="confirm_btn_text">確認</string>
+
+    <!-- Cutoff Warning & Notes Counter -->
+    <string name="cutoff_warning_title">残業締め切り時間を超過</string>
+    <string name="cutoff_warning_desc">実際の退勤時間 (%1$s) が夜勤締め切り時間 (%2$s) を超えています。超過分を破棄し、退勤時間を %2$s に戻しますか？</string>
+    <string name="cutoff_warning_confirm">破棄して締め切り時間に設定</string>
+    <string name="notes_limit_counter">%1$d/32 文字 (%2$d 単語)</string>
+
+    <!-- Shift Card & Log UI -->
+    <string name="card_extra_suffix">+%1$s 超過</string>
+    <string name="card_scheduled_label">予定</string>
+    <string name="card_actual_clock_label">実際の出退勤</string>
+    <string name="card_worked_label">労働時間</string>
+    <string name="card_notes_prefix">メモ: %1$s</string>
+    <string name="card_edit_desc">シフトを編集</string>
+    <string name="card_delete_desc">シフトを削除</string>
+    <string name="card_off_day_desc">非勤務日 / 休み</string>
+
+    <!-- Mental Wellbeing Screen -->
+    <string name="title_mental_wellbeing">メンタルウェルビーイング</string>
+    <string name="wellbeing_headline">職場のメンタルウェルビーイング</string>
+    <string name="wellbeing_subtitle">月間残業負荷と労働衛生リソースに基づく健康度評価。</string>
+    <string name="wellbeing_monthly_overtime_label">月間残業負荷</string>
+    <string name="wellbeing_readonly_badge">読み取り専用分析</string>
+
+    <!-- Healthiness Ratings -->
+    <string name="wellbeing_rating_optimal">最適なバランス</string>
+    <string name="wellbeing_rating_moderate">中程度の負荷</string>
+    <string name="wellbeing_rating_high">疲労リスクの高まり</string>
+    <string name="wellbeing_rating_critical">深刻なバーンアウトの警告</string>
+
+    <string name="wellbeing_desc_optimal">月間残業負荷は低いです (%1$s)。仕事と休息のバランスは健康的で持続可能な範囲内にあります。引き続き定期的な休息を優先してください。</string>
+    <string name="wellbeing_desc_moderate">顕著な残業が蓄積されています (%1$s)。業務量に注意し、長いシフトの間は適切な小休憩を取るようにしてください。</string>
+    <string name="wellbeing_desc_high">かなりの残業が記録されています (%1$s)。強い負荷を感じています。極度の疲労を防ぐために、上司と業務量の範囲について話し合うことを検討してください。</string>
+    <string name="wellbeing_desc_critical">極度の残業負荷です (%1$s)。このレベルでの長期的な残業は、バーンアウトや慢性疲労の高いリスクを伴います。直ちに休息を取ることを強くお勧めします。</string>
+
+    <!-- Mental Health Materials Sections -->
+    <string name="wellbeing_section_resources">職場の健康とウェルビーイングのリソース</string>
+
+    <!-- Material 1: Burnout Signs -->
+    <string name="wellbeing_mat_burnout_title">バーンアウトと疲労の初期サインを見極める</string>
+    <string name="wellbeing_mat_burnout_desc">残業による疲労は、日々のメンタルヘルスに影響を与える前に密かに蓄積されます。以下の身体的および心理的な警告サインに注意してください:</string>
+    <string name="wellbeing_mat_burnout_item1">• 慢性的な身体疲労: 十分な睡眠を取った後でも疲労が続く。</string>
+    <string name="wellbeing_mat_burnout_item2">• 認知の霧: 集中力の低下、ミスの増加、意思決定の遅れ。</string>
+    <string name="wellbeing_mat_burnout_item3">• 感情の乖離: 冷笑的な態度、イライラ、仕事の達成感の喪失。</string>
+    <string name="wellbeing_mat_burnout_item4">• 睡眠障害: 仕事のストレスや遅い退勤により寝付けない。</string>
+
+    <!-- Material 2: Shift Work Strategies -->
+    <string name="wellbeing_mat_strategies_title">残業回復のための戦略</string>
+    <string name="wellbeing_mat_strategies_desc">長時間の勤務中にメンタルの明晰さを守るための実践的な習慣:</string>
+    <string name="wellbeing_mat_strategies_item1">• 小休憩のサイクル: 90分集中して作業するごとに3～5分の呼吸休憩を取る。</string>
+    <string name="wellbeing_mat_strategies_item2">• デジタルオフスイッチ: 退勤後は仕事のメールやチャットを確認しない厳格な境界線を設定する。</string>
+    <string name="wellbeing_mat_strategies_item3">• シフト後のクールダウン: 入眠前に画面を見ない移行ルーチン（散歩、軽いストレッチなど）を行う。</string>
+    <string name="wellbeing_mat_strategies_item4">• 水分補給と栄養: エネルギーを維持するために、夜勤中はこまめな水分補給とバランスの取れた食事を摂る。</string>
+
+    <!-- Material 3: Stress Reduction Techniques -->
+    <string name="wellbeing_mat_breathing_title">即効性のあるストレス軽減: ボックス・ブリージング法</string>
+    <string name="wellbeing_mat_breathing_desc">勤務中に圧倒されそうになったときは、4–4–4–4 ボックス・ブリージング・テクニックを使用してください:</string>
+    <string name="wellbeing_mat_breathing_step1">1. 鼻から4秒間ゆっくり息を吸い込みます。</string>
+    <string name="wellbeing_mat_breathing_step2">2. 4秒間息を止めます。</string>
+    <string name="wellbeing_mat_breathing_step3">3. 口から4秒間スムーズに息を吐き出します。</string>
+    <string name="wellbeing_mat_breathing_step4">4. 次の呼吸の前に、空の状態を4秒間維持します。</string>
+
+    <!-- Material 4: Professional Support -->
+    <string name="wellbeing_mat_support_title">サポートを求めるタイミング</string>
+    <string name="wellbeing_mat_support_desc">仕事関連のストレスが個人の健康や人間関係に影響を与える場合は、専門的なリソースに相談してください:</string>
+    <string name="wellbeing_mat_support_item1">• 従業員支援プログラム (EAP): 多くの雇用主が提供している機密のカウンセリング。</string>
+    <string name="wellbeing_mat_support_item2">• 労働衛生サービス: シフト勤務の安全性に特化した職場の健康アドバイザー。</string>
+    <string name="wellbeing_mat_support_item3">• 医療専門家: メンタルヘルスのサポートについては、かかりつけの医師に相談してください。</string>
+
+    <!-- About Screen -->
+    <string name="about_title">アプリについて</string>
+    <string name="about_subtitle">ワークライフバランスとメンタルウェルビーイングをサポートするために設計された Shift Tracker を支えるアーキテクチャ、フレームワーク、ライセンスについて説明します。</string>
+    <string name="about_tech_stack_header">テクノロジースタック</string>
+    <string name="about_m3_title">ネイティブ Material 3 UI</string>
+    <string name="about_m3_desc">このアプリは最新の Jetpack Compose を使用して構築されており、Material Design 3 ガイドラインに厳密に準拠しています。エレガントなコンポーネントスタイリング、エッジツーエッジレンダリングのサポート、アクセシブルなタッチターゲット、および M3 のトーン階層を活用した統一感のあるテーマが特徴です。</string>
+    <string name="about_kotlin_title">Kotlin 言語</string>
+    <string name="about_kotlin_desc">コードベース全体が Kotlin で書かれています。型安全、Coroutines と Flow によるシームレスなリアクティブ状態更新の構造化された同時実行など、Kotlin の高度な機能を活用しています。</string>
+    <string name="about_room_title">オフライン Room データベース</string>
+    <string name="about_room_desc">データは非公開で安全に保たれます。アプリは Android Jetpack Room を介してオフライン SQLite データベースを統合しています。これにより、外部のクラウド API に依存することなく、信頼性の高いオフラインデータの永続性、アトミックなデータベーストランザクション、スムーズなローカル状態管理を実現しています。</string>
+    <string name="about_licensing_header">ライセンスと法的情報</string>
+    <string name="about_gpl_title">GNU GPL v3 ライセンスの概要</string>
+    <string name="about_gpl_desc">このアプリケーションは GNU General Public License v3 (GPL v3) の下でリリースされています。</string>
+    <string name="about_gpl_permissions_title">許可事項</string>
+    <string name="about_gpl_permissions_desc">作者の帰属、ライセンス通知を保持し、ソースコードを公開することを条件に、プログラムを商用または私的に実行、複製、配布、改変、および伝達することが許可されます。</string>
+    <string name="about_gpl_copyleft_title">コピーレフト・ルール</string>
+    <string name="about_gpl_copyleft_desc">ソースコードの改変版も GPL v3 の下でライセンスされる必要があります。ソフトウェアの改変版を配布する人は、同じ条件の下でソースコードを公開しなければなりません。</string>
+    <string name="about_gpl_nowarranty_title">無保証</string>
+    <string name="about_gpl_nowarranty_desc">本ソフトウェアは「現状のまま」提供され、いかなる種類の保証もありません。作者および著作権保持者は、その使用に起因するいかなる損害や問題についても責任を負いません。</string>
+    <string name="about_build_info_header">バージョンとビルド情報</string>
+    <string name="about_label_app_id" translatable="false">Application ID</string>
+    <string name="about_label_version" translatable="false">Version</string>
+
+    <!-- Onboarding OOBE Strings -->
+    <string name="onboarding_welcome_title">Shift Tracker へようこそ</string>
+    <string name="onboarding_welcome_subtitle">体験をパーソナライズしましょう。バッファルール、デフォルトの勤務スケジュールを設定するか、以前のバックアップからデータを復元します。</string>
+    <string name="onboarding_btn_restore_backup">バックアップから復元</string>
+    <string name="onboarding_step_1_title">バッファと猶予時間</string>
+    <string name="onboarding_step_1_subtitle">正確な残業計算のために、早出と遅退の猶予期間を自動化します。</string>
+    <string name="onboarding_step_2_title">デフォルトの勤務スケジュール</string>
+    <string name="onboarding_step_2_subtitle">週の勤務日と標準時間を設定すると、シフトの記録が簡単になります。</string>
+    <string name="onboarding_step_3_title">データのプライバシーとセキュリティ</string>
+    <string name="onboarding_step_3_subtitle">シフト記録と個人データは、デバイス上で100%非公開かつ安全に保たれます。</string>
+    <string name="onboarding_tip1_title">100% ローカルストレージ</string>
+    <string name="onboarding_tip1_desc">すべてのシフト記録と設定は、デバイス上の暗号化されたデータベースにローカルに保存されます。</string>
+    <string name="onboarding_tip2_title">オフラインファースト・アーキテクチャ</string>
+    <string name="onboarding_tip2_desc">クラウドアカウントや外部サーバーは不要です。アプリは完全にオフラインで動作します。</string>
+    <string name="onboarding_tip3_title">安全なバックアップとチェックサム</string>
+    <string name="onboarding_tip3_desc">内蔵のチェックサム検証により、JSON バックアップファイルを安全にエクスポートおよびインポートできます。</string>
+    <string name="onboarding_tip4_title">トラッキングと分析なし</string>
+    <string name="onboarding_tip4_desc">勤務記録、個人データ、活動履歴を収集、追跡、または送信することはありません。</string>
+    <string name="onboarding_btn_next">次へ</string>
+    <string name="onboarding_btn_back">戻る</string>
+    <string name="onboarding_btn_skip">セットアップをスキップ</string>
+    <string name="onboarding_btn_get_started">使ってみる</string>
+    <string name="onboarding_btn_done">セットアップ完了</string>
+    <string name="backup_redo_onboarding_title">アプリのオンボーディング設定</string>
+    <string name="backup_redo_onboarding_subtitle">セットアップウィザードを再実行して、シフトバッファ設定とデフォルトの勤務スケジュールを再構成します。</string>
+    <string name="backup_redo_onboarding_btn">オンボーディングを再実行</string>
+    <string name="onboarding_feature_buffer_desc">シフト前後の自動猶予期間。</string>
+    <string name="onboarding_feature_schedule_desc">カスタムの週間シフトスケジュールとワンタップのプリセット。</string>
+    <string name="onboarding_feature_privacy_title">データプライバシー</string>
+    <string name="onboarding_feature_privacy_desc">100% ローカルストレージとトラッキングゼロ。</string>
+    <string name="onboarding_preset_9to5_title">標準的な 9時から 5時の勤務週</string>
+    <string name="onboarding_preset_9to5_desc">月曜日から金曜日に 09:00 ～ 17:00 を適用します。</string>
+    <string name="onboarding_btn_apply">適用</string>
+
+    <!-- Redo Onboarding Warning Dialog -->
+    <string name="backup_redo_onboarding_dialog_title">現在の設定を上書きしますか？</string>
+    <string name="backup_redo_onboarding_dialog_msg">オンボーディングセットアップを再実行すると、現在の設定が上書きされます。続行してもよろしいですか？</string>
+    <string name="backup_redo_onboarding_dialog_confirm">続行</string>
+
+    <!-- Insights Screen -->
+    <string name="insights_yearly_trends">労働時間の年間トレンド</string>
+    <string name="insights_yearly_trends_desc">%1$s 年の総労働時間の傾向を分析します</string>
+    <string name="insights_total_working_time">総労働時間 (%1$s)</string>
+    <string name="insights_monthly_trend">月間労働時間の傾向 (%1$s)</string>
+    <string name="insights_monthly_breakdown">月間内訳</string>
+    <string name="insights_month_year_format">%1$s %2$s</string>
+
+    <!-- Duration Formatting -->
+    <string name="duration_hours_minutes">%1$d時間 %2$d分</string>
+    <string name="duration_hours">%1$d時間</string>
+    <string name="duration_minutes">%1$d分</string>
+    <string name="duration_zero">0分</string>
+</resources>
