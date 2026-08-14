@@ -2,7 +2,7 @@
 
 **You deserve a break.**
 
-Working for longer hours doesn’t mean better performance. Even a short break can reduces stress and improve productivity in the long run. Don't wait for a vacation or a career change to start living in balance.
+Working for longer hours doesn’t mean better performance. Even a short break can reduce stress and improve productivity in the long run. Don't wait for a vacation or a career change to start living in balance.
 
 This app was built to help users visualize their working time and maintain a healthy balance between work and life. 
 
