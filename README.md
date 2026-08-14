@@ -3,7 +3,9 @@
 **You deserve a break.**
 
 Working for longer hours doesn’t mean better performance. Even a short break can reduces stress and improve productivity in the long run. Don't wait for a vacation or a career change to start living in balance.
+
 This app was built to help users visualize their working time and maintain a healthy balance between work and life. 
+
 An elegant, modern, offline-first Android application designed to track work shifts, log hours, calculate buffer-adjusted overtime, and monitor working time trends. Built entirely using **Kotlin**, **Jetpack Compose**, **Material Design 3**, and **Jetpack Room** database.
 
 ---
