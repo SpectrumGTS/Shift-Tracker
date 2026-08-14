@@ -73,11 +73,19 @@ fun DashboardScreen(
         }
     }
 
-    val currentMonthPrefix = remember {
-        java.text.SimpleDateFormat("yyyy-MM", java.util.Locale.getDefault()).format(java.util.Date())
+    val todayDateStr = getTodayDateString(appSettings.cutoffTimeMinutes)
+
+    val currentMonthPrefix = remember(todayDateStr) {
+        todayDateStr.substring(0, 7)
     }
-    val currentMonthName = remember {
-        java.text.SimpleDateFormat("MMMM yyyy", java.util.Locale.getDefault()).format(java.util.Date())
+    val currentMonthName = remember(todayDateStr) {
+        try {
+            val fmt = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+            val date = fmt.parse(todayDateStr)
+            java.text.SimpleDateFormat("MMMM yyyy", java.util.Locale.getDefault()).format(date!!)
+        } catch (e: Exception) {
+            java.text.SimpleDateFormat("MMMM yyyy", java.util.Locale.getDefault()).format(java.util.Date())
+        }
     }
 
     val currentMonthShifts = remember(shifts, currentMonthPrefix) {
@@ -122,7 +130,6 @@ fun DashboardScreen(
         ).actualWorkedMinutes
     }
 
-    val todayDateStr = getTodayDateString()
     val todayDayOfWeek = getDayOfWeekForDate(todayDateStr)
     val todaySchedule = defaultSchedules.find { it.dayOfWeek == todayDayOfWeek }
 

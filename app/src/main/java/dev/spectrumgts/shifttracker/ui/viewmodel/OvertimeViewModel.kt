@@ -31,9 +31,16 @@ import java.util.Locale
 import org.json.JSONArray
 import org.json.JSONObject
 
-fun getTodayDateString(): String {
+fun getTodayDateString(cutoffTimeMinutes: Int = 0, nowMs: Long = System.currentTimeMillis()): String {
     val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    return sdf.format(Date())
+    val cal = Calendar.getInstance().apply { timeInMillis = nowMs }
+    if (cutoffTimeMinutes > 0) {
+        val currentMins = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE)
+        if (currentMins <= cutoffTimeMinutes) {
+            cal.add(Calendar.DAY_OF_YEAR, -1)
+        }
+    }
+    return sdf.format(cal.time)
 }
 
 fun getDayOfWeekForDate(dateString: String): Int {
@@ -136,21 +143,23 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
         _currentScreen.value = destination
     }
 
-    fun openNewShiftDialog(prefilledDate: String = getTodayDateString()) {
+    fun openNewShiftDialog(prefilledDate: String? = null) {
         viewModelScope.launch {
-            val dayOfWeek = getDayOfWeekForDate(prefilledDate)
-            val schedule = repository.getDefaultScheduleForDay(dayOfWeek)
             val settings = repository.getAppSettingsDirect()
+            val cutoffTime = settings.cutoffTimeMinutes
+            val finalDate = prefilledDate ?: getTodayDateString(cutoffTime)
+
+            val dayOfWeek = getDayOfWeekForDate(finalDate)
+            val schedule = repository.getDefaultScheduleForDay(dayOfWeek)
 
             // Check if shift already exists for this date
-            val existing = repository.getShiftByDate(prefilledDate)
+            val existing = repository.getShiftByDate(finalDate)
             if (existing != null) {
                 openEditShiftDialog(existing)
             } else {
-                val todayStr = getTodayDateString()
+                val todayStr = getTodayDateString(cutoffTime)
                 val nowCal = Calendar.getInstance()
                 val rawCurrentMins = nowCal.get(Calendar.HOUR_OF_DAY) * 60 + nowCal.get(Calendar.MINUTE)
-                val cutoffTime = settings.cutoffTimeMinutes
 
                 val adjustedCurrentMins = if (rawCurrentMins <= cutoffTime) rawCurrentMins + 1440 else rawCurrentMins
                 val adjustedWorkEnd = if (schedule.workEndMinutes < schedule.workStartMinutes || schedule.workEndMinutes <= cutoffTime) {
@@ -160,7 +169,7 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
                 }
                 val isPastWorkEnd = adjustedCurrentMins > adjustedWorkEnd
 
-                val shouldDefaultToWorkEnd = (prefilledDate != todayStr) || (prefilledDate == todayStr && !isPastWorkEnd)
+                val shouldDefaultToWorkEnd = (finalDate != todayStr) || !isPastWorkEnd
                 val defaultClockOut = if (shouldDefaultToWorkEnd) {
                     schedule.workEndMinutes
                 } else {
@@ -175,7 +184,7 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
 
                 _shiftInputState.value = ShiftInputState(
                     id = 0,
-                    date = prefilledDate,
+                    date = finalDate,
                     workStartMinutes = schedule.workStartMinutes,
                     workEndMinutes = schedule.workEndMinutes,
                     clockInMinutes = defaultClockIn,
@@ -233,11 +242,10 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
                 val dayOfWeek = getDayOfWeekForDate(newDate)
                 val schedule = repository.getDefaultScheduleForDay(dayOfWeek)
                 val settings = repository.getAppSettingsDirect()
-
-                val todayStr = getTodayDateString()
+                val cutoffTime = settings.cutoffTimeMinutes
+                val todayStr = getTodayDateString(cutoffTime)
                 val nowCal = Calendar.getInstance()
                 val rawCurrentMins = nowCal.get(Calendar.HOUR_OF_DAY) * 60 + nowCal.get(Calendar.MINUTE)
-                val cutoffTime = settings.cutoffTimeMinutes
 
                 val adjustedCurrentMins = if (rawCurrentMins <= cutoffTime) rawCurrentMins + 1440 else rawCurrentMins
                 val adjustedWorkEnd = if (schedule.workEndMinutes < schedule.workStartMinutes || schedule.workEndMinutes <= cutoffTime) {
