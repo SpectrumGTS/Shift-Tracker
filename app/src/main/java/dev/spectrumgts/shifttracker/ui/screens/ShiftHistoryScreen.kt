@@ -26,8 +26,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilterChip
@@ -38,8 +36,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,6 +52,7 @@ import dev.spectrumgts.shifttracker.data.model.AppSettings
 import dev.spectrumgts.shifttracker.data.model.OvertimeCalculator
 import dev.spectrumgts.shifttracker.data.model.ShiftLog
 import dev.spectrumgts.shifttracker.ui.components.ShiftCard
+import dev.spectrumgts.shifttracker.ui.components.SystemDatePicker
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -523,40 +520,26 @@ fun ShiftHistoryScreen(
                     System.currentTimeMillis()
                 }
             }
-            val datePickerState = rememberDatePickerState(initialSelectedDateMillis = initialMillis)
-            DatePickerDialog(
+            
+            SystemDatePicker(
+                initialDateMillis = initialMillis,
                 onDismissRequest = { activeDatePickerFor = null },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            datePickerState.selectedDateMillis?.let { millis ->
-                                val calendar = Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC")).apply {
-                                    timeInMillis = millis
-                                }
-                                val fmt = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).apply {
-                                    timeZone = java.util.TimeZone.getTimeZone("UTC")
-                                }
-                                val formatted = fmt.format(calendar.time)
-                                if (activeDatePickerFor == "start") {
-                                    startDateFilter = formatted
-                                } else {
-                                    endDateFilter = formatted
-                                }
-                            }
-                            activeDatePickerFor = null
-                        }
-                    ) {
-                        Text(stringResource(R.string.ok_btn))
+                onDateSelected = { millis ->
+                    val calendar = Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC")).apply {
+                        timeInMillis = millis
                     }
-                },
-                dismissButton = {
-                    TextButton(onClick = { activeDatePickerFor = null }) {
-                        Text(stringResource(R.string.cancel_btn))
+                    val fmt = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).apply {
+                        timeZone = java.util.TimeZone.getTimeZone("UTC")
                     }
+                    val formatted = fmt.format(calendar.time)
+                    if (activeDatePickerFor == "start") {
+                        startDateFilter = formatted
+                    } else {
+                        endDateFilter = formatted
+                    }
+                    activeDatePickerFor = null
                 }
-            ) {
-                DatePicker(state = datePickerState)
-            }
+            )
         }
     }
 }

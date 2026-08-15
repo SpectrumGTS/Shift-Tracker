@@ -44,7 +44,7 @@ import dev.spectrumgts.shifttracker.ui.components.BufferBeforeCard
 import dev.spectrumgts.shifttracker.ui.components.CutoffTimeCard
 import dev.spectrumgts.shifttracker.ui.components.InvalidCutoffTimeDialog
 import dev.spectrumgts.shifttracker.ui.components.LunchBreakCard
-import dev.spectrumgts.shifttracker.ui.components.M3TimePickerDialog
+import dev.spectrumgts.shifttracker.ui.components.SystemTimePicker
 import dev.spectrumgts.shifttracker.ui.theme.WarningDialogBodyStyle
 import dev.spectrumgts.shifttracker.ui.theme.WarningDialogTitleStyle
 
@@ -167,7 +167,7 @@ fun SettingsScreen(
     }
 
     if (showLunchStartTimePicker) {
-        M3TimePickerDialog(
+        SystemTimePicker(
             title = stringResource(R.string.select_lunch_start_title),
             initialMinutesFromMidnight = lunchStart,
             onDismissRequest = { showLunchStartTimePicker = false },
@@ -179,7 +179,7 @@ fun SettingsScreen(
     }
 
     if (showLunchEndTimePicker) {
-        M3TimePickerDialog(
+        SystemTimePicker(
             title = stringResource(R.string.select_lunch_end_title),
             initialMinutesFromMidnight = lunchEnd,
             onDismissRequest = { showLunchEndTimePicker = false },
@@ -191,7 +191,7 @@ fun SettingsScreen(
     }
 
     if (showCutoffTimePicker) {
-        M3TimePickerDialog(
+        SystemTimePicker(
             title = stringResource(R.string.select_cutoff_title),
             initialMinutesFromMidnight = cutoffTime,
             onDismissRequest = { showCutoffTimePicker = false },

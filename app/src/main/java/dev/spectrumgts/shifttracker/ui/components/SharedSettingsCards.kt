@@ -25,12 +25,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -48,6 +48,7 @@ fun BufferBeforeCard(
     onIgnoreEarlyChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val view = LocalView.current
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -96,7 +97,12 @@ fun BufferBeforeCard(
 
             Slider(
                 value = bufferBefore,
-                onValueChange = onBufferBeforeChange,
+                onValueChange = {
+                    if (it.toInt() != bufferBefore.toInt()) {
+                        triggerSystemFeedback(view)
+                    }
+                    onBufferBeforeChange(it)
+                },
                 valueRange = 0f..60f,
                 steps = 11,
                 modifier = Modifier
@@ -113,7 +119,10 @@ fun BufferBeforeCard(
                 listOf(0, 5, 10, 15, 30).forEach { preset ->
                     FilterChip(
                         selected = bufferBefore.toInt() == preset,
-                        onClick = { onBufferBeforeChange(preset.toFloat()) },
+                        onClick = {
+                            triggerTouchSound(view)
+                            onBufferBeforeChange(preset.toFloat())
+                        },
                         label = { Text(stringResource(R.string.duration_minutes, preset)) },
                         modifier = Modifier.testTag("buffer_before_preset_$preset")
                     )
@@ -154,7 +163,7 @@ fun BufferBeforeCard(
                     )
                 }
                 Spacer(modifier = Modifier.width(8.dp))
-                Switch(
+                HapticSwitch(
                     checked = ignoreEarlyClockIns,
                     onCheckedChange = onIgnoreEarlyChange,
                     modifier = Modifier.testTag("ignore_early_clockins_switch")
@@ -170,6 +179,7 @@ fun BufferAfterCard(
     onBufferAfterChange: (Float) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val view = LocalView.current
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -218,7 +228,12 @@ fun BufferAfterCard(
 
             Slider(
                 value = bufferAfter,
-                onValueChange = onBufferAfterChange,
+                onValueChange = {
+                    if (it.toInt() != bufferAfter.toInt()) {
+                        triggerSystemFeedback(view)
+                    }
+                    onBufferAfterChange(it)
+                },
                 valueRange = 0f..60f,
                 steps = 11,
                 modifier = Modifier
@@ -235,7 +250,10 @@ fun BufferAfterCard(
                 listOf(0, 5, 10, 15, 30).forEach { preset ->
                     FilterChip(
                         selected = bufferAfter.toInt() == preset,
-                        onClick = { onBufferAfterChange(preset.toFloat()) },
+                        onClick = {
+                            triggerTouchSound(view)
+                            onBufferAfterChange(preset.toFloat())
+                        },
                         label = { Text(stringResource(R.string.duration_minutes, preset)) },
                         modifier = Modifier.testTag("buffer_after_preset_$preset")
                     )
@@ -396,7 +414,7 @@ fun LunchBreakCard(
                     )
                 }
                 Spacer(modifier = Modifier.width(8.dp))
-                Switch(
+                HapticSwitch(
                     checked = subtractLunchWorkDays,
                     onCheckedChange = onSubtractWorkDaysChange,
                     modifier = Modifier.testTag("subtract_lunch_workdays_switch")
@@ -424,7 +442,7 @@ fun LunchBreakCard(
                     )
                 }
                 Spacer(modifier = Modifier.width(8.dp))
-                Switch(
+                HapticSwitch(
                     checked = subtractLunchOffDays,
                     onCheckedChange = onSubtractOffDaysChange,
                     modifier = Modifier.testTag("subtract_lunch_offdays_switch")
@@ -441,6 +459,7 @@ fun CutoffTimeCard(
     onShowCutoffPicker: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val view = LocalView.current
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -508,7 +527,10 @@ fun CutoffTimeCard(
                 ).forEach { presetMins ->
                     FilterChip(
                         selected = cutoffTime == presetMins,
-                        onClick = { onCutoffTimeChange(presetMins) },
+                        onClick = {
+                            triggerTouchSound(view)
+                            onCutoffTimeChange(presetMins)
+                        },
                         label = { Text(OvertimeCalculator.formatMinutesToTime(presetMins)) },
                         modifier = Modifier.testTag("cutoff_preset_$presetMins")
                     )

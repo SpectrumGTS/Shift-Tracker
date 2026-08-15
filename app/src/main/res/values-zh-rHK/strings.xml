@@ -128,7 +128,7 @@
     <string name="backup_db_title">資料庫備份及還原</string>
     <string name="backup_db_subtitle">將您的排班記錄和設置匯出為 JSON 備份文件，或從以前的備份還原。</string>
     <string name="backup_unified_title">統一備份文件 (JSON)</string>
-    <string name="backup_unified_subtitle">將排班記錄和偏好備份到單個文件中（%1$d 個排班）。</string>
+    <string name="backup_unified_subtitle">將排班記錄和偏好備份到單個文件中。</string>
     <string name="backup_export_json_btn">匯出 JSON</string>
     <string name="backup_import_json_btn">匯入 JSON</string>
     <string name="backup_export_success_unified">統一資料庫備份已成功匯出至 JSON。</string>

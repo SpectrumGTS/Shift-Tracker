@@ -129,7 +129,7 @@
     <string name="backup_db_title">データベースのバックアップと復元</string>
     <string name="backup_db_subtitle">シフト記録と設定を JSON バックアップファイルにエクスポート、または以前のバックアップから復元します。</string>
     <string name="backup_unified_title">統合バックアップファイル (JSON)</string>
-    <string name="backup_unified_subtitle">シフト記録と設定の両方を単一のファイルにバックアップします（%1$d シフト）。</string>
+    <string name="backup_unified_subtitle">シフト記録と設定の両方を単一のファイルにバックアップします。</string>
     <string name="backup_export_json_btn">JSON エクスポート</string>
     <string name="backup_import_json_btn">JSON インポート</string>
     <string name="backup_export_success_unified">統合データベースバックアップが JSON に正常にエクスポートされました。</string>

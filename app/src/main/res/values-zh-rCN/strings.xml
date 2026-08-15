@@ -128,7 +128,7 @@
     <string name="backup_db_title">数据库备份与恢复</string>
     <string name="backup_db_subtitle">将您的工时记录和设置导出为 JSON 备份文件，或从以前的备份恢复。</string>
     <string name="backup_unified_title">统一备份文件 (JSON)</string>
-    <string name="backup_unified_subtitle">将工时记录和偏好备份到单个文件中（%1$d 个工时）。</string>
+    <string name="backup_unified_subtitle">将工时记录和偏好备份到单个文件中。</string>
     <string name="backup_export_json_btn">导出 JSON</string>
     <string name="backup_import_json_btn">导入 JSON</string>
     <string name="backup_export_success_unified">统一数据库备份已成功导出至 JSON。</string>

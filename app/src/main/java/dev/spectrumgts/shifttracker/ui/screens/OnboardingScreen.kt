@@ -13,7 +13,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,6 +22,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -35,8 +35,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -58,6 +60,8 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -88,13 +92,14 @@ import dev.spectrumgts.shifttracker.ui.components.CutoffTimeCard
 import dev.spectrumgts.shifttracker.ui.components.DefaultScheduleSettingsCard
 import dev.spectrumgts.shifttracker.ui.components.InvalidCutoffTimeDialog
 import dev.spectrumgts.shifttracker.ui.components.LunchBreakCard
-import dev.spectrumgts.shifttracker.ui.components.M3TimePickerDialog
+import dev.spectrumgts.shifttracker.ui.components.SystemTimePicker
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun OnboardingScreen(
     appSettings: AppSettings,
     defaultSchedules: List<DayDefaultSchedule>,
+    windowSizeClass: WindowSizeClass,
     onSaveSettings: (
         bufferBefore: Int,
         bufferAfter: Int,
@@ -130,6 +135,8 @@ fun OnboardingScreen(
 
     var showCutoffErrorDialog by remember { mutableStateOf(false) }
     var cutoffErrorMessage by remember { mutableStateOf("") }
+
+    val isLandscapePhone = windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact
 
     val minWorkStart = remember(defaultSchedules) {
         val workDays = defaultSchedules.filter { it.isWorkDay }
@@ -177,95 +184,186 @@ fun OnboardingScreen(
             .background(MaterialTheme.colorScheme.background)
             .testTag("onboarding_screen")
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(bottom = if (currentStep > 0) 80.dp else 0.dp) // Leave room for bottom bar on steps 1..3
-        ) {
-            if (currentStep > 0) {
-                // Header Pixel OOBE Style for setup steps
+        if (isLandscapePhone) {
+            Row(modifier = Modifier.fillMaxSize()) {
                 OobeHeader(
                     currentStep = currentStep,
-                    totalSteps = totalSetupSteps
+                    totalSteps = totalSetupSteps,
+                    modifier = Modifier
+                        .width(300.dp)
+                        .fillMaxHeight(),
+                    isLandscape = true
                 )
-            }
 
-            // Step Content Switcher
-            AnimatedContent(
-                targetState = currentStep,
-                transitionSpec = {
-                    if (targetState > initialState) {
-                        (slideInHorizontally { width -> width } + fadeIn()).togetherWith(
-                            slideOutHorizontally { width -> -width } + fadeOut())
-                    } else {
-                        (slideInHorizontally { width -> -width } + fadeIn()).togetherWith(
-                            slideOutHorizontally { width -> width } + fadeOut())
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                ) {
+                    AnimatedContent(
+                        targetState = currentStep,
+                        transitionSpec = {
+                            if (targetState > initialState) {
+                                (slideInHorizontally { width -> width } + fadeIn()).togetherWith(
+                                    slideOutHorizontally { width -> -width } + fadeOut())
+                            } else {
+                                (slideInHorizontally { width -> -width } + fadeIn()).togetherWith(
+                                    slideOutHorizontally { width -> width } + fadeOut())
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                        label = "StepContent"
+                    ) { step ->
+                        when (step) {
+                            0 -> OnboardingWelcomeStep(
+                                isLandscape = true,
+                                onGetStarted = {
+                                    hasPressedGetStarted = true
+                                    currentStep = 1
+                                },
+                                onRestoreBackup = {
+                                    context.startActivity(Intent(context, BackupImportActivity::class.java))
+                                },
+                                onSkipSetup = onFinishOnboarding
+                            )
+                            1 -> OnboardingStep2Schedule(
+                                schedules = defaultSchedules,
+                                onSaveSchedule = onSaveSchedule,
+                                onApplyToAllWorkingDays = onApplyToAllWorkingDays
+                            )
+                            2 -> OnboardingStep1Buffer(
+                                bufferBefore = bufferBefore,
+                                onBufferBeforeChange = { bufferBefore = it },
+                                bufferAfter = bufferAfter,
+                                onBufferAfterChange = { bufferAfter = it },
+                                cutoffTime = cutoffTime,
+                                onCutoffTimeChange = { tryUpdateCutoff(it) },
+                                ignoreEarlyClockIns = ignoreEarlyClockIns,
+                                onIgnoreEarlyChange = { ignoreEarlyClockIns = it },
+                                lunchStart = lunchStart,
+                                lunchEnd = lunchEnd,
+                                onShowLunchStartPicker = { showLunchStartTimePicker = true },
+                                onShowLunchEndPicker = { showLunchEndTimePicker = true },
+                                subtractLunchWorkDays = subtractLunchWorkDays,
+                                onSubtractWorkDaysChange = { subtractLunchWorkDays = it },
+                                subtractLunchOffDays = subtractLunchOffDays,
+                                onSubtractOffDaysChange = { subtractLunchOffDays = it },
+                                onShowCutoffPicker = { showCutoffTimePicker = true }
+                            )
+                            3 -> OnboardingStep3Privacy()
+                        }
                     }
-                },
-                modifier = Modifier.weight(1f)
-            ) { step ->
-                when (step) {
-                    0 -> OnboardingWelcomeStep(
-                        onGetStarted = {
-                            hasPressedGetStarted = true
-                            currentStep = 1
-                        },
-                        onRestoreBackup = {
-                            context.startActivity(Intent(context, BackupImportActivity::class.java))
-                        },
-                        onSkipSetup = onFinishOnboarding
-                    )
-                    1 -> OnboardingStep2Schedule(
-                        schedules = defaultSchedules,
-                        onSaveSchedule = onSaveSchedule,
-                        onApplyToAllWorkingDays = onApplyToAllWorkingDays
-                    )
-                    2 -> OnboardingStep1Buffer(
-                        bufferBefore = bufferBefore,
-                        onBufferBeforeChange = { bufferBefore = it },
-                        bufferAfter = bufferAfter,
-                        onBufferAfterChange = { bufferAfter = it },
-                        cutoffTime = cutoffTime,
-                        onCutoffTimeChange = { tryUpdateCutoff(it) },
-                        ignoreEarlyClockIns = ignoreEarlyClockIns,
-                        onIgnoreEarlyChange = { ignoreEarlyClockIns = it },
-                        lunchStart = lunchStart,
-                        lunchEnd = lunchEnd,
-                        onShowLunchStartPicker = { showLunchStartTimePicker = true },
-                        onShowLunchEndPicker = { showLunchEndTimePicker = true },
-                        subtractLunchWorkDays = subtractLunchWorkDays,
-                        onSubtractWorkDaysChange = { subtractLunchWorkDays = it },
-                        subtractLunchOffDays = subtractLunchOffDays,
-                        onSubtractOffDaysChange = { subtractLunchOffDays = it },
-                        onShowCutoffPicker = { showCutoffTimePicker = true }
-                    )
-                    3 -> OnboardingStep3Privacy()
+
+                    if (currentStep > 0) {
+                        OobeBottomBar(
+                            currentStep = currentStep,
+                            totalSteps = totalSetupSteps,
+                            onBack = { if (currentStep > 0) currentStep-- },
+                            onNext = {
+                                if (currentStep < totalSetupSteps) {
+                                    currentStep++
+                                } else {
+                                    onFinishOnboarding()
+                                }
+                            },
+                            onSkip = onFinishOnboarding
+                        )
+                    }
                 }
             }
-        }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = if (currentStep > 0) 80.dp else 0.dp) // Leave room for bottom bar on steps 1..3
+            ) {
+                if (currentStep > 0) {
+                    // Header Pixel OOBE Style for setup steps
+                    OobeHeader(
+                        currentStep = currentStep,
+                        totalSteps = totalSetupSteps
+                    )
+                }
 
-        // Bottom Navigation Bar for setup steps 1..3
-        if (currentStep > 0) {
-            OobeBottomBar(
-                modifier = Modifier.align(Alignment.BottomCenter),
-                currentStep = currentStep,
-                totalSteps = totalSetupSteps,
-                onBack = { if (currentStep > 0) currentStep-- },
-                onNext = {
-                    if (currentStep < totalSetupSteps) {
-                        currentStep++
-                    } else {
-                        onFinishOnboarding()
+                // Step Content Switcher
+                AnimatedContent(
+                    targetState = currentStep,
+                    transitionSpec = {
+                        if (targetState > initialState) {
+                            (slideInHorizontally { width -> width } + fadeIn()).togetherWith(
+                                slideOutHorizontally { width -> -width } + fadeOut())
+                        } else {
+                            (slideInHorizontally { width -> -width } + fadeIn()).togetherWith(
+                                slideOutHorizontally { width -> width } + fadeOut())
+                        }
+                    },
+                    modifier = Modifier.weight(1f),
+                    label = "StepContent"
+                ) { step ->
+                    when (step) {
+                        0 -> OnboardingWelcomeStep(
+                            isLandscape = false,
+                            onGetStarted = {
+                                hasPressedGetStarted = true
+                                currentStep = 1
+                            },
+                            onRestoreBackup = {
+                                context.startActivity(Intent(context, BackupImportActivity::class.java))
+                            },
+                            onSkipSetup = onFinishOnboarding
+                        )
+                        1 -> OnboardingStep2Schedule(
+                            schedules = defaultSchedules,
+                            onSaveSchedule = onSaveSchedule,
+                            onApplyToAllWorkingDays = onApplyToAllWorkingDays
+                        )
+                        2 -> OnboardingStep1Buffer(
+                            bufferBefore = bufferBefore,
+                            onBufferBeforeChange = { bufferBefore = it },
+                            bufferAfter = bufferAfter,
+                            onBufferAfterChange = { bufferAfter = it },
+                            cutoffTime = cutoffTime,
+                            onCutoffTimeChange = { tryUpdateCutoff(it) },
+                            ignoreEarlyClockIns = ignoreEarlyClockIns,
+                            onIgnoreEarlyChange = { ignoreEarlyClockIns = it },
+                            lunchStart = lunchStart,
+                            lunchEnd = lunchEnd,
+                            onShowLunchStartPicker = { showLunchStartTimePicker = true },
+                            onShowLunchEndPicker = { showLunchEndTimePicker = true },
+                            subtractLunchWorkDays = subtractLunchWorkDays,
+                            onSubtractWorkDaysChange = { subtractLunchWorkDays = it },
+                            subtractLunchOffDays = subtractLunchOffDays,
+                            onSubtractOffDaysChange = { subtractLunchOffDays = it },
+                            onShowCutoffPicker = { showCutoffTimePicker = true }
+                        )
+                        3 -> OnboardingStep3Privacy()
                     }
-                },
-                onSkip = onFinishOnboarding
-            )
+                }
+            }
+
+            // Bottom Navigation Bar for setup steps 1..3
+            if (currentStep > 0) {
+                OobeBottomBar(
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                    currentStep = currentStep,
+                    totalSteps = totalSetupSteps,
+                    onBack = { if (currentStep > 0) currentStep-- },
+                    onNext = {
+                        if (currentStep < totalSetupSteps) {
+                            currentStep++
+                        } else {
+                            onFinishOnboarding()
+                        }
+                    },
+                    onSkip = onFinishOnboarding
+                )
+            }
         }
     }
 
     // Time Pickers for Step 1
     if (showLunchStartTimePicker) {
-        M3TimePickerDialog(
+        SystemTimePicker(
             title = stringResource(R.string.select_lunch_start_title),
             initialMinutesFromMidnight = lunchStart,
             onDismissRequest = { showLunchStartTimePicker = false },
@@ -277,7 +375,7 @@ fun OnboardingScreen(
     }
 
     if (showLunchEndTimePicker) {
-        M3TimePickerDialog(
+        SystemTimePicker(
             title = stringResource(R.string.select_lunch_end_title),
             initialMinutesFromMidnight = lunchEnd,
             onDismissRequest = { showLunchEndTimePicker = false },
@@ -289,7 +387,7 @@ fun OnboardingScreen(
     }
 
     if (showCutoffTimePicker) {
-        M3TimePickerDialog(
+        SystemTimePicker(
             title = stringResource(R.string.select_cutoff_title),
             initialMinutesFromMidnight = cutoffTime,
             onDismissRequest = { showCutoffTimePicker = false },
@@ -310,6 +408,7 @@ fun OnboardingScreen(
 
 @Composable
 private fun OnboardingWelcomeStep(
+    isLandscape: Boolean,
     onGetStarted: () -> Unit,
     onRestoreBackup: () -> Unit,
     onSkipSetup: () -> Unit
@@ -325,57 +424,16 @@ private fun OnboardingWelcomeStep(
         label = "ArrowOffset"
     )
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .safeDrawingPadding()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Hero Illustration & Badge
+    if (isLandscape) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .safeDrawingPadding()
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Surface(
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.primaryContainer,
-                modifier = Modifier.size(80.dp)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_work_time),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.size(44.dp)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text(
-                text = stringResource(R.string.onboarding_welcome_title),
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = stringResource(R.string.onboarding_welcome_subtitle),
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Spacer(modifier = Modifier.height(28.dp))
-
             // Feature Highlights Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -386,8 +444,8 @@ private fun OnboardingWelcomeStep(
                 shape = RoundedCornerShape(20.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     WelcomeFeatureRow(
                         icon = Icons.Default.CalendarMonth,
@@ -406,71 +464,230 @@ private fun OnboardingWelcomeStep(
                     )
                 }
             }
-        }
 
-        // Actions Block
+            // Actions Block
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Button(
+                    onClick = onGetStarted,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp)
+                        .testTag("onboarding_welcome_get_started_btn"),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Text(
+                        text = stringResource(R.string.onboarding_btn_get_started),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(18.dp)
+                            .offset(x = arrowOffset.dp)
+                    )
+                }
+
+                OutlinedButton(
+                    onClick = onRestoreBackup,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp)
+                        .testTag("onboarding_welcome_restore_backup_btn"),
+                    shape = RoundedCornerShape(14.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Restore,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.onboarding_btn_restore_backup),
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                TextButton(
+                    onClick = onSkipSetup,
+                    modifier = Modifier.testTag("onboarding_welcome_skip_btn")
+                ) {
+                    Text(
+                        text = stringResource(R.string.onboarding_btn_skip),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+    } else {
         Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .safeDrawingPadding()
+                .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Button(
-                onClick = onGetStarted,
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp)
-                    .testTag("onboarding_welcome_get_started_btn"),
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                )
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                Text(
-                    text = stringResource(R.string.onboarding_btn_get_started),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = null,
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Hero Illustration & Badge
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier.size(80.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_work_time),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.size(44.dp)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Text(
+                        text = stringResource(R.string.onboarding_welcome_title),
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = stringResource(R.string.onboarding_welcome_subtitle),
+                        style = MaterialTheme.typography.bodyLarge,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Spacer(modifier = Modifier.height(28.dp))
+
+                    // Feature Highlights Card
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                            contentColor = MaterialTheme.colorScheme.onSurface
+                        ),
+                        shape = RoundedCornerShape(20.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            WelcomeFeatureRow(
+                                icon = Icons.Default.CalendarMonth,
+                                title = stringResource(R.string.onboarding_step_2_title),
+                                desc = stringResource(R.string.onboarding_feature_schedule_desc)
+                            )
+                            WelcomeFeatureRow(
+                                icon = Icons.Default.Tune,
+                                title = stringResource(R.string.onboarding_step_1_title),
+                                desc = stringResource(R.string.onboarding_feature_buffer_desc)
+                            )
+                            WelcomeFeatureRow(
+                                icon = Icons.Default.Security,
+                                title = stringResource(R.string.onboarding_feature_privacy_title),
+                                desc = stringResource(R.string.onboarding_feature_privacy_desc)
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Actions Block
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Button(
+                    onClick = onGetStarted,
                     modifier = Modifier
-                        .size(18.dp)
-                        .offset(x = arrowOffset.dp)
-                )
-            }
+                        .fillMaxWidth()
+                        .height(52.dp)
+                        .testTag("onboarding_welcome_get_started_btn"),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Text(
+                        text = stringResource(R.string.onboarding_btn_get_started),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(18.dp)
+                            .offset(x = arrowOffset.dp)
+                    )
+                }
 
-            OutlinedButton(
-                onClick = onRestoreBackup,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp)
-                    .testTag("onboarding_welcome_restore_backup_btn"),
-                shape = RoundedCornerShape(14.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Restore,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = stringResource(R.string.onboarding_btn_restore_backup),
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+                OutlinedButton(
+                    onClick = onRestoreBackup,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp)
+                        .testTag("onboarding_welcome_restore_backup_btn"),
+                    shape = RoundedCornerShape(14.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Restore,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.onboarding_btn_restore_backup),
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
 
-            TextButton(
-                onClick = onSkipSetup,
-                modifier = Modifier.testTag("onboarding_welcome_skip_btn")
-            ) {
-                Text(
-                    text = stringResource(R.string.onboarding_btn_skip),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                TextButton(
+                    onClick = onSkipSetup,
+                    modifier = Modifier.testTag("onboarding_welcome_skip_btn")
+                ) {
+                    Text(
+                        text = stringResource(R.string.onboarding_btn_skip),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }
@@ -519,69 +736,29 @@ private fun WelcomeFeatureRow(
 @Composable
 private fun OobeHeader(
     currentStep: Int,
-    totalSteps: Int
+    totalSteps: Int,
+    modifier: Modifier = Modifier,
+    isLandscape: Boolean = false
 ) {
     Surface(
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
         contentColor = MaterialTheme.colorScheme.onSurface,
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
-                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
-                .padding(horizontal = 24.dp, vertical = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .windowInsetsPadding(
+                    if (isLandscape) {
+                        WindowInsets.safeDrawing.only(WindowInsetsSides.Start + WindowInsetsSides.Vertical)
+                    } else {
+                        WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+                    }
+                )
+                .padding(horizontal = 24.dp, vertical = if (isLandscape) 32.dp else 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top
         ) {
-            // Icon Illustration Badge
-            Surface(
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.primaryContainer,
-                modifier = Modifier.size(56.dp)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = when (currentStep) {
-                            1 -> Icons.Default.CalendarMonth
-                            2 -> Icons.Default.Tune
-                            else -> Icons.Default.Lock
-                        },
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = when (currentStep) {
-                    1 -> stringResource(R.string.onboarding_step_2_title)
-                    2 -> stringResource(R.string.onboarding_step_1_title)
-                    else -> stringResource(R.string.onboarding_step_3_title)
-                },
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = when (currentStep) {
-                    1 -> stringResource(R.string.onboarding_step_2_subtitle)
-                    2 -> stringResource(R.string.onboarding_step_1_subtitle)
-                    else -> stringResource(R.string.onboarding_step_3_subtitle)
-                },
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Step Progress Indicator Bar/Dots
+            // Step Progress Indicator Bar/Dots (Moved to top)
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -605,6 +782,66 @@ private fun OobeHeader(
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(if (isLandscape) 24.dp else 20.dp))
+
+            // Icon Illustration Badge
+            Surface(
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primaryContainer,
+                modifier = Modifier.size(if (isLandscape) 48.dp else 56.dp)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    if (currentStep == 0) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_work_time),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.size(if (isLandscape) 24.dp else 28.dp)
+                        )
+                    } else {
+                        Icon(
+                            imageVector = when (currentStep) {
+                                1 -> Icons.Default.CalendarMonth
+                                2 -> Icons.Default.Tune
+                                else -> Icons.Default.Lock
+                            },
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.size(if (isLandscape) 24.dp else 28.dp)
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = when (currentStep) {
+                    0 -> stringResource(R.string.onboarding_welcome_title)
+                    1 -> stringResource(R.string.onboarding_step_2_title)
+                    2 -> stringResource(R.string.onboarding_step_1_title)
+                    else -> stringResource(R.string.onboarding_step_3_title)
+                },
+                style = if (isLandscape) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = when (currentStep) {
+                    0 -> stringResource(R.string.onboarding_welcome_subtitle)
+                    1 -> stringResource(R.string.onboarding_step_2_subtitle)
+                    2 -> stringResource(R.string.onboarding_step_1_subtitle)
+                    else -> stringResource(R.string.onboarding_step_3_subtitle)
+                },
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
@@ -630,8 +867,15 @@ private fun OnboardingStep1Buffer(
     onShowCutoffPicker: () -> Unit
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 120.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)),
+        contentPadding = PaddingValues(
+            start = 16.dp,
+            end = 16.dp,
+            top = 16.dp,
+            bottom = 60.dp
+        ),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Buffer BEFORE Working Hours Card
@@ -684,8 +928,15 @@ private fun OnboardingStep2Schedule(
     onApplyToAllWorkingDays: (workStart: Int, workEnd: Int, forceMonToFri: Boolean) -> Unit
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 120.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)),
+        contentPadding = PaddingValues(
+            start = 16.dp,
+            end = 16.dp,
+            top = 16.dp,
+            bottom = 60.dp
+        )
     ) {
         item {
             DefaultScheduleSettingsCard(
@@ -701,8 +952,15 @@ private fun OnboardingStep2Schedule(
 @Composable
 private fun OnboardingStep3Privacy() {
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 120.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)),
+        contentPadding = PaddingValues(
+            start = 16.dp,
+            end = 16.dp,
+            top = 16.dp,
+            bottom = 60.dp
+        ),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {

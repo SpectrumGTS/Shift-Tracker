@@ -32,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -51,6 +52,7 @@ fun ShiftCard(
     modifier: Modifier = Modifier,
     appSettings: AppSettings = AppSettings()
 ) {
+    val view = LocalView.current
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
 
     val summary = OvertimeCalculator.calculate(
@@ -207,7 +209,10 @@ fun ShiftCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
-                    onClick = onEdit,
+                    onClick = {
+                        triggerTouchSound(view)
+                        onEdit()
+                    },
                     modifier = Modifier.testTag("edit_shift_btn_${shift.id}")
                 ) {
                     Icon(
@@ -217,7 +222,10 @@ fun ShiftCard(
                     )
                 }
                 IconButton(
-                    onClick = { showDeleteConfirmDialog = true },
+                    onClick = {
+                        triggerTouchSound(view)
+                        showDeleteConfirmDialog = true
+                    },
                     modifier = Modifier.testTag("delete_shift_btn_${shift.id}")
                 ) {
                     Icon(

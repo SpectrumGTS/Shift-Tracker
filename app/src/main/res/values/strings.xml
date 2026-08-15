@@ -129,7 +129,7 @@
     <string name="backup_db_title">Database Backup &amp; Restore</string>
     <string name="backup_db_subtitle">Export your shift logs and settings to JSON backup files or restore them from a previous backup.</string>
     <string name="backup_unified_title">Unified Backup File (JSON)</string>
-    <string name="backup_unified_subtitle">Backup both shift logs and preferences into a single file (%1$d shifts).</string>
+    <string name="backup_unified_subtitle">Backup both shift logs and preferences into a single file.</string>
     <string name="backup_export_json_btn">Export JSON</string>
     <string name="backup_import_json_btn">Import JSON</string>
     <string name="backup_export_success_unified">Unified database backup successfully exported to JSON.</string>

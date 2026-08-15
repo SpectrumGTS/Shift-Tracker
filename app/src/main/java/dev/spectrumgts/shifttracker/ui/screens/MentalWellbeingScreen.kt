@@ -42,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -50,6 +51,7 @@ import dev.spectrumgts.shifttracker.R
 import dev.spectrumgts.shifttracker.data.model.AppSettings
 import dev.spectrumgts.shifttracker.data.model.OvertimeCalculator
 import dev.spectrumgts.shifttracker.data.model.ShiftLog
+import dev.spectrumgts.shifttracker.ui.components.triggerTouchSound
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -66,6 +68,7 @@ fun MentalWellbeingScreen(
     shifts: List<ShiftLog>,
     appSettings: AppSettings
 ) {
+    val view = LocalView.current
     val currentMonthKey = remember {
         SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(Date())
     }
@@ -171,7 +174,10 @@ fun MentalWellbeingScreen(
                     // Month dropdown selector (Row 2 - Full/Wide button)
                     Box(modifier = Modifier.fillMaxWidth()) {
                         OutlinedButton(
-                            onClick = { monthDropdownExpanded = true },
+                            onClick = {
+                                triggerTouchSound(view)
+                                monthDropdownExpanded = true
+                            },
                             shape = RoundedCornerShape(12.dp),
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -204,6 +210,7 @@ fun MentalWellbeingScreen(
                                 DropdownMenuItem(
                                     text = { Text(displayName) },
                                     onClick = {
+                                        triggerTouchSound(view)
                                         selectedMonthKey = mKey
                                         monthDropdownExpanded = false
                                     }

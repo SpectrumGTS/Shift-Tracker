@@ -24,8 +24,6 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -33,10 +31,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -52,7 +49,10 @@ import androidx.compose.ui.unit.dp
 import dev.spectrumgts.shifttracker.R
 import dev.spectrumgts.shifttracker.data.model.AppSettings
 import dev.spectrumgts.shifttracker.data.model.OvertimeCalculator
-import dev.spectrumgts.shifttracker.ui.components.M3TimePickerDialog
+import dev.spectrumgts.shifttracker.ui.components.SystemTimePicker
+import dev.spectrumgts.shifttracker.ui.components.SystemDatePicker
+import dev.spectrumgts.shifttracker.ui.components.HapticSwitch
+import dev.spectrumgts.shifttracker.ui.components.triggerTouchSound
 import dev.spectrumgts.shifttracker.ui.theme.WarningDialogBodyStyle
 import dev.spectrumgts.shifttracker.ui.theme.WarningDialogTitleStyle
 import dev.spectrumgts.shifttracker.ui.viewmodel.ShiftInputState
@@ -86,6 +86,7 @@ fun AddEditShiftDialog(
     onSave: () -> Unit,
     appSettings: AppSettings = AppSettings()
 ) {
+    val view = LocalView.current
     var activeTimePicker by remember { mutableStateOf<TimePickerType?>(null) }
     var showDatePicker by remember { mutableStateOf(false) }
     var showSaveConfirmDialog by remember { mutableStateOf(false) }
@@ -196,7 +197,10 @@ fun AddEditShiftDialog(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { showDatePicker = true }
+                        .clickable {
+                            triggerTouchSound(view)
+                            showDatePicker = true
+                        }
                 ) {
                     OutlinedTextField(
                         value = inputState.date,
@@ -231,36 +235,22 @@ fun AddEditShiftDialog(
                             System.currentTimeMillis()
                         }
                     }
-                    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = initialMillis)
-                    DatePickerDialog(
+                    
+                    SystemDatePicker(
+                        initialDateMillis = initialMillis,
                         onDismissRequest = { showDatePicker = false },
-                        confirmButton = {
-                            TextButton(
-                                onClick = {
-                                    datePickerState.selectedDateMillis?.let { millis ->
-                                        val calendar = Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC")).apply {
-                                            timeInMillis = millis
-                                        }
-                                        val fmt = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).apply {
-                                            timeZone = java.util.TimeZone.getTimeZone("UTC")
-                                        }
-                                        val formatted = fmt.format(calendar.time)
-                                        onDateChanged(formatted)
-                                    }
-                                    showDatePicker = false
-                                }
-                            ) {
-                                Text(stringResource(R.string.ok_btn))
+                        onDateSelected = { millis ->
+                            val calendar = Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC")).apply {
+                                timeInMillis = millis
                             }
-                        },
-                        dismissButton = {
-                            TextButton(onClick = { showDatePicker = false }) {
-                                Text(stringResource(R.string.cancel_btn))
+                            val fmt = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).apply {
+                                timeZone = java.util.TimeZone.getTimeZone("UTC")
                             }
+                            val formatted = fmt.format(calendar.time)
+                            onDateChanged(formatted)
+                            showDatePicker = false
                         }
-                    ) {
-                        DatePicker(state = datePickerState)
-                    }
+                    )
                 }
 
                 // Is Work Day Switch
@@ -286,7 +276,7 @@ fun AddEditShiftDialog(
                         )
                     }
                     Spacer(modifier = Modifier.width(8.dp))
-                    Switch(
+                    HapticSwitch(
                         checked = inputState.isWorkDay,
                         onCheckedChange = { isChecked ->
                             onTimesUpdated(null, null, null, null, null, null, isChecked, null)
@@ -314,14 +304,20 @@ fun AddEditShiftDialog(
                                 formattedTime = OvertimeCalculator.formatMinutesToTime(inputState.workStartMinutes),
                                 testTag = "work_start_time_btn",
                                 modifier = Modifier.weight(1f),
-                                onClick = { activeTimePicker = TimePickerType.WORK_START }
+                                onClick = {
+                                    triggerTouchSound(view)
+                                    activeTimePicker = TimePickerType.WORK_START
+                                }
                             )
                             TimeSelectorCard(
                                 label = stringResource(R.string.work_end_label),
                                 formattedTime = OvertimeCalculator.formatMinutesToTime(inputState.workEndMinutes),
                                 testTag = "work_end_time_btn",
                                 modifier = Modifier.weight(1f),
-                                onClick = { activeTimePicker = TimePickerType.WORK_END }
+                                onClick = {
+                                    triggerTouchSound(view)
+                                    activeTimePicker = TimePickerType.WORK_END
+                                }
                             )
                         }
                     }
@@ -345,14 +341,20 @@ fun AddEditShiftDialog(
                             formattedTime = OvertimeCalculator.formatMinutesToTime(inputState.clockInMinutes),
                             testTag = "clock_in_time_btn",
                             modifier = Modifier.weight(1f),
-                            onClick = { activeTimePicker = TimePickerType.CLOCK_IN }
+                            onClick = {
+                                triggerTouchSound(view)
+                                activeTimePicker = TimePickerType.CLOCK_IN
+                            }
                         )
                         TimeSelectorCard(
                             label = stringResource(R.string.clock_out_label),
                             formattedTime = OvertimeCalculator.formatMinutesToTime(inputState.clockOutMinutes),
                             testTag = "clock_out_time_btn",
                             modifier = Modifier.weight(1f),
-                            onClick = { activeTimePicker = TimePickerType.CLOCK_OUT }
+                            onClick = {
+                                triggerTouchSound(view)
+                                activeTimePicker = TimePickerType.CLOCK_OUT
+                            }
                         )
                     }
                 }
@@ -533,7 +535,7 @@ fun AddEditShiftDialog(
             TimePickerType.CLOCK_OUT -> stringResource(R.string.select_clock_out) to inputState.clockOutMinutes
         }
 
-        M3TimePickerDialog(
+        SystemTimePicker(
             title = pickerTitle,
             initialMinutesFromMidnight = initialVal,
             onDismissRequest = { activeTimePicker = null },

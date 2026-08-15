@@ -7,6 +7,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -19,11 +21,13 @@ class ShiftTrackerOnboardingActivity : ComponentActivity() {
 
     private val viewModel: OvertimeViewModel by viewModels()
 
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         setContent {
+            val windowSizeClass = calculateWindowSizeClass(this)
             MyApplicationTheme {
                 val context = LocalContext.current
                 val appSettings by viewModel.appSettings.collectAsStateWithLifecycle()
@@ -32,6 +36,7 @@ class ShiftTrackerOnboardingActivity : ComponentActivity() {
                 OnboardingScreen(
                     appSettings = appSettings,
                     defaultSchedules = defaultSchedules,
+                    windowSizeClass = windowSizeClass,
                     onSaveSettings = { bufferBefore, bufferAfter, cutoffTime, ignoreEarly, lunchStart, lunchEnd, subWork, subOff ->
                         viewModel.saveAppSettings(bufferBefore, bufferAfter, cutoffTime, ignoreEarly, lunchStart, lunchEnd, subWork, subOff)
                     },

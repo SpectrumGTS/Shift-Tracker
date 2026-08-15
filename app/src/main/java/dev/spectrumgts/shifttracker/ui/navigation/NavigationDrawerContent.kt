@@ -38,12 +38,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.spectrumgts.shifttracker.R
+import dev.spectrumgts.shifttracker.ui.components.triggerTouchSound
 import dev.spectrumgts.shifttracker.ui.theme.LocalSystemCornerRadius
 import dev.spectrumgts.shifttracker.ui.viewmodel.ScreenDestination
 
@@ -255,6 +257,7 @@ private fun DrawerMenuItem(
     testTag: String,
     onClick: () -> Unit
 ) {
+    val view = LocalView.current
     NavigationDrawerItem(
         label = {
             Text(
@@ -271,7 +274,10 @@ private fun DrawerMenuItem(
             )
         },
         selected = isSelected,
-        onClick = onClick,
+        onClick = {
+            triggerTouchSound(view)
+            onClick()
+        },
         modifier = Modifier
             .padding(NavigationDrawerItemDefaults.ItemPadding)
             .testTag(testTag),

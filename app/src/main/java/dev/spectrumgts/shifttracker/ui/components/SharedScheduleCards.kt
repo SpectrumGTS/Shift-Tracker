@@ -23,7 +23,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -36,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -52,7 +52,26 @@ fun DefaultScheduleSettingsCard(
     modifier: Modifier = Modifier,
     showTitleHeader: Boolean = true
 ) {
-    val fullDaysList = (1..7).map { dayInt ->
+    val view = LocalView.current
+    val orderedDays = remember {
+        val cal = java.util.Calendar.getInstance()
+        val firstDay = cal.firstDayOfWeek
+        (0..6).map { offset ->
+            val day = (firstDay + offset - 1) % 7 + 1
+            when (day) {
+                java.util.Calendar.MONDAY -> 1
+                java.util.Calendar.TUESDAY -> 2
+                java.util.Calendar.WEDNESDAY -> 3
+                java.util.Calendar.THURSDAY -> 4
+                java.util.Calendar.FRIDAY -> 5
+                java.util.Calendar.SATURDAY -> 6
+                java.util.Calendar.SUNDAY -> 7
+                else -> 1
+            }
+        }
+    }
+
+    val fullDaysList = orderedDays.map { dayInt ->
         schedules.find { it.dayOfWeek == dayInt } ?: DayDefaultSchedule(
             dayOfWeek = dayInt,
             isWorkDay = dayInt in 1..5,
@@ -136,7 +155,10 @@ fun DefaultScheduleSettingsCard(
                     )
                 }
                 Button(
-                    onClick = { show9to5Confirmation = true },
+                    onClick = {
+                        triggerTouchSound(view)
+                        show9to5Confirmation = true
+                    },
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.testTag("quick_9to5_preset_btn")
                 ) {
@@ -256,7 +278,7 @@ fun DefaultScheduleSettingsCard(
             stringResource(R.string.schedule_work_end_title, dayName)
         }
 
-        M3TimePickerDialog(
+        SystemTimePicker(
             title = title,
             initialMinutesFromMidnight = if (isWorkStart) existing.workStartMinutes else existing.workEndMinutes,
             onDismissRequest = { activeTimePickerTarget = null },
@@ -279,6 +301,7 @@ fun DayScheduleCard(
     onApplyToAllClicked: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
+    val view = LocalView.current
     val dayName = OvertimeCalculator.getDayOfWeekName(schedule.dayOfWeek)
     var hasBeenModified by remember(schedule.dayOfWeek) { mutableStateOf(false) }
 
@@ -323,7 +346,7 @@ fun DayScheduleCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(end = 8.dp)
                     )
-                    Switch(
+                    HapticSwitch(
                         checked = schedule.isWorkDay,
                         onCheckedChange = onToggleWorkDay,
                         modifier = Modifier.testTag("day_switch_${schedule.dayOfWeek}")
@@ -343,6 +366,7 @@ fun DayScheduleCard(
                         testTag = "btn_start_day_${schedule.dayOfWeek}",
                         modifier = Modifier.weight(1f),
                         onClick = {
+                            triggerTouchSound(view)
                             hasBeenModified = true
                             onPickWorkStart()
                         }
@@ -353,6 +377,7 @@ fun DayScheduleCard(
                         testTag = "btn_end_day_${schedule.dayOfWeek}",
                         modifier = Modifier.weight(1f),
                         onClick = {
+                            triggerTouchSound(view)
                             hasBeenModified = true
                             onPickWorkEnd()
                         }
@@ -363,7 +388,10 @@ fun DayScheduleCard(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     OutlinedButton(
-                        onClick = onApplyToAllClicked,
+                        onClick = {
+                            triggerTouchSound(view)
+                            onApplyToAllClicked()
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .testTag("btn_apply_all_day_${schedule.dayOfWeek}"),

@@ -42,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -52,6 +53,8 @@ import dev.spectrumgts.shifttracker.data.model.DayDefaultSchedule
 import dev.spectrumgts.shifttracker.data.model.OvertimeCalculator
 import dev.spectrumgts.shifttracker.data.model.ShiftLog
 import dev.spectrumgts.shifttracker.ui.components.ShiftCard
+import dev.spectrumgts.shifttracker.ui.components.triggerSystemFeedback
+import dev.spectrumgts.shifttracker.ui.components.triggerTouchSound
 import dev.spectrumgts.shifttracker.ui.viewmodel.getDayOfWeekForDate
 import dev.spectrumgts.shifttracker.ui.viewmodel.getTodayDateString
 import kotlinx.coroutines.delay
@@ -67,6 +70,7 @@ fun DashboardScreen(
     onDeleteShift: (ShiftLog) -> Unit,
     onNavigateToHistory: () -> Unit
 ) {
+    val view = LocalView.current
     var currentTimeMs by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(Unit) {
         while (true) {
@@ -137,7 +141,6 @@ fun DashboardScreen(
 
     val currentWeekShifts = remember(shifts) {
         val cal = java.util.Calendar.getInstance()
-        cal.firstDayOfWeek = java.util.Calendar.SUNDAY
         cal.set(java.util.Calendar.HOUR_OF_DAY, 0)
         cal.set(java.util.Calendar.MINUTE, 0)
         cal.set(java.util.Calendar.SECOND, 0)
@@ -409,7 +412,10 @@ fun DashboardScreen(
                     )
                     if (shifts.isNotEmpty()) {
                         Button(
-                            onClick = onNavigateToHistory,
+                            onClick = {
+                                triggerTouchSound(view)
+                                onNavigateToHistory()
+                            },
                             modifier = Modifier.testTag("view_all_history_btn"),
                             colors = ButtonDefaults.textButtonColors()
                         ) {
@@ -474,7 +480,10 @@ fun DashboardScreen(
 
         // Floating Action Button
         ExtendedFloatingActionButton(
-            onClick = onLogNewShift,
+            onClick = {
+                triggerSystemFeedback(view)
+                onLogNewShift()
+            },
             icon = { Icon(Icons.Default.Add, contentDescription = stringResource(R.string.history_fab_log_shift_desc)) },
             text = { Text(stringResource(R.string.history_fab_log_shift_desc)) },
             modifier = Modifier

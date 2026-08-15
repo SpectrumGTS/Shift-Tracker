@@ -20,12 +20,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.spectrumgts.shifttracker.R
 import dev.spectrumgts.shifttracker.data.model.ShiftLog
+import dev.spectrumgts.shifttracker.ui.components.HapticCheckbox
+import dev.spectrumgts.shifttracker.ui.components.triggerTouchSound
 import dev.spectrumgts.shifttracker.ui.theme.WarningDialogBodyStyle
 import dev.spectrumgts.shifttracker.ui.theme.WarningDialogTitleStyle
 
@@ -36,6 +39,7 @@ fun BackupRestoreScreen(
     onRedoOnboarding: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    val view = LocalView.current
     var snackbarMessage by remember { mutableStateOf<String?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -103,7 +107,7 @@ fun BackupRestoreScreen(
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    text = stringResource(R.string.backup_unified_subtitle, shifts.size),
+                                    text = stringResource(R.string.backup_unified_subtitle),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -126,7 +130,7 @@ fun BackupRestoreScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Checkbox(
+                            HapticCheckbox(
                                 checked = exportShiftsChecked,
                                 onCheckedChange = { exportShiftsChecked = it }
                             )
@@ -138,7 +142,7 @@ fun BackupRestoreScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Checkbox(
+                            HapticCheckbox(
                                 checked = exportSettingsChecked,
                                 onCheckedChange = { exportSettingsChecked = it }
                             )
@@ -151,7 +155,10 @@ fun BackupRestoreScreen(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             Button(
-                                onClick = { exportUnifiedLauncher.launch("shift_tracker_backup.json") },
+                                onClick = {
+                                    triggerTouchSound(view)
+                                    exportUnifiedLauncher.launch("shift_tracker_backup.json")
+                                },
                                 enabled = exportShiftsChecked || exportSettingsChecked,
                                 modifier = Modifier
                                     .weight(1f)
@@ -165,6 +172,7 @@ fun BackupRestoreScreen(
 
                             OutlinedButton(
                                 onClick = {
+                                    triggerTouchSound(view)
                                     context.startActivity(Intent(context, BackupImportActivity::class.java))
                                 },
                                 modifier = Modifier
@@ -216,7 +224,10 @@ fun BackupRestoreScreen(
                         }
 
                         Button(
-                            onClick = { showRedoOnboardingDialog = true },
+                            onClick = {
+                                triggerTouchSound(view)
+                                showRedoOnboardingDialog = true
+                            },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .testTag("redo_onboarding_btn"),
