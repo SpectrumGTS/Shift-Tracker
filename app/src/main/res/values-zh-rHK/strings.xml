@@ -20,8 +20,8 @@
     <string name="custom_cutoff_time">自定義截止時間：%1$s</string>
     <string name="cutoff_time_hint">• 如果打卡時間超過午夜但早於或等於 %1$s，額外時數將計入午夜前的一天。</string>
     <string name="invalid_cutoff_time">無效的截止時間</string>
-    <string name="invalid_cutoff_time_desc">過夜截止時間 (%1$s) 不能晚於任何默認工作開始時間 (%2$s)。</string>
-    <string name="ok_btn" translatable="false">OK</string>
+    <string name="invalid_cutoff_time_desc">通宵截止時間 (%1$s) 不能晚於任何默認工作開始時間 (%2$s)。</string>
+
 
     <!-- Lunch Break Settings -->
     <string name="lunch_break_range">午膳時間範圍</string>
@@ -31,7 +31,7 @@
     <string name="subtract_lunch_workdays">工作日扣除</string>
     <string name="subtract_lunch_workdays_desc">在預定工作日自動從總工作時數中扣除午膳時間。</string>
     <string name="subtract_lunch_offdays">非工作日扣除</string>
-    <string name="subtract_lunch_offdays_desc">在週末和非工作日自動從總工作/加班時數中扣除午膳時間。</string>
+    <string name="subtract_lunch_offdays_desc">在非工作日自動從總工作時數中扣除午膳時間。</string>
     <string name="select_lunch_start_title">選擇午膳開始時間</string>
     <string name="select_lunch_end_title">選擇午膳結束時間</string>
     <string name="select_cutoff_title">選擇通宵截止時間</string>
@@ -175,13 +175,14 @@
     <string name="content_desc_select_time">選擇時間</string>
 
     <!-- Cutoff Warning & Notes Counter -->
-    <string name="cutoff_warning_title">超過加班截止時間</string>
+    <string name="cutoff_warning_title">超過通宵截止時間</string>
     <string name="cutoff_warning_desc">實際下班時間 (%1$s) 超過了通宵截止時間 (%2$s)。是否捨棄超出部分並將下班時間改回 %2$s？</string>
     <string name="cutoff_warning_confirm">捨棄並設置為截止時間</string>
     <string name="notes_limit_counter">%1$d/32 字符 (%2$d 個單詞)</string>
 
     <!-- Shift Card & Log UI -->
-    <string name="card_extra_suffix">+%1$s 額外</string>
+
+    <string name="card_extra_suffix">加班 +%1$s</string>
     <string name="card_scheduled_label">預定</string>
     <string name="card_actual_clock_label">實際打卡</string>
     <string name="card_worked_label">已工作</string>

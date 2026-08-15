@@ -38,8 +38,8 @@ class ShiftTrackerOnboardingActivity : ComponentActivity() {
                     onSaveSchedule = { dayOfWeek, isWorkDay, workStart, workEnd ->
                         viewModel.saveDefaultSchedule(dayOfWeek, isWorkDay, workStart, workEnd)
                     },
-                    onApplyToAllWorkingDays = { workStart, workEnd ->
-                        viewModel.applyDefaultScheduleToAllWorkingDays(workStart, workEnd)
+                    onApplyToAllWorkingDays = { workStart, workEnd, forceMonToFri ->
+                        viewModel.applyDefaultScheduleToAllWorkingDays(workStart, workEnd, forceMonToFri)
                     },
                     onFinishOnboarding = {
                         val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)

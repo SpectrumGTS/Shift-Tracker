@@ -48,7 +48,7 @@ import dev.spectrumgts.shifttracker.data.model.OvertimeCalculator
 fun DefaultScheduleSettingsCard(
     schedules: List<DayDefaultSchedule>,
     onSaveSchedule: (dayOfWeek: Int, isWorkDay: Boolean, workStart: Int, workEnd: Int) -> Unit,
-    onApplyToAllWorkingDays: (workStart: Int, workEnd: Int) -> Unit,
+    onApplyToAllWorkingDays: (workStart: Int, workEnd: Int, forceMonToFri: Boolean) -> Unit,
     modifier: Modifier = Modifier,
     showTitleHeader: Boolean = true
 ) {
@@ -63,6 +63,7 @@ fun DefaultScheduleSettingsCard(
 
     var activeTimePickerTarget by remember { mutableStateOf<Pair<Int, Boolean>?>(null) }
     var pendingApplyTarget by remember { mutableStateOf<DayDefaultSchedule?>(null) }
+    var show9to5Confirmation by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -135,7 +136,7 @@ fun DefaultScheduleSettingsCard(
                     )
                 }
                 Button(
-                    onClick = { onApplyToAllWorkingDays(540, 1020) },
+                    onClick = { show9to5Confirmation = true },
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.testTag("quick_9to5_preset_btn")
                 ) {
@@ -187,7 +188,7 @@ fun DefaultScheduleSettingsCard(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        onApplyToAllWorkingDays(target.workStartMinutes, target.workEndMinutes)
+                        onApplyToAllWorkingDays(target.workStartMinutes, target.workEndMinutes, false)
                         pendingApplyTarget = null
                     },
                     modifier = Modifier.testTag("confirm_apply_all_btn")
@@ -197,6 +198,46 @@ fun DefaultScheduleSettingsCard(
             },
             dismissButton = {
                 TextButton(onClick = { pendingApplyTarget = null }) {
+                    Text(stringResource(R.string.cancel_btn))
+                }
+            }
+        )
+    }
+
+    // Confirmation Prompt for Quick 9-to-5 Preset
+    if (show9to5Confirmation) {
+        val startFormatted = OvertimeCalculator.formatMinutesToTime(540)
+        val endFormatted = OvertimeCalculator.formatMinutesToTime(1020)
+
+        AlertDialog(
+            onDismissRequest = { show9to5Confirmation = false },
+            title = {
+                Text(
+                    text = stringResource(R.string.schedule_apply_all_title),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = WarningDialogTitleStyle
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.schedule_apply_all_desc, startFormatted, endFormatted),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = WarningDialogBodyStyle
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onApplyToAllWorkingDays(540, 1020, true)
+                        show9to5Confirmation = false
+                    },
+                    modifier = Modifier.testTag("confirm_apply_9to5_btn")
+                ) {
+                    Text(stringResource(R.string.schedule_apply_overwrite_btn), fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { show9to5Confirmation = false }) {
                     Text(stringResource(R.string.cancel_btn))
                 }
             }

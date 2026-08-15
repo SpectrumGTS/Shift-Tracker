@@ -361,13 +361,16 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun applyDefaultScheduleToAllWorkingDays(workStart: Int, workEnd: Int) {
+    fun applyDefaultScheduleToAllWorkingDays(workStart: Int, workEnd: Int, forceMonToFri: Boolean = false) {
         viewModelScope.launch {
             (1..7).forEach { dayInt ->
                 val currentSchedule = repository.getDefaultScheduleForDay(dayInt)
-                if (currentSchedule.isWorkDay) {
+                val shouldBeWorkDay = if (forceMonToFri) dayInt in 1..5 else currentSchedule.isWorkDay
+
+                if (shouldBeWorkDay || forceMonToFri) {
                     repository.saveDefaultSchedule(
                         currentSchedule.copy(
+                            isWorkDay = shouldBeWorkDay,
                             workStartMinutes = workStart,
                             workEndMinutes = workEnd
                         )

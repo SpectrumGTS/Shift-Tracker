@@ -178,7 +178,7 @@ fun ShiftHistoryScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .testTag("shift_history_screen"),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 88.dp),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 88.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Search Bar & Filter Button

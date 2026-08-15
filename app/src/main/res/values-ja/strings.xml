@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Shift Tracker</string>
+
 
     <!-- Settings Screen -->
     <string name="overtime_grace_cutoff_settings">残業猶予と締め切り設定</string>
@@ -22,7 +22,7 @@
     <string name="cutoff_time_hint">• 退勤が深夜を過ぎても %1$s 以前の場合、超過時間は深夜前の日の分としてカウントされます。</string>
     <string name="invalid_cutoff_time">無効な締め切り時間</string>
     <string name="invalid_cutoff_time_desc">夜間締め切り時間 (%1$s) は、デフォルトの勤務開始時間 (%2$s) より遅くすることはできません。</string>
-    <string name="ok_btn" translatable="false">OK</string>
+
 
     <!-- Lunch Break Settings -->
     <string name="lunch_break_range">昼休み時間</string>
@@ -32,7 +32,7 @@
     <string name="subtract_lunch_workdays">勤務日に差し引く</string>
     <string name="subtract_lunch_workdays_desc">予定された勤務日の総労働時間から昼休みを自動的に差し引きます。</string>
     <string name="subtract_lunch_offdays">非勤務日に差し引く</string>
-    <string name="subtract_lunch_offdays_desc">週末や休日の総労働/残業時間から昼休みを自動的に差し引きます。</string>
+    <string name="subtract_lunch_offdays_desc">休日の総労働時間から昼休みを自動的に差し引きます。</string>
     <string name="select_lunch_start_title">昼休み開始時間を選択</string>
     <string name="select_lunch_end_title">昼休み終了時間を選択</string>
     <string name="select_cutoff_title">夜勤締め切り時間を選択</string>
@@ -99,7 +99,7 @@
     <string name="menu_buffer_grace_time">バッファと猶予時間</string>
     <string name="menu_backup_restore">バックアップと復元</string>
     <string name="menu_about">アプリについて</string>
-    <string name="menu_footer" translatable="false">Room Offline Persistence • M3 Native</string>
+
 
     <!-- Shift History Screen Filters & Quick Chips -->
     <string name="history_search_placeholder">日付やメモで検索…</string>
@@ -176,13 +176,13 @@
     <string name="content_desc_select_time">時間を選択</string>
 
     <!-- Cutoff Warning & Notes Counter -->
-    <string name="cutoff_warning_title">残業締め切り時間を超過</string>
+    <string name="cutoff_warning_title">夜間締め切り時間を超過</string>
     <string name="cutoff_warning_desc">実際の退勤時間 (%1$s) が夜勤締め切り時間 (%2$s) を超えています。超過分を破棄し、退勤時間を %2$s に戻しますか？</string>
     <string name="cutoff_warning_confirm">破棄して締め切り時間に設定</string>
     <string name="notes_limit_counter">%1$d/32 文字 (%2$d 単語)</string>
 
     <!-- Shift Card & Log UI -->
-    <string name="card_extra_suffix">+%1$s 超過</string>
+    <string name="card_extra_suffix">残業 %1$s</string>
     <string name="card_scheduled_label">予定</string>
     <string name="card_actual_clock_label">実際の出退勤</string>
     <string name="card_worked_label">労働時間</string>
@@ -263,8 +263,8 @@
     <string name="about_gpl_nowarranty_title">無保証</string>
     <string name="about_gpl_nowarranty_desc">本ソフトウェアは「現状のまま」提供され、いかなる種類の保証もありません。作者および著作権保持者は、その使用に起因するいかなる損害や問題についても責任を負いません。</string>
     <string name="about_build_info_header">バージョンとビルド情報</string>
-    <string name="about_label_app_id" translatable="false">Application ID</string>
-    <string name="about_label_version" translatable="false">Version</string>
+
+
 
     <!-- Onboarding OOBE Strings -->
     <string name="onboarding_welcome_title">Shift Tracker へようこそ</string>

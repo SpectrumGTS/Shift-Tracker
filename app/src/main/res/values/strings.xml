@@ -32,7 +32,7 @@
     <string name="subtract_lunch_workdays">Subtract on Work Days</string>
     <string name="subtract_lunch_workdays_desc">Automatically subtract lunch break from total working hours on scheduled work days.</string>
     <string name="subtract_lunch_offdays">Subtract on Off Days</string>
-    <string name="subtract_lunch_offdays_desc">Automatically subtract lunch break from total working/overtime hours on weekends and off days.</string>
+    <string name="subtract_lunch_offdays_desc">Automatically subtract lunch break from total hours on off days.</string>
     <string name="select_lunch_start_title">Select Lunch Break Start Time</string>
     <string name="select_lunch_end_title">Select Lunch Break End Time</string>
     <string name="select_cutoff_title">Select Overnight Cutoff Time</string>
@@ -176,13 +176,13 @@
     <string name="content_desc_select_time">Select Time</string>
 
     <!-- Cutoff Warning & Notes Counter -->
-    <string name="cutoff_warning_title">Overtime Cutoff Exceeded</string>
+    <string name="cutoff_warning_title">Overnight Cutoff Exceeded</string>
     <string name="cutoff_warning_desc">Actual clock out time (%1$s) exceeds the overnight cutoff time (%2$s). Discard the exceeded portion and change clock out time back to %2$s?</string>
     <string name="cutoff_warning_confirm">Discard &amp; Set to Cutoff</string>
     <string name="notes_limit_counter">%1$d/32 chars (%2$d words)</string>
 
     <!-- Shift Card & Log UI -->
-    <string name="card_extra_suffix">+%1$s Extra</string>
+    <string name="card_extra_suffix">%1$s Extra</string>
     <string name="card_scheduled_label">Scheduled</string>
     <string name="card_actual_clock_label">Actual Clock In/Out</string>
     <string name="card_worked_label">Worked</string>
@@ -223,7 +223,7 @@
     <!-- Material 2: Shift Work Strategies -->
     <string name="wellbeing_mat_strategies_title">Strategies for Overtime Recovery</string>
     <string name="wellbeing_mat_strategies_desc">Actionable micro-habits to protect mental clarity when working extended hours:</string>
-    <string name="wellbeing_mat_strategies_item1">• Micro-Break Cadence: Take 3–5 minute breathing breaks every 90 minutes of focused work.</string>
+    <string name="wellbeing_mat_strategies_item1">• Micro-Break Cadence: Take a 3–5-minute breathing breaks every 90 minutes of focused work.</string>
     <string name="wellbeing_mat_strategies_item2">• Digital Off-Switch: Set strict boundaries against checking work emails or chats after clock-out.</string>
     <string name="wellbeing_mat_strategies_item3">• Post-Shift Wind-down: Engage in a non-screen transition routine (e.g. walk, light stretch) before sleep.</string>
     <string name="wellbeing_mat_strategies_item4">• Hydration &amp; Nutrition: Sustained energy requires steady hydration and balanced meals during night shifts.</string>

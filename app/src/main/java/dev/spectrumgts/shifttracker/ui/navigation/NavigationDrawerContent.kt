@@ -4,12 +4,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.CalendarMonth
@@ -37,6 +44,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.spectrumgts.shifttracker.R
+import dev.spectrumgts.shifttracker.ui.theme.LocalSystemCornerRadius
 import dev.spectrumgts.shifttracker.ui.viewmodel.ScreenDestination
 
 @Composable
@@ -45,19 +53,37 @@ fun AppNavigationDrawerSheet(
     onDestinationSelected: (ScreenDestination) -> Unit,
     onCloseDrawer: () -> Unit
 ) {
+    val systemRadius = LocalSystemCornerRadius.current
     ModalDrawerSheet(
         modifier = Modifier
             .width(310.dp)
             .testTag("navigation_drawer_sheet"),
+        drawerShape = RoundedCornerShape(topEnd = systemRadius, bottomEnd = systemRadius),
         drawerContainerColor = MaterialTheme.colorScheme.surface,
-        drawerContentColor = MaterialTheme.colorScheme.onSurface
+        drawerContentColor = MaterialTheme.colorScheme.onSurface,
+        windowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Start + WindowInsetsSides.Vertical)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxHeight()
-                .padding(vertical = 12.dp)
-        ) {
-            // Header Banner
+        AppNavigationDrawerContent(
+            currentDestination = currentDestination,
+            onDestinationSelected = onDestinationSelected,
+            onCloseDrawer = onCloseDrawer
+        )
+    }
+}
+
+@Composable
+fun AppNavigationDrawerContent(
+    currentDestination: ScreenDestination,
+    onDestinationSelected: (ScreenDestination) -> Unit,
+    onCloseDrawer: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxHeight()
+            .verticalScroll(rememberScrollState())
+            .padding(vertical = 12.dp)
+    ) {
+        // Header Banner
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -206,8 +232,6 @@ fun AppNavigationDrawerSheet(
                 }
             )
 
-            Spacer(modifier = Modifier.weight(1f))
-
             // Footer info
             Box(
                 modifier = Modifier
@@ -222,7 +246,6 @@ fun AppNavigationDrawerSheet(
             }
         }
     }
-}
 
 @Composable
 private fun DrawerMenuItem(

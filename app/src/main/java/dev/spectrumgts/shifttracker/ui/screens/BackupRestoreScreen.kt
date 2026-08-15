@@ -73,25 +73,9 @@ fun BackupRestoreScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .testTag("backup_restore_screen"),
-            contentPadding = PaddingValues(16.dp),
+            contentPadding = PaddingValues(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item {
-                Column {
-                    Text(
-                        text = stringResource(R.string.backup_db_title),
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = stringResource(R.string.backup_db_subtitle),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-
             // Unified Backup File Card (Single File with Export/Import & Checkboxes)
             item {
                 Card(

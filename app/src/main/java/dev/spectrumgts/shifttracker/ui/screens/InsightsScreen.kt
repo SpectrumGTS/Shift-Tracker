@@ -96,25 +96,9 @@ fun InsightsScreen(
         modifier = Modifier
             .fillMaxSize()
             .testTag("insights_screen"),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        item {
-            Column {
-                Text(
-                    text = stringResource(R.string.insights_yearly_trends),
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = stringResource(R.string.insights_yearly_trends_desc, selectedYear),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-
         // Summary Card
         item {
             Card(

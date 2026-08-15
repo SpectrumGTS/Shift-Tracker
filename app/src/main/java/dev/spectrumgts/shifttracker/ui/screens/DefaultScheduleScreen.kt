@@ -14,19 +14,20 @@ import dev.spectrumgts.shifttracker.ui.components.DefaultScheduleSettingsCard
 fun DefaultScheduleScreen(
     schedules: List<DayDefaultSchedule>,
     onSaveSchedule: (dayOfWeek: Int, isWorkDay: Boolean, workStart: Int, workEnd: Int) -> Unit,
-    onApplyToAllWorkingDays: (workStart: Int, workEnd: Int) -> Unit = { _, _ -> }
+    onApplyToAllWorkingDays: (workStart: Int, workEnd: Int, forceMonToFri: Boolean) -> Unit = { _, _, _ -> }
 ) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .testTag("default_schedule_screen"),
-        contentPadding = PaddingValues(16.dp)
+        contentPadding = PaddingValues(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 16.dp)
     ) {
         item {
             DefaultScheduleSettingsCard(
                 schedules = schedules,
                 onSaveSchedule = onSaveSchedule,
-                onApplyToAllWorkingDays = onApplyToAllWorkingDays
+                onApplyToAllWorkingDays = onApplyToAllWorkingDays,
+                showTitleHeader = false
             )
         }
     }
