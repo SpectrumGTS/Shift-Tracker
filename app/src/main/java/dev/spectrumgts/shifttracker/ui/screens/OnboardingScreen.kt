@@ -3,6 +3,11 @@ package dev.spectrumgts.shifttracker.ui.screens
 import android.content.Intent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -21,6 +26,7 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -308,6 +314,17 @@ private fun OnboardingWelcomeStep(
     onRestoreBackup: () -> Unit,
     onSkipSetup: () -> Unit
 ) {
+    val infiniteTransition = rememberInfiniteTransition(label = "ArrowAnimation")
+    val arrowOffset by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 12f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(800),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "ArrowOffset"
+    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -418,7 +435,9 @@ private fun OnboardingWelcomeStep(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                     contentDescription = null,
-                    modifier = Modifier.size(18.dp)
+                    modifier = Modifier
+                        .size(18.dp)
+                        .offset(x = arrowOffset.dp)
                 )
             }
 

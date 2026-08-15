@@ -81,13 +81,13 @@ fun AppNavigationDrawerContent(
         modifier = Modifier
             .fillMaxHeight()
             .verticalScroll(rememberScrollState())
-            .padding(vertical = 12.dp)
+            .padding(bottom = 12.dp)
     ) {
         // Header Banner
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 16.dp)
+                    .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 16.dp)
             ) {
                 Column {
                     Row(
