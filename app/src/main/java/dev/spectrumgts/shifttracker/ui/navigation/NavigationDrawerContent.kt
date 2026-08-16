@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.SelfImprovement
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Storage
@@ -210,6 +211,17 @@ fun AppNavigationDrawerContent(
                 testTag = "drawer_item_settings",
                 onClick = {
                     onDestinationSelected(ScreenDestination.SETTINGS)
+                    onCloseDrawer()
+                }
+            )
+
+            DrawerMenuItem(
+                label = stringResource(R.string.menu_notification_settings),
+                icon = Icons.Default.Notifications,
+                isSelected = currentDestination == ScreenDestination.NOTIFICATION_SETTINGS,
+                testTag = "drawer_item_notifications",
+                onClick = {
+                    onDestinationSelected(ScreenDestination.NOTIFICATION_SETTINGS)
                     onCloseDrawer()
                 }
             )

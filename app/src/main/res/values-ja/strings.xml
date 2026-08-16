@@ -102,6 +102,7 @@
     <string name="menu_section_settings">設定と基本設定</string>
     <string name="menu_default_schedule">デフォルトスケジュール</string>
     <string name="menu_buffer_grace_time">バッファと猶予時間</string>
+    <string name="menu_notification_settings">通知設定</string>
     <string name="menu_backup_restore">バックアップと復元</string>
     <string name="menu_about">アプリについて</string>
 
@@ -323,4 +324,28 @@
     <string name="duration_hours">%1$d時間</string>
     <string name="duration_minutes">%1$d分</string>
     <string name="duration_zero">0分</string>
+
+    <!-- Notifications & Reminders -->
+    <string name="onboarding_feature_notification_title">通知</string>
+    <string name="onboarding_feature_notification_desc">タイムリーなリマインダーで、勤務記録をしっかりと管理しましょう。</string>
+    <string name="notification_settings_title">通知</string>
+    <string name="enable_notifications">通知を有効にする</string>
+    <string name="enable_notifications_desc">アプリがリマインダーやアップデートを送信することを許可します。</string>
+    <string name="shift_reminder_enabled">シフト記録リマインダー</string>
+    <string name="shift_reminder_desc">予定終了時間＋バッファの時間に、シフトの記録を促すリマインダーを表示します。</string>
+    <string name="notification_permission_required">通知の権限が必要です</string>
+    <string name="notification_permission_desc">リマインダーを受け取るには、システム設定で通知の権限を許可してください。</string>
+    <string name="notification_channel_name">シフトリマインダー</string>
+    <string name="notification_channel_description">勤務シフトを記録するためのリマインダー。</string>
+    <string name="notification_reminder_title">シフト記録リマインダー</string>
+    <string name="notification_reminder_text">シフトを記録する時間です！勤務時間の記録を忘れずに。</string>
+    <string name="notification_action_log_shift">シフトを記録</string>
+    <string name="onboarding_step_notifications_title">通知</string>
+    <string name="onboarding_step_notifications_subtitle">シフトの記録を忘れることはもうありません。勤務終了時にフレンドリーなリマインダーをお送りします。</string>
+    <string name="onboarding_notification_feature_title">シフトリマインダー</string>
+    <string name="onboarding_notification_feature_desc">予定された退勤時間にフレンドリーな通知を表示します。</string>
+    <string name="onboarding_btn_enable_notifications">リマインダーを有効にする</string>
+    <string name="onboarding_btn_notification_enabled">有効</string>
+    <string name="onboarding_notification_permission_granted">許可されました</string>
+    <string name="onboarding_btn_test_notification">テスト通知を送信</string>
 </resources>

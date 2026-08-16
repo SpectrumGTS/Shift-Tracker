@@ -101,6 +101,7 @@
     <string name="menu_section_settings">设置与偏好</string>
     <string name="menu_default_schedule">默认时间表</string>
     <string name="menu_buffer_grace_time">缓冲时间设置</string>
+    <string name="menu_notification_settings">通知设置</string>
     <string name="menu_backup_restore">备份与恢复</string>
     <string name="menu_about">关于此应用</string>
 
@@ -322,4 +323,26 @@
     <string name="duration_hours">%1$d 小时</string>
     <string name="duration_minutes">%1$d 分钟</string>
     <string name="duration_zero">0 分钟</string>
+    <string name="onboarding_feature_notification_title">通知</string>
+    <string name="notification_settings_title">通知</string>
+    <string name="enable_notifications">启用通知</string>
+    <string name="notification_action_log_shift">记录工时</string>
+    <string name="onboarding_step_notifications_title">通知</string>
+    <string name="onboarding_notification_feature_title">工时记录提醒</string>
+    <string name="onboarding_btn_enable_notifications">启用提醒</string>
+    <string name="onboarding_notification_permission_granted">已授权</string>
+    <string name="onboarding_btn_test_notification">发送测试通知</string>
+    <string name="notification_channel_name">工时记录提醒</string>
+    <string name="shift_reminder_enabled">工时记录提醒</string>
+    <string name="onboarding_feature_notification_desc">通过及时的提醒，轻松掌握您的工作记录。</string>
+    <string name="enable_notifications_desc">允许应用为您发送提醒和更新。</string>
+    <string name="shift_reminder_desc">在预定下班时间加上缓冲时间时提醒我记录工时。</string>
+    <string name="notification_permission_required">需要通知权限</string>
+    <string name="notification_permission_desc">要接收提醒，请在系统设置中授予通知权限。</string>
+    <string name="notification_channel_description">记录工作班次的提醒。</string>
+    <string name="notification_reminder_title">工时记录提醒</string>
+    <string name="notification_reminder_text">该记录工时了！别忘了记录您的工作时长。</string>
+    <string name="onboarding_step_notifications_subtitle">再也不会忘记记录工时。我们可以在您的工作日结束时发送贴心的提醒。</string>
+    <string name="onboarding_notification_feature_desc">在您预定的下班时间发送贴心提醒。</string>
+    <string name="onboarding_btn_notification_enabled">已启用</string>
 </resources>

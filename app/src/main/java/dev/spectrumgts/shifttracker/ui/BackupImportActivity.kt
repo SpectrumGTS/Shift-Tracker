@@ -24,11 +24,11 @@ import dev.spectrumgts.shifttracker.ShiftTrackerMainActivity
 import dev.spectrumgts.shifttracker.ui.theme.MyApplicationTheme
 import dev.spectrumgts.shifttracker.ui.theme.WarningDialogBodyStyle
 import dev.spectrumgts.shifttracker.ui.theme.WarningDialogTitleStyle
-import dev.spectrumgts.shifttracker.ui.viewmodel.OvertimeViewModel
+import dev.spectrumgts.shifttracker.ui.viewmodel.ShiftTrackerViewModel
 
 class BackupImportActivity : ComponentActivity() {
 
-    private val viewModel: OvertimeViewModel by viewModels()
+    private val viewModel: ShiftTrackerViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

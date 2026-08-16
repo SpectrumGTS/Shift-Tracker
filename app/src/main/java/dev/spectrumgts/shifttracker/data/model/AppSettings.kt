@@ -14,5 +14,7 @@ data class AppSettings(
     val lunchEndMinutes: Int = 750,   // Default 12:30 (750 minutes)
     val subtractLunchWorkDays: Boolean = false,
     val subtractLunchOffDays: Boolean = false,
-    val firstDayOfWeek: Int = 0 // 0 = System Default, 1 = Monday, ..., 7 = Sunday
+    val firstDayOfWeek: Int = 0, // 0 = System Default, 1 = Monday, ..., 7 = Sunday
+    val notificationsEnabled: Boolean = false,
+    val notificationReminderEnabled: Boolean = true
 )

@@ -102,6 +102,7 @@
     <string name="menu_section_settings">SETTINGS &amp; PREFERENCES</string>
     <string name="menu_default_schedule">Default Schedule</string>
     <string name="menu_buffer_grace_time">Buffer &amp; Grace Time</string>
+    <string name="menu_notification_settings">Notification Settings</string>
     <string name="menu_backup_restore">Backup &amp; Restore</string>
     <string name="menu_about">About This App</string>
     <string name="menu_footer" translatable="false">Room Offline Persistence • M3 Native</string>
@@ -299,6 +300,8 @@
     <string name="backup_redo_onboarding_btn">Redo Onboarding Setup</string>
     <string name="onboarding_feature_buffer_desc">Automatic grace periods before and after shifts.</string>
     <string name="onboarding_feature_schedule_desc">Custom weekly shift schedules &amp; 1-tap presets.</string>
+    <string name="onboarding_feature_notification_title">Notifications</string>
+    <string name="onboarding_feature_notification_desc">Stay on top of your work logs with timely reminders.</string>
     <string name="onboarding_feature_privacy_title">Data Privacy</string>
     <string name="onboarding_feature_privacy_desc">100% local storage &amp; zero data tracking.</string>
     <string name="onboarding_preset_9to5_title">Standard 9 to 5 Work Week</string>
@@ -323,4 +326,28 @@
     <string name="duration_hours">%1$dh</string>
     <string name="duration_minutes">%1$dm</string>
     <string name="duration_zero">0m</string>
+
+    <!-- Notification Settings -->
+    <string name="notification_settings_title">Notifications</string>
+    <string name="enable_notifications">Enable Notifications</string>
+    <string name="enable_notifications_desc">Allow the app to send you reminders and updates.</string>
+    <string name="shift_reminder_enabled">Shift Log Reminder</string>
+    <string name="shift_reminder_desc">Remind me to log my shift at scheduled clock-out time + buffer.</string>
+    <string name="notification_permission_required">Notification Permission Required</string>
+    <string name="notification_permission_desc">To receive reminders, please grant notification permission in system settings.</string>
+    <string name="notification_channel_name">Shift Reminders</string>
+    <string name="notification_channel_description">Reminders to log your work shifts.</string>
+    <string name="notification_reminder_title">Shift Log Reminder</string>
+    <string name="notification_reminder_text">It\'s time to log your shift! Don\'t forget to record your hours.</string>
+    <string name="notification_action_log_shift">Log Shift</string>
+
+    <!-- Onboarding Notification Step -->
+    <string name="onboarding_step_notifications_title">Notifications</string>
+    <string name="onboarding_step_notifications_subtitle">Never forget to log your shifts. We can send you a friendly reminder when your workday ends.</string>
+    <string name="onboarding_notification_feature_title">Shift Reminders</string>
+    <string name="onboarding_notification_feature_desc">Friendly alerts at your scheduled clock-out time.</string>
+    <string name="onboarding_btn_enable_notifications">Enable Reminders</string>
+    <string name="onboarding_btn_notification_enabled">Enabled</string>
+    <string name="onboarding_notification_permission_granted">Permission Granted</string>
+    <string name="onboarding_btn_test_notification">Send Test Notification</string>
 </resources>

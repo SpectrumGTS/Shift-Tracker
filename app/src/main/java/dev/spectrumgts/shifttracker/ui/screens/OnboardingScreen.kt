@@ -1,9 +1,14 @@
 package dev.spectrumgts.shifttracker.ui.screens
 
+import android.Manifest
 import android.content.Intent
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -30,7 +35,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -45,6 +49,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Storage
@@ -82,6 +87,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import dev.spectrumgts.shifttracker.R
+import dev.spectrumgts.shifttracker.notifications.NotificationHelper
 import dev.spectrumgts.shifttracker.data.model.AppSettings
 import dev.spectrumgts.shifttracker.data.model.DayDefaultSchedule
 import dev.spectrumgts.shifttracker.data.model.OvertimeCalculator
@@ -110,16 +116,18 @@ fun OnboardingScreen(
         lunchEndMinutes: Int,
         subtractLunchWorkDays: Boolean,
         subtractLunchOffDays: Boolean,
-        firstDayOfWeek: Int
+        firstDayOfWeek: Int,
+        notificationsEnabled: Boolean,
+        notificationReminderEnabled: Boolean
     ) -> Unit,
     onSaveSchedule: (dayOfWeek: Int, isWorkDay: Boolean, workStart: Int, workEnd: Int) -> Unit,
     onApplyToAllWorkingDays: (workStart: Int, workEnd: Int, forcePreset: Boolean, firstDayOfWeek: Int) -> Unit,
     onFinishOnboarding: () -> Unit
 ) {
     val context = LocalContext.current
-    var currentStep by remember { mutableIntStateOf(0) } // Step 0 = Welcome, 1 = Buffer, 2 = Schedule, 3 = Wellbeing
+    var currentStep by remember { mutableIntStateOf(0) }
     var hasPressedGetStarted by remember { mutableStateOf(false) }
-    val totalSetupSteps = 3
+    val totalSetupSteps = 4
 
     // State for Buffer & Lunch settings (Step 1)
     var bufferBefore by remember(appSettings) { mutableFloatStateOf(appSettings.bufferBeforeMinutes.toFloat()) }
@@ -131,6 +139,8 @@ fun OnboardingScreen(
     var subtractLunchWorkDays by remember(appSettings) { mutableStateOf(appSettings.subtractLunchWorkDays) }
     var subtractLunchOffDays by remember(appSettings) { mutableStateOf(appSettings.subtractLunchOffDays) }
     var firstDayOfWeek by remember(appSettings) { mutableIntStateOf(appSettings.firstDayOfWeek) }
+    var notificationsEnabled by remember(appSettings) { mutableStateOf(appSettings.notificationsEnabled) }
+    var notificationReminderEnabled by remember(appSettings) { mutableStateOf(appSettings.notificationReminderEnabled) }
 
     var showCutoffTimePicker by remember { mutableStateOf(false) }
     var showLunchStartTimePicker by remember { mutableStateOf(false) }
@@ -166,7 +176,7 @@ fun OnboardingScreen(
     }
 
     // Synchronize settings changes only after user pressed Get Started on welcome screen
-    LaunchedEffect(hasPressedGetStarted, bufferBefore, bufferAfter, cutoffTime, ignoreEarlyClockIns, lunchStart, lunchEnd, subtractLunchWorkDays, subtractLunchOffDays, firstDayOfWeek) {
+    LaunchedEffect(hasPressedGetStarted, bufferBefore, bufferAfter, cutoffTime, ignoreEarlyClockIns, lunchStart, lunchEnd, subtractLunchWorkDays, subtractLunchOffDays, firstDayOfWeek, notificationsEnabled, notificationReminderEnabled) {
         if (hasPressedGetStarted) {
             onSaveSettings(
                 bufferBefore.toInt(),
@@ -177,7 +187,9 @@ fun OnboardingScreen(
                 lunchEnd,
                 subtractLunchWorkDays,
                 subtractLunchOffDays,
-                firstDayOfWeek
+                firstDayOfWeek,
+                notificationsEnabled,
+                notificationReminderEnabled
             )
         }
     }
@@ -220,7 +232,6 @@ fun OnboardingScreen(
                     ) { step ->
                         when (step) {
                             0 -> OnboardingWelcomeStep(
-                                isLandscape = true,
                                 onGetStarted = {
                                     hasPressedGetStarted = true
                                     currentStep = 1
@@ -258,7 +269,11 @@ fun OnboardingScreen(
                                 onSubtractOffDaysChange = { subtractLunchOffDays = it },
                                 onShowCutoffPicker = { showCutoffTimePicker = true }
                             )
-                            3 -> OnboardingStep3Privacy()
+                            3 -> OnboardingStepNotifications(
+                                notificationsEnabled = notificationsEnabled,
+                                onNotificationsEnabledChange = { notificationsEnabled = it }
+                            )
+                            4 -> OnboardingStep3Privacy()
                         }
                     }
 
@@ -281,19 +296,14 @@ fun OnboardingScreen(
             }
         } else {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = if (currentStep > 0) 80.dp else 0.dp) // Leave room for bottom bar on steps 1..3
+                modifier = Modifier.fillMaxSize()
             ) {
-                if (currentStep > 0) {
-                    // Header Pixel OOBE Style for setup steps
-                    OobeHeader(
-                        currentStep = currentStep,
-                        totalSteps = totalSetupSteps
-                    )
-                }
+                // Header Pixel OOBE Style for setup steps
+                OobeHeader(
+                    currentStep = currentStep,
+                    totalSteps = totalSetupSteps
+                )
 
-                // Step Content Switcher
                 AnimatedContent(
                     targetState = currentStep,
                     transitionSpec = {
@@ -310,7 +320,6 @@ fun OnboardingScreen(
                 ) { step ->
                     when (step) {
                         0 -> OnboardingWelcomeStep(
-                            isLandscape = false,
                             onGetStarted = {
                                 hasPressedGetStarted = true
                                 currentStep = 1
@@ -348,32 +357,33 @@ fun OnboardingScreen(
                             onSubtractOffDaysChange = { subtractLunchOffDays = it },
                             onShowCutoffPicker = { showCutoffTimePicker = true }
                         )
-                        3 -> OnboardingStep3Privacy()
+                        3 -> OnboardingStepNotifications(
+                            notificationsEnabled = notificationsEnabled,
+                            onNotificationsEnabledChange = { notificationsEnabled = it }
+                        )
+                        4 -> OnboardingStep3Privacy()
                     }
                 }
-            }
 
-            // Bottom Navigation Bar for setup steps 1..3
-            if (currentStep > 0) {
-                OobeBottomBar(
-                    modifier = Modifier.align(Alignment.BottomCenter),
-                    currentStep = currentStep,
-                    totalSteps = totalSetupSteps,
-                    onBack = { if (currentStep > 0) currentStep-- },
-                    onNext = {
-                        if (currentStep < totalSetupSteps) {
-                            currentStep++
-                        } else {
-                            onFinishOnboarding()
-                        }
-                    },
-                    onSkip = onFinishOnboarding
-                )
+                if (currentStep > 0) {
+                    OobeBottomBar(
+                        currentStep = currentStep,
+                        totalSteps = totalSetupSteps,
+                        onBack = { if (currentStep > 0) currentStep-- },
+                        onNext = {
+                            if (currentStep < totalSetupSteps) {
+                                currentStep++
+                            } else {
+                                onFinishOnboarding()
+                            }
+                        },
+                        onSkip = onFinishOnboarding
+                    )
+                }
             }
         }
     }
 
-    // Time Pickers for Step 1
     if (showLunchStartTimePicker) {
         SystemTimePicker(
             title = stringResource(R.string.select_lunch_start_title),
@@ -420,7 +430,6 @@ fun OnboardingScreen(
 
 @Composable
 private fun OnboardingWelcomeStep(
-    isLandscape: Boolean,
     onGetStarted: () -> Unit,
     onRestoreBackup: () -> Unit,
     onSkipSetup: () -> Unit
@@ -436,270 +445,114 @@ private fun OnboardingWelcomeStep(
         label = "ArrowOffset"
     )
 
-    if (isLandscape) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .safeDrawingPadding()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+            .padding(horizontal = 16.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Feature Highlights Card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                contentColor = MaterialTheme.colorScheme.onSurface
+            ),
+            shape = RoundedCornerShape(20.dp)
         ) {
-            // Feature Highlights Card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                    contentColor = MaterialTheme.colorScheme.onSurface
-                ),
-                shape = RoundedCornerShape(20.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    WelcomeFeatureRow(
-                        icon = Icons.Default.CalendarMonth,
-                        title = stringResource(R.string.onboarding_step_2_title),
-                        desc = stringResource(R.string.onboarding_feature_schedule_desc)
-                    )
-                    WelcomeFeatureRow(
-                        icon = Icons.Default.Tune,
-                        title = stringResource(R.string.onboarding_step_1_title),
-                        desc = stringResource(R.string.onboarding_feature_buffer_desc)
-                    )
-                    WelcomeFeatureRow(
-                        icon = Icons.Default.Security,
-                        title = stringResource(R.string.onboarding_feature_privacy_title),
-                        desc = stringResource(R.string.onboarding_feature_privacy_desc)
-                    )
-                }
-            }
-
-            // Actions Block
             Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier.padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Button(
-                    onClick = onGetStarted,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp)
-                        .testTag("onboarding_welcome_get_started_btn"),
-                    shape = RoundedCornerShape(14.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    )
-                ) {
-                    Text(
-                        text = stringResource(R.string.onboarding_btn_get_started),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(18.dp)
-                            .offset(x = arrowOffset.dp)
-                    )
-                }
-
-                OutlinedButton(
-                    onClick = onRestoreBackup,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp)
-                        .testTag("onboarding_welcome_restore_backup_btn"),
-                    shape = RoundedCornerShape(14.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Restore,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(R.string.onboarding_btn_restore_backup),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                TextButton(
-                    onClick = onSkipSetup,
-                    modifier = Modifier.testTag("onboarding_welcome_skip_btn")
-                ) {
-                    Text(
-                        text = stringResource(R.string.onboarding_btn_skip),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                WelcomeFeatureRow(
+                    icon = Icons.Default.CalendarMonth,
+                    title = stringResource(R.string.onboarding_step_2_title),
+                    desc = stringResource(R.string.onboarding_feature_schedule_desc)
+                )
+                WelcomeFeatureRow(
+                    icon = Icons.Default.Tune,
+                    title = stringResource(R.string.onboarding_step_1_title),
+                    desc = stringResource(R.string.onboarding_feature_buffer_desc)
+                )
+                WelcomeFeatureRow(
+                    icon = Icons.Default.Notifications,
+                    title = stringResource(R.string.onboarding_feature_notification_title),
+                    desc = stringResource(R.string.onboarding_feature_notification_desc)
+                )
+                WelcomeFeatureRow(
+                    icon = Icons.Default.Security,
+                    title = stringResource(R.string.onboarding_feature_privacy_title),
+                    desc = stringResource(R.string.onboarding_feature_privacy_desc)
+                )
             }
         }
-    } else {
+
+        // Actions Block
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .safeDrawingPadding()
-                .padding(24.dp),
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
+            Button(
+                onClick = onGetStarted,
                 modifier = Modifier
-                    .weight(1f)
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(24.dp)
+                    .fillMaxWidth()
+                    .height(52.dp)
+                    .testTag("onboarding_welcome_get_started_btn"),
+                shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
             ) {
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Hero Illustration & Badge
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Surface(
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        modifier = Modifier.size(80.dp)
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_work_time),
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier.size(44.dp)
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    Text(
-                        text = stringResource(R.string.onboarding_welcome_title),
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Text(
-                        text = stringResource(R.string.onboarding_welcome_subtitle),
-                        style = MaterialTheme.typography.bodyLarge,
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    Spacer(modifier = Modifier.height(28.dp))
-
-                    // Feature Highlights Card
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                            contentColor = MaterialTheme.colorScheme.onSurface
-                        ),
-                        shape = RoundedCornerShape(20.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(20.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            WelcomeFeatureRow(
-                                icon = Icons.Default.CalendarMonth,
-                                title = stringResource(R.string.onboarding_step_2_title),
-                                desc = stringResource(R.string.onboarding_feature_schedule_desc)
-                            )
-                            WelcomeFeatureRow(
-                                icon = Icons.Default.Tune,
-                                title = stringResource(R.string.onboarding_step_1_title),
-                                desc = stringResource(R.string.onboarding_feature_buffer_desc)
-                            )
-                            WelcomeFeatureRow(
-                                icon = Icons.Default.Security,
-                                title = stringResource(R.string.onboarding_feature_privacy_title),
-                                desc = stringResource(R.string.onboarding_feature_privacy_desc)
-                            )
-                        }
-                    }
-                }
+                Text(
+                    text = stringResource(R.string.onboarding_btn_get_started),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(18.dp)
+                        .offset(x = arrowOffset.dp)
+                )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Actions Block
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            OutlinedButton(
+                onClick = onRestoreBackup,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp)
+                    .testTag("onboarding_welcome_restore_backup_btn"),
+                shape = RoundedCornerShape(14.dp)
             ) {
-                Button(
-                    onClick = onGetStarted,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp)
-                        .testTag("onboarding_welcome_get_started_btn"),
-                    shape = RoundedCornerShape(14.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    )
-                ) {
-                    Text(
-                        text = stringResource(R.string.onboarding_btn_get_started),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(18.dp)
-                            .offset(x = arrowOffset.dp)
-                    )
-                }
+                Icon(
+                    imageVector = Icons.Default.Restore,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.onboarding_btn_restore_backup),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold
+                )
+            }
 
-                OutlinedButton(
-                    onClick = onRestoreBackup,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp)
-                        .testTag("onboarding_welcome_restore_backup_btn"),
-                    shape = RoundedCornerShape(14.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Restore,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(R.string.onboarding_btn_restore_backup),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                TextButton(
-                    onClick = onSkipSetup,
-                    modifier = Modifier.testTag("onboarding_welcome_skip_btn")
-                ) {
-                    Text(
-                        text = stringResource(R.string.onboarding_btn_skip),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+            TextButton(
+                onClick = onSkipSetup,
+                modifier = Modifier.testTag("onboarding_welcome_skip_btn")
+            ) {
+                Text(
+                    text = stringResource(R.string.onboarding_btn_skip),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }
@@ -766,11 +619,10 @@ private fun OobeHeader(
                         WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
                     }
                 )
-                .padding(horizontal = 24.dp, vertical = if (isLandscape) 32.dp else 20.dp),
+                .padding(horizontal = 16.dp, vertical = if (isLandscape) 32.dp else 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            // Step Progress Indicator Bar/Dots (Moved to top)
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -779,10 +631,16 @@ private fun OobeHeader(
                     val isActive = i == currentStep
                     val isCompleted = i < currentStep
 
+                    val dotWidth by animateDpAsState(
+                        targetValue = if (isActive) 28.dp else 8.dp,
+                        animationSpec = tween(durationMillis = 300),
+                        label = "DotWidth"
+                    )
+
                     Box(
                         modifier = Modifier
                             .height(8.dp)
-                            .width(if (isActive) 28.dp else 8.dp)
+                            .width(dotWidth)
                             .clip(CircleShape)
                             .background(
                                 when {
@@ -797,63 +655,98 @@ private fun OobeHeader(
 
             Spacer(modifier = Modifier.height(if (isLandscape) 24.dp else 20.dp))
 
-            // Icon Illustration Badge
             Surface(
                 shape = CircleShape,
                 color = MaterialTheme.colorScheme.primaryContainer,
                 modifier = Modifier.size(if (isLandscape) 48.dp else 56.dp)
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    if (currentStep == 0) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_work_time),
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.size(if (isLandscape) 24.dp else 28.dp)
-                        )
-                    } else {
-                        Icon(
-                            imageVector = when (currentStep) {
-                                1 -> Icons.Default.CalendarMonth
-                                2 -> Icons.Default.Tune
-                                else -> Icons.Default.Lock
-                            },
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.size(if (isLandscape) 24.dp else 28.dp)
-                        )
+                AnimatedContent(
+                    targetState = currentStep,
+                    transitionSpec = {
+                        if (targetState > initialState) {
+                            (slideInHorizontally { width -> width } + fadeIn()).togetherWith(
+                                slideOutHorizontally { width -> -width } + fadeOut())
+                        } else {
+                            (slideInHorizontally { width -> -width } + fadeIn()).togetherWith(
+                                slideOutHorizontally { width -> width } + fadeOut())
+                        }
+                    },
+                    label = "HeaderIcon"
+                ) { step ->
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (step == 0) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_work_time),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.size(if (isLandscape) 24.dp else 28.dp)
+                            )
+                        } else {
+                            Icon(
+                                imageVector = when (step) {
+                                    1 -> Icons.Default.CalendarMonth
+                                    2 -> Icons.Default.Tune
+                                    3 -> Icons.Default.Notifications
+                                    else -> Icons.Default.Lock
+                                },
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.size(if (isLandscape) 24.dp else 28.dp)
+                            )
+                        }
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Text(
-                text = when (currentStep) {
-                    0 -> stringResource(R.string.onboarding_welcome_title)
-                    1 -> stringResource(R.string.onboarding_step_2_title)
-                    2 -> stringResource(R.string.onboarding_step_1_title)
-                    else -> stringResource(R.string.onboarding_step_3_title)
+            AnimatedContent(
+                targetState = currentStep,
+                transitionSpec = {
+                    if (targetState > initialState) {
+                        (slideInHorizontally { width -> width / 2 } + fadeIn()).togetherWith(
+                            slideOutHorizontally { width -> -width / 2 } + fadeOut())
+                    } else {
+                        (slideInHorizontally { width -> -width / 2 } + fadeIn()).togetherWith(
+                            slideOutHorizontally { width -> width / 2 } + fadeOut())
+                    }
                 },
-                style = if (isLandscape) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+                label = "HeaderText"
+            ) { step ->
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = when (step) {
+                            0 -> stringResource(R.string.onboarding_welcome_title)
+                            1 -> stringResource(R.string.onboarding_step_2_title)
+                            2 -> stringResource(R.string.onboarding_step_1_title)
+                            3 -> stringResource(R.string.onboarding_step_notifications_title)
+                            else -> stringResource(R.string.onboarding_step_3_title)
+                        },
+                        style = if (isLandscape) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
 
-            Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
 
-            Text(
-                text = when (currentStep) {
-                    0 -> stringResource(R.string.onboarding_welcome_subtitle)
-                    1 -> stringResource(R.string.onboarding_step_2_subtitle)
-                    2 -> stringResource(R.string.onboarding_step_1_subtitle)
-                    else -> stringResource(R.string.onboarding_step_3_subtitle)
-                },
-                style = MaterialTheme.typography.bodySmall,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+                    Text(
+                        text = when (step) {
+                            0 -> stringResource(R.string.onboarding_welcome_subtitle)
+                            1 -> stringResource(R.string.onboarding_step_2_subtitle)
+                            2 -> stringResource(R.string.onboarding_step_1_subtitle)
+                            3 -> stringResource(R.string.onboarding_step_notifications_subtitle)
+                            else -> stringResource(R.string.onboarding_step_3_subtitle)
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
         }
     }
 }
@@ -886,11 +779,10 @@ private fun OnboardingStep1Buffer(
             start = 16.dp,
             end = 16.dp,
             top = 16.dp,
-            bottom = 60.dp
+            bottom = 16.dp
         ),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Buffer BEFORE Working Hours Card
         item {
             BufferBeforeCard(
                 bufferBefore = bufferBefore,
@@ -899,16 +791,12 @@ private fun OnboardingStep1Buffer(
                 onIgnoreEarlyChange = onIgnoreEarlyChange
             )
         }
-
-        // Buffer AFTER Working Hours Card
         item {
             BufferAfterCard(
                 bufferAfter = bufferAfter,
                 onBufferAfterChange = onBufferAfterChange
             )
         }
-
-        // Lunch Break Settings Card
         item {
             LunchBreakCard(
                 lunchStart = lunchStart,
@@ -921,8 +809,6 @@ private fun OnboardingStep1Buffer(
                 onShowLunchEndPicker = onShowLunchEndPicker
             )
         }
-
-        // Overnight Shift Cutoff Time Card
         item {
             CutoffTimeCard(
                 cutoffTime = cutoffTime,
@@ -949,7 +835,7 @@ private fun OnboardingStep2Schedule(
             start = 16.dp,
             end = 16.dp,
             top = 16.dp,
-            bottom = 60.dp
+            bottom = 16.dp
         ),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -959,7 +845,6 @@ private fun OnboardingStep2Schedule(
                 onDaySelected = onFirstDayOfWeekChange
             )
         }
-
         item {
             DefaultScheduleSettingsCard(
                 schedules = schedules,
@@ -968,6 +853,112 @@ private fun OnboardingStep2Schedule(
                 firstDayOfWeek = firstDayOfWeek,
                 showTitleHeader = false
             )
+        }
+    }
+}
+
+@Composable
+private fun OnboardingStepNotifications(
+    notificationsEnabled: Boolean,
+    onNotificationsEnabledChange: (Boolean) -> Unit
+) {
+    val context = LocalContext.current
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        onNotificationsEnabledChange(isGranted)
+    }
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)),
+        contentPadding = PaddingValues(
+            start = 16.dp,
+            end = 16.dp,
+            top = 16.dp,
+            bottom = 16.dp
+        ),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        item {
+            Button(
+                onClick = {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    } else {
+                        onNotificationsEnabledChange(true)
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(16.dp),
+                enabled = !notificationsEnabled
+            ) {
+                Text(
+                    text = if (notificationsEnabled) {
+                        stringResource(R.string.notification_channel_name) + " " + stringResource(R.string.onboarding_btn_notification_enabled)
+                    } else {
+                        stringResource(R.string.onboarding_btn_enable_notifications)
+                    },
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
+        if (notificationsEnabled) {
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.onboarding_notification_permission_granted),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+
+                OutlinedButton(
+                    onClick = {
+                        val helper = NotificationHelper(context)
+                        helper.createNotificationChannel()
+                        helper.showReminderNotification()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.onboarding_btn_test_notification),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
         }
     }
 }
@@ -982,7 +973,7 @@ private fun OnboardingStep3Privacy() {
             start = 16.dp,
             end = 16.dp,
             top = 16.dp,
-            bottom = 60.dp
+            bottom = 16.dp
         ),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -993,7 +984,6 @@ private fun OnboardingStep3Privacy() {
                 description = stringResource(R.string.onboarding_tip1_desc)
             )
         }
-
         item {
             WellbeingTipCard(
                 icon = Icons.Default.Lock,
@@ -1001,7 +991,6 @@ private fun OnboardingStep3Privacy() {
                 description = stringResource(R.string.onboarding_tip2_desc)
             )
         }
-
         item {
             WellbeingTipCard(
                 icon = Icons.Default.Security,
@@ -1009,7 +998,6 @@ private fun OnboardingStep3Privacy() {
                 description = stringResource(R.string.onboarding_tip3_desc)
             )
         }
-
         item {
             WellbeingTipCard(
                 icon = Icons.Default.VisibilityOff,
@@ -1028,9 +1016,7 @@ private fun WellbeingTipCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(16.dp)
     ) {
         Row(
@@ -1051,9 +1037,7 @@ private fun WellbeingTipCard(
                     )
                 }
             }
-
             Spacer(modifier = Modifier.width(16.dp))
-
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
@@ -1107,13 +1091,10 @@ private fun OobeBottomBar(
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(stringResource(R.string.onboarding_btn_back))
             }
-
             Button(
                 onClick = onNext,
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                ),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 modifier = Modifier.testTag("onboarding_next_btn")
             ) {
                 Text(

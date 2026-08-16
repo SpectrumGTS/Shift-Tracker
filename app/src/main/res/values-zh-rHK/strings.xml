@@ -101,6 +101,7 @@
     <string name="menu_section_settings">設置及偏好</string>
     <string name="menu_default_schedule">預設時間表</string>
     <string name="menu_buffer_grace_time">緩衝及寬限時間</string>
+    <string name="menu_notification_settings">通知設定</string>
     <string name="menu_backup_restore">備份及還原</string>
     <string name="menu_about">關於此應用程式</string>
 
@@ -321,4 +322,28 @@
     <string name="duration_hours">%1$d 小時</string>
     <string name="duration_minutes">%1$d 分鐘</string>
     <string name="duration_zero">0 分鐘</string>
+
+    <!-- Notifications & Reminders -->
+    <string name="onboarding_feature_notification_title">通知</string>
+    <string name="onboarding_feature_notification_desc">透過及時的提醒，輕鬆掌握您的工作記錄。</string>
+    <string name="notification_settings_title">通知</string>
+    <string name="enable_notifications">啟用通知</string>
+    <string name="enable_notifications_desc">允許應用程式為您發送提醒及更新。</string>
+    <string name="shift_reminder_enabled">排班記錄提醒</string>
+    <string name="shift_reminder_desc">在預定下班時間加上緩衝時間時提醒我記錄排班。</string>
+    <string name="notification_permission_required">需要通知權限</string>
+    <string name="notification_permission_desc">要接收提醒，請在系統設置中授予通知權限。</string>
+    <string name="notification_channel_name">排班記錄提醒</string>
+    <string name="notification_channel_description">記錄工作排班的提醒。</string>
+    <string name="notification_reminder_title">排班記錄提醒</string>
+    <string name="notification_reminder_text">是時候記錄排班了！別忘了登記您的工作時數。</string>
+    <string name="notification_action_log_shift">記錄排班</string>
+    <string name="onboarding_step_notifications_title">通知</string>
+    <string name="onboarding_step_notifications_subtitle">再也不會忘記記錄排班。我們可以在您的工作日結束時發送貼心的提醒。</string>
+    <string name="onboarding_notification_feature_title">排班提醒</string>
+    <string name="onboarding_notification_feature_desc">在您預定的下班時間發送貼心提醒。</string>
+    <string name="onboarding_btn_enable_notifications">啟用提醒</string>
+    <string name="onboarding_btn_notification_enabled">已啟用</string>
+    <string name="onboarding_notification_permission_granted">已批准</string>
+    <string name="onboarding_btn_test_notification">發送測試通知</string>
 </resources>

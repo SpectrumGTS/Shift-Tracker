@@ -15,11 +15,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.spectrumgts.shifttracker.ShiftTrackerMainActivity
 import dev.spectrumgts.shifttracker.ui.screens.OnboardingScreen
 import dev.spectrumgts.shifttracker.ui.theme.MyApplicationTheme
-import dev.spectrumgts.shifttracker.ui.viewmodel.OvertimeViewModel
+import dev.spectrumgts.shifttracker.ui.viewmodel.ShiftTrackerViewModel
 
 class ShiftTrackerOnboardingActivity : ComponentActivity() {
 
-    private val viewModel: OvertimeViewModel by viewModels()
+    private val viewModel: ShiftTrackerViewModel by viewModels()
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,8 +37,8 @@ class ShiftTrackerOnboardingActivity : ComponentActivity() {
                     appSettings = appSettings,
                     defaultSchedules = defaultSchedules,
                     windowSizeClass = windowSizeClass,
-                    onSaveSettings = { bufferBefore, bufferAfter, cutoffTime, ignoreEarly, lunchStart, lunchEnd, subWork, subOff, firstDay ->
-                        viewModel.saveAppSettings(bufferBefore, bufferAfter, cutoffTime, ignoreEarly, lunchStart, lunchEnd, subWork, subOff, firstDay)
+                    onSaveSettings = { bufferBefore, bufferAfter, cutoffTime, ignoreEarly, lunchStart, lunchEnd, subWork, subOff, firstDay, notifications, reminder ->
+                        viewModel.saveAppSettings(bufferBefore, bufferAfter, cutoffTime, ignoreEarly, lunchStart, lunchEnd, subWork, subOff, firstDay, notifications, reminder)
                     },
                     onSaveSchedule = { dayOfWeek, isWorkDay, workStart, workEnd ->
                         viewModel.saveDefaultSchedule(dayOfWeek, isWorkDay, workStart, workEnd)
