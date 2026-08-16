@@ -57,13 +57,13 @@ This project is built using modern Android development practices:
                             ▼
 ┌────────────────────────────────────────────────────────┐
 │                     VIEWMODEL                          │
-│                (OvertimeViewModel)                     │
+│               (ShiftTrackerViewModel)                  │
 └───────────────────────────┬────────────────────────────┘
                             │ Requests Data / Saves Changes
                             ▼
 ┌────────────────────────────────────────────────────────┐
 │                    REPOSITORY                          │
-│                (OvertimeRepository)                    │
+│               (WorkTimeRepository)                     │
 └───────────────────────────┬────────────────────────────┘
                             │ Room DB Access / DAO Calls
                             ▼
@@ -80,18 +80,22 @@ This project is built using modern Android development practices:
 ```
 app/src/main/java/dev/spectrumgts/shifttracker/
 ├── data/
+│   ├── backup/      # Data Portability (BackupManager)
 │   ├── dao/         # Room Data Access Objects (ShiftLogDao, AppSettingsDao, etc.)
 │   ├── db/          # Room Database implementation (AppDatabase)
-│   ├── model/       # Data Models & calculations (ShiftLog, AppSettings, OvertimeCalculation)
-│   └── repository/  # Repository pattern implementation (OvertimeRepository)
+│   ├── model/       # Data Models & logic helpers (ShiftLog, AppSettings, ShiftLogicHelper)
+│   └── repository/  # Repository pattern implementation (WorkTimeRepository)
+├── notifications/   # Background reminders (WorkManager, NotificationHelper)
 ├── ui/
-│   ├── components/  # Shared Compose components (ShiftCard, M3TimePickerDialog)
-│   ├── navigation/  # Navigation structures & drawer layout (NavigationDrawerContent)
-│   ├── screens/     # Application screens (Dashboard, ShiftHistory, Insights, Settings, Wellbeing, etc.)
+│   ├── components/  # Shared UI components (ShiftCard, SystemPickers, FeedbackUtils)
+│   ├── navigation/  # Navigation structures (AppNavigationDrawerSheet)
+│   ├── screens/     # UI Screens (Dashboard, ShiftHistory, Insights, NotificationSettings, etc.)
 │   ├── theme/       # Application styling (Color, Type, Theme)
-│   ├── viewmodel/   # Core State Management (OvertimeViewModel)
-│   └── BackupImportActivity.kt  # Standalone backup import activity
-└── ShiftTrackerMainActivity.kt  # Main entry point of the application
+│   ├── viewmodel/   # Core UI State Management (ShiftTrackerViewModel)
+│   ├── BackupImportActivity.kt  # Standalone backup import logic
+│   ├── MainApp.kt   # High-level UI scaffolding and NavHost
+│   └── ShiftTrackerOnboardingActivity.kt  # Setup wizard activity
+└── ShiftTrackerMainActivity.kt  # System-level entry point (Intents, WindowSize, Splash)
 ```
 
 ---
