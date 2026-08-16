@@ -9,7 +9,7 @@ import dev.spectrumgts.shifttracker.data.model.ShiftLog
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class OvertimeRepository(
+class WorkTimeRepository(
     private val shiftLogDao: ShiftLogDao,
     private val dayDefaultScheduleDao: DayDefaultScheduleDao,
     private val appSettingsDao: AppSettingsDao

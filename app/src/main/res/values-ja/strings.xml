@@ -37,6 +37,11 @@
     <string name="select_lunch_end_title">昼休み終了時間を選択</string>
     <string name="select_cutoff_title">夜勤締め切り時間を選択</string>
 
+    <!-- First Day of Week Settings -->
+    <string name="first_day_of_week">週の開始日</string>
+    <string name="first_day_of_week_desc">ダッシュボードとスケジュールの週の開始日を選択します。（デフォルト：システム設定）</string>
+    <string name="first_day_of_week_system">システム設定に従う</string>
+
     <!-- Add/Edit Shift Dialog -->
     <string name="save_shift">シフトを保存</string>
     <string name="cancel_btn">キャンセル</string>
@@ -81,10 +86,10 @@
     <string name="future_date_warning_title">未来の日付の警告</string>
     <string name="future_date_warning_desc">未来の日付 (%1$s) の記録を作成しようとしています。続行しますか？</string>
     <string name="confirm_btn">確認</string>
-    <string name="dashboard_extra_time">超過時間 (%1$s)</string>
+    <string name="dashboard_extra_time">残業時間 (%1$s)</string>
     <string name="dashboard_shifts_this_month">今月のシフト: %1$d</string>
     <string name="dashboard_total_worked_label">総労働</string>
-    <string name="dashboard_extra_time_label">超過時間</string>
+    <string name="dashboard_extra_time_label">残業時間</string>
     <string name="dashboard_month_summary">%1$s の概要</string>
 
 
@@ -148,7 +153,7 @@
     <string name="schedule_info_title">デフォルトの週間労働時間</string>
     <string name="schedule_info_desc">各曜日の標準シフト時間を定義します。シフトを記録する際、これらのデフォルト時間が自動的に入力されます。</string>
     <string name="schedule_apply_all_title">すべての勤務時間に適用しますか？</string>
-    <string name="schedule_apply_all_desc">%1$s ～ %2$s をすべてのデフォルト勤務日（月曜日から金曜日）に適用してもよろしいですか？既存の勤務日スケジュールは上書きされます。</string>
+    <string name="schedule_apply_all_desc">%1$s ～ %2$s をすべてのデフォルト勤務日に適用してもよろしいですか？既存の勤務日スケジュールは上書きされます。</string>
     <string name="schedule_apply_overwrite_btn">適用して上書き</string>
     <string name="schedule_work_start_title">%1$s: デフォルト開始時間</string>
     <string name="schedule_work_end_title">%1$s: デフォルト終了時間</string>
@@ -297,7 +302,7 @@
     <string name="onboarding_feature_privacy_title">データプライバシー</string>
     <string name="onboarding_feature_privacy_desc">100% ローカルストレージとトラッキングゼロ。</string>
     <string name="onboarding_preset_9to5_title">標準的な 9時から 5時の勤務週</string>
-    <string name="onboarding_preset_9to5_desc">月曜日から金曜日に 09:00 ～ 17:00 を適用します。</string>
+    <string name="onboarding_preset_9to5_desc_formatted">%1$s ～ %2$s を %3$s に適用します。</string>
     <string name="onboarding_btn_apply">適用</string>
 
     <!-- Redo Onboarding Warning Dialog -->

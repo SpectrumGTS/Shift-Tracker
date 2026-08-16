@@ -36,6 +36,11 @@
     <string name="select_lunch_end_title">選擇午膳結束時間</string>
     <string name="select_cutoff_title">選擇通宵截止時間</string>
 
+    <!-- First Day of Week Settings -->
+    <string name="first_day_of_week">每週起始日</string>
+    <string name="first_day_of_week_desc">選擇儀表板和排班視圖中的週起始日。（預設：系統設置）</string>
+    <string name="first_day_of_week_system">跟隨系統設置</string>
+
     <!-- Add/Edit Shift Dialog -->
     <string name="save_shift">儲存排班</string>
     <string name="cancel_btn">取消</string>
@@ -83,7 +88,7 @@
     <string name="dashboard_extra_time">額外時數 (%1$s)</string>
     <string name="dashboard_shifts_this_month">本月排班：%1$d</string>
     <string name="dashboard_total_worked_label">總工作</string>
-    <string name="dashboard_extra_time_label">額外時數</string>
+    <string name="dashboard_extra_time_label">加班時數</string>
     <string name="dashboard_month_summary">%1$s 概覽</string>
 
 
@@ -147,7 +152,7 @@
     <string name="schedule_info_title">預設每週工作時數</string>
     <string name="schedule_info_desc">定義每週每天的標準排班時間。記錄排班時，這些預設時間將自動預填。</string>
     <string name="schedule_apply_all_title">將時間套用到所有工作日？</string>
-    <string name="schedule_apply_all_desc">您確定要將 %1$s – %2$s 套用到所有預設工作日（週一至週五）嗎？現有的工作日時間表將被覆蓋。</string>
+    <string name="schedule_apply_all_desc">您確定要將 %1$s – %2$s 套用到所有預設工作日嗎？現有的工作日時間表將被覆蓋。</string>
     <string name="schedule_apply_overwrite_btn">套用並覆蓋</string>
     <string name="schedule_work_start_title">%1$s：預設工作開始</string>
     <string name="schedule_work_end_title">%1$s：預設工作結束</string>
@@ -295,7 +300,7 @@
     <string name="onboarding_feature_privacy_title">數據隱私</string>
     <string name="onboarding_feature_privacy_desc">100% 本地存儲及零數據追蹤。</string>
     <string name="onboarding_preset_9to5_title">標準朝九晚五工作週</string>
-    <string name="onboarding_preset_9to5_desc">將 09:00 – 17:00 套用到週一至週五。</string>
+    <string name="onboarding_preset_9to5_desc_formatted">將 %1$s – %2$s 套用到 %3$s。</string>
     <string name="onboarding_btn_apply">套用</string>
 
     <!-- Redo Onboarding Warning Dialog -->

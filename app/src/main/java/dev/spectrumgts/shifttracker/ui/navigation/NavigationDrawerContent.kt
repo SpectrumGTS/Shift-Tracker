@@ -24,7 +24,9 @@ import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.SelfImprovement
+import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Storage
+import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -157,7 +159,7 @@ fun AppNavigationDrawerContent(
 
             DrawerMenuItem(
                 label = stringResource(R.string.menu_insights),
-                icon = Icons.AutoMirrored.Filled.TrendingUp,
+                icon = Icons.Default.Timeline,
                 isSelected = currentDestination == ScreenDestination.INSIGHTS,
                 testTag = "drawer_item_insights",
                 onClick = {
@@ -214,7 +216,7 @@ fun AppNavigationDrawerContent(
 
             DrawerMenuItem(
                 label = stringResource(R.string.menu_backup_restore),
-                icon = Icons.Default.Storage,
+                icon = Icons.Default.SettingsBackupRestore,
                 isSelected = currentDestination == ScreenDestination.BACKUP_RESTORE,
                 testTag = "drawer_item_backup_restore",
                 onClick = {

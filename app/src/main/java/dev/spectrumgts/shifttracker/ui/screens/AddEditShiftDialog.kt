@@ -92,7 +92,6 @@ fun AddEditShiftDialog(
     var showSaveConfirmDialog by remember { mutableStateOf(false) }
     var showFutureDateWarningDialog by remember { mutableStateOf(false) }
     var showCutoffWarningDialog by remember { mutableStateOf(false) }
-    var showEarlyClockOutDialog by remember { mutableStateOf(false) }
 
     val proceedSaveFlow = {
         val todayStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
@@ -107,21 +106,6 @@ fun AddEditShiftDialog(
         }
     }
 
-    val checkEarlyClockOutAndProceed = { clockOutMins: Int ->
-        val isEarlyClockOut = inputState.isWorkDay && OvertimeCalculator.isClockOutEarlierThanWorkEnd(
-            workStartMinutes = inputState.workStartMinutes,
-            workEndMinutes = inputState.workEndMinutes,
-            clockInMinutes = inputState.clockInMinutes,
-            clockOutMinutes = clockOutMins,
-            cutoffTimeMinutes = appSettings.cutoffTimeMinutes
-        )
-        if (isEarlyClockOut) {
-            showEarlyClockOutDialog = true
-        } else {
-            proceedSaveFlow()
-        }
-    }
-
     val handleSaveClick = {
         val isExceedingCutoff = isClockOutExceedingCutoff(
             clockInMinutes = inputState.clockInMinutes,
@@ -131,7 +115,7 @@ fun AddEditShiftDialog(
         if (isExceedingCutoff) {
             showCutoffWarningDialog = true
         } else {
-            checkEarlyClockOutAndProceed(inputState.clockOutMinutes)
+            proceedSaveFlow()
         }
     }
 
@@ -583,7 +567,7 @@ fun AddEditShiftDialog(
                         showCutoffWarningDialog = false
                         val adjustedClockOut = appSettings.cutoffTimeMinutes
                         onTimesUpdated(null, null, null, adjustedClockOut, null, null, null, null)
-                        checkEarlyClockOutAndProceed(adjustedClockOut)
+                        proceedSaveFlow()
                     },
                     modifier = Modifier.testTag("confirm_adjust_cutoff_button")
                 ) {
@@ -598,58 +582,6 @@ fun AddEditShiftDialog(
                 TextButton(
                     onClick = { showCutoffWarningDialog = false },
                     modifier = Modifier.testTag("cancel_adjust_cutoff_button")
-                ) {
-                    Text(stringResource(R.string.cancel_btn))
-                }
-            }
-        )
-    }
-
-    if (showEarlyClockOutDialog) {
-        val formattedClockOut = OvertimeCalculator.formatMinutesToTime(inputState.clockOutMinutes)
-        val formattedWorkEnd = OvertimeCalculator.formatMinutesToTime(inputState.workEndMinutes)
-
-        AlertDialog(
-            onDismissRequest = { showEarlyClockOutDialog = false },
-            title = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(end = 8.dp)
-                    )
-                    Text(
-                        text = stringResource(R.string.early_clock_out_title),
-                        style = WarningDialogTitleStyle
-                    )
-                }
-            },
-            text = {
-                Text(
-                    text = stringResource(R.string.early_clock_out_desc, formattedClockOut, formattedWorkEnd),
-                    style = WarningDialogBodyStyle
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showEarlyClockOutDialog = false
-                        onTimesUpdated(null, inputState.clockOutMinutes, null, null, null, null, null, null)
-                        proceedSaveFlow()
-                    },
-                    modifier = Modifier.testTag("confirm_early_clock_out_button")
-                ) {
-                    Text(
-                        stringResource(R.string.early_clock_out_confirm),
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { showEarlyClockOutDialog = false },
-                    modifier = Modifier.testTag("cancel_early_clock_out_button")
                 ) {
                     Text(stringResource(R.string.cancel_btn))
                 }

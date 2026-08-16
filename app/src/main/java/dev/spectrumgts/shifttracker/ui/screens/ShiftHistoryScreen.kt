@@ -49,6 +49,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.spectrumgts.shifttracker.R
 import dev.spectrumgts.shifttracker.data.model.AppSettings
+import dev.spectrumgts.shifttracker.data.model.DayOfWeekMapper
 import dev.spectrumgts.shifttracker.data.model.OvertimeCalculator
 import dev.spectrumgts.shifttracker.data.model.ShiftLog
 import dev.spectrumgts.shifttracker.ui.components.ShiftCard
@@ -329,10 +330,21 @@ fun ShiftHistoryScreen(
                                 FilterChip(
                                     selected = false,
                                     onClick = {
-                                        val calEnd = Calendar.getInstance()
-                                        val calStart = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -7) }
-                                        startDateFilter = dateFormat.format(calStart.time)
-                                        endDateFilter = dateFormat.format(calEnd.time)
+                                        val cal = DayOfWeekMapper.getCalendarInstance(appSettings.firstDayOfWeek)
+                                        cal.set(Calendar.HOUR_OF_DAY, 0)
+                                        cal.set(Calendar.MINUTE, 0)
+                                        cal.set(Calendar.SECOND, 0)
+                                        cal.set(Calendar.MILLISECOND, 0)
+                                        cal.set(Calendar.DAY_OF_WEEK, cal.firstDayOfWeek)
+
+                                        val endCal = cal.clone() as Calendar
+                                        endCal.add(Calendar.MILLISECOND, -1)
+
+                                        val startCal = cal.clone() as Calendar
+                                        startCal.add(Calendar.DAY_OF_YEAR, -7)
+
+                                        startDateFilter = dateFormat.format(startCal.time)
+                                        endDateFilter = dateFormat.format(endCal.time)
                                     },
                                     label = { Text(stringResource(R.string.history_chip_last_week)) },
                                     modifier = Modifier.testTag("chip_last_week")

@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -74,6 +75,7 @@ class ShiftTrackerMainActivity : ComponentActivity() {
     private val viewModel: OvertimeViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
@@ -258,12 +260,26 @@ private fun AppContent(
                 }
                 ScreenDestination.DEFAULT_SCHEDULES -> {
                     DefaultScheduleScreen(
+                        appSettings = appSettings,
                         schedules = defaultSchedules,
                         onSaveSchedule = { dayOfWeek, isWorkDay, workStart, workEnd ->
                             viewModel.saveDefaultSchedule(dayOfWeek, isWorkDay, workStart, workEnd)
                         },
-                        onApplyToAllWorkingDays = { workStart, workEnd, forceMonToFri ->
-                            viewModel.applyDefaultScheduleToAllWorkingDays(workStart, workEnd, forceMonToFri)
+                        onSaveFirstDayOfWeek = { firstDay ->
+                            viewModel.saveAppSettings(
+                                bufferBefore = appSettings.bufferBeforeMinutes,
+                                bufferAfter = appSettings.bufferAfterMinutes,
+                                cutoffTime = appSettings.cutoffTimeMinutes,
+                                ignoreEarlyClockIns = appSettings.ignoreEarlyClockIns,
+                                lunchStart = appSettings.lunchStartMinutes,
+                                lunchEnd = appSettings.lunchEndMinutes,
+                                subtractLunchWorkDays = appSettings.subtractLunchWorkDays,
+                                subtractLunchOffDays = appSettings.subtractLunchOffDays,
+                                firstDayOfWeek = firstDay
+                            )
+                        },
+                        onApplyToAllWorkingDays = { workStart, workEnd, forcePreset, firstDay ->
+                            viewModel.applyDefaultScheduleToAllWorkingDays(workStart, workEnd, forcePreset, firstDay)
                         }
                     )
                 }
@@ -272,7 +288,17 @@ private fun AppContent(
                         appSettings = appSettings,
                         defaultSchedules = defaultSchedules,
                         onSaveSettings = { bufferBefore, bufferAfter, cutoffTime, ignoreEarly, lunchStart, lunchEnd, subWork, subOff ->
-                            viewModel.saveAppSettings(bufferBefore, bufferAfter, cutoffTime, ignoreEarly, lunchStart, lunchEnd, subWork, subOff)
+                            viewModel.saveAppSettings(
+                                bufferBefore = bufferBefore,
+                                bufferAfter = bufferAfter,
+                                cutoffTime = cutoffTime,
+                                ignoreEarlyClockIns = ignoreEarly,
+                                lunchStart = lunchStart,
+                                lunchEnd = lunchEnd,
+                                subtractLunchWorkDays = subWork,
+                                subtractLunchOffDays = subOff,
+                                firstDayOfWeek = appSettings.firstDayOfWeek
+                            )
                         }
                     )
                 }

@@ -61,6 +61,7 @@ object OvertimeCalculator {
         }
 
         val scheduled = maxOf(0, calculateDuration(workStartMinutes, workEndMinutes, cutoffTimeMinutes))
+        val startRef = minOf(workStartMinutes, clockInMinutes)
 
         val isEarlyClockOut = isClockOutEarlierThanWorkEnd(
             workStartMinutes = workStartMinutes,
@@ -70,19 +71,26 @@ object OvertimeCalculator {
             cutoffTimeMinutes = cutoffTimeMinutes
         )
 
-        // Early overtime: Time worked before workStart minus bufferBefore (unless ignoreEarlyClockIns or isEarlyClockOut is true)
-        val earlyOvertime = if (ignoreEarlyClockIns || isEarlyClockOut) {
+        // Early overtime: Only if clockIn is strictly before workStart
+        val isClockInEarly = isTimeEarlier(clockInMinutes, workStartMinutes, startRef, cutoffTimeMinutes)
+        val earlyOvertime = if (ignoreEarlyClockIns || !isClockInEarly) {
             0
         } else {
-            val earlyMinutes = maxOf(0, calculateDuration(clockInMinutes, workStartMinutes, cutoffTimeMinutes))
+            val earlyMinutes = calculateDuration(clockInMinutes, workStartMinutes, cutoffTimeMinutes)
             maxOf(0, earlyMinutes - bufferBeforeMinutes)
         }
 
-        // Late overtime: Time worked after workEnd minus bufferAfter
-        val lateMinutes = if (isEarlyClockOut) 0 else maxOf(0, calculateDuration(workEndMinutes, clockOutMinutes, cutoffTimeMinutes))
-        val lateOvertime = if (isEarlyClockOut) 0 else maxOf(0, lateMinutes - bufferAfterMinutes)
+        // Late overtime vs Under-time
+        val (lateOvertime, underTime) = if (isEarlyClockOut) {
+            // Net under-time: Scheduled end minus actual clock out
+            0 to maxOf(0, calculateDuration(clockOutMinutes, workEndMinutes, cutoffTimeMinutes))
+        } else {
+            // Net late overtime: Actual clock out minus scheduled end
+            val lateMinutes = maxOf(0, calculateDuration(workEndMinutes, clockOutMinutes, cutoffTimeMinutes))
+            maxOf(0, lateMinutes - bufferAfterMinutes) to 0
+        }
 
-        val totalOvertime = if (isEarlyClockOut) 0 else earlyOvertime + lateOvertime
+        val totalOvertime = maxOf(0, earlyOvertime + lateOvertime - underTime)
 
         return OvertimeSummary(
             scheduledMinutes = scheduled,
@@ -125,6 +133,15 @@ object OvertimeCalculator {
         return effectiveClockOut < effectiveWorkEnd
     }
 
+    /**
+     * Checks if timeA is earlier than timeB, accounting for overnight wraps using startRef as the anchor.
+     */
+    fun isTimeEarlier(timeA: Int, timeB: Int, startRef: Int, cutoff: Int): Boolean {
+        val effA = if (timeA < startRef || (timeA <= cutoff && startRef > cutoff)) timeA + 1440 else timeA
+        val effB = if (timeB < startRef || (timeB <= cutoff && startRef > cutoff)) timeB + 1440 else timeB
+        return effA < effB
+    }
+
     fun formatMinutesToTime(minutes: Int): String {
         val m = ((minutes % 1440) + 1440) % 1440
         val hours = m / 60
@@ -153,25 +170,40 @@ object OvertimeCalculator {
         }
     }
 
-    fun getDayOfWeekName(dayOfWeek: Int): String {
-        val calendar = java.util.Calendar.getInstance()
-        val calDay = when (dayOfWeek) {
-            1 -> java.util.Calendar.MONDAY
-            2 -> java.util.Calendar.TUESDAY
-            3 -> java.util.Calendar.WEDNESDAY
-            4 -> java.util.Calendar.THURSDAY
-            5 -> java.util.Calendar.FRIDAY
-            6 -> java.util.Calendar.SATURDAY
-            7 -> java.util.Calendar.SUNDAY
-            else -> return "Day $dayOfWeek"
-        }
-        calendar.set(java.util.Calendar.DAY_OF_WEEK, calDay)
-        return calendar.getDisplayName(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.LONG, Locale.getDefault()) ?: "Day $dayOfWeek"
-    }
-
     fun calculateOverlap(startA: Int, endA: Int, startB: Int, endB: Int): Int {
         val maxStart = maxOf(startA, startB)
         val minEnd = minOf(endA, endB)
         return maxOf(0, minEnd - maxStart)
+    }
+
+    /**
+     * Calculates the aggregate summary for a list of shifts.
+     * @return Pair(totalActualWorkedMinutes, totalOvertimeMinutes)
+     */
+    fun calculateShiftsSummary(shifts: List<ShiftLog>, appSettings: AppSettings): Pair<Int, Int> {
+        var totalWorked = 0
+        var totalOvertime = 0
+        
+        shifts.forEach { shift ->
+            val summary = calculate(
+                workStartMinutes = shift.workStartMinutes,
+                workEndMinutes = shift.workEndMinutes,
+                clockInMinutes = shift.clockInMinutes,
+                clockOutMinutes = shift.clockOutMinutes,
+                bufferBeforeMinutes = shift.bufferBeforeMinutes,
+                bufferAfterMinutes = shift.bufferAfterMinutes,
+                isWorkDay = shift.isWorkDay,
+                cutoffTimeMinutes = appSettings.cutoffTimeMinutes,
+                ignoreEarlyClockIns = appSettings.ignoreEarlyClockIns,
+                lunchStartMinutes = appSettings.lunchStartMinutes,
+                lunchEndMinutes = appSettings.lunchEndMinutes,
+                subtractLunchWorkDays = appSettings.subtractLunchWorkDays,
+                subtractLunchOffDays = appSettings.subtractLunchOffDays
+            )
+            totalWorked += summary.actualWorkedMinutes
+            totalOvertime += summary.totalOvertimeMinutes
+        }
+        
+        return totalWorked to totalOvertime
     }
 }

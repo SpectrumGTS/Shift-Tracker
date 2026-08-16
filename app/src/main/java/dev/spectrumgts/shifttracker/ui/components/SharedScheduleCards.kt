@@ -1,6 +1,7 @@
 package dev.spectrumgts.shifttracker.ui.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,15 +11,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CopyAll
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -42,33 +47,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.spectrumgts.shifttracker.R
 import dev.spectrumgts.shifttracker.data.model.DayDefaultSchedule
+import dev.spectrumgts.shifttracker.data.model.DayOfWeekMapper
 import dev.spectrumgts.shifttracker.data.model.OvertimeCalculator
 
 @Composable
 fun DefaultScheduleSettingsCard(
     schedules: List<DayDefaultSchedule>,
     onSaveSchedule: (dayOfWeek: Int, isWorkDay: Boolean, workStart: Int, workEnd: Int) -> Unit,
-    onApplyToAllWorkingDays: (workStart: Int, workEnd: Int, forceMonToFri: Boolean) -> Unit,
+    onApplyToAllWorkingDays: (workStart: Int, workEnd: Int, forcePreset: Boolean, firstDayOfWeek: Int) -> Unit,
+    firstDayOfWeek: Int = 0,
     modifier: Modifier = Modifier,
     showTitleHeader: Boolean = true
 ) {
     val view = LocalView.current
-    val orderedDays = remember {
-        val cal = java.util.Calendar.getInstance()
-        val firstDay = cal.firstDayOfWeek
-        (0..6).map { offset ->
-            val day = (firstDay + offset - 1) % 7 + 1
-            when (day) {
-                java.util.Calendar.MONDAY -> 1
-                java.util.Calendar.TUESDAY -> 2
-                java.util.Calendar.WEDNESDAY -> 3
-                java.util.Calendar.THURSDAY -> 4
-                java.util.Calendar.FRIDAY -> 5
-                java.util.Calendar.SATURDAY -> 6
-                java.util.Calendar.SUNDAY -> 7
-                else -> 1
-            }
-        }
+    val orderedDays = remember(firstDayOfWeek) {
+        DayOfWeekMapper.getOrderedAppDays(firstDayOfWeek)
     }
 
     val fullDaysList = orderedDays.map { dayInt ->
@@ -128,6 +121,16 @@ fun DefaultScheduleSettingsCard(
         }
 
         // Quick Apply standard 9-5 hours banner
+        val presetDaysNames = remember(firstDayOfWeek) {
+            val ordered = DayOfWeekMapper.getOrderedAppDays(firstDayOfWeek)
+            val appFirstDay = ordered[0]
+            val appLastDay = ordered[4] // 5th day
+
+            val startDayName = DayOfWeekMapper.getDayOfWeekName(appFirstDay)
+            val endDayName = DayOfWeekMapper.getDayOfWeekName(appLastDay)
+            "$startDayName – $endDayName"
+        }
+
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -149,7 +152,7 @@ fun DefaultScheduleSettingsCard(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = stringResource(R.string.onboarding_preset_9to5_desc),
+                        text = stringResource(R.string.onboarding_preset_9to5_desc_formatted, "09:00", "17:00", presetDaysNames),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -210,7 +213,7 @@ fun DefaultScheduleSettingsCard(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        onApplyToAllWorkingDays(target.workStartMinutes, target.workEndMinutes, false)
+                        onApplyToAllWorkingDays(target.workStartMinutes, target.workEndMinutes, false, firstDayOfWeek)
                         pendingApplyTarget = null
                     },
                     modifier = Modifier.testTag("confirm_apply_all_btn")
@@ -250,7 +253,7 @@ fun DefaultScheduleSettingsCard(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        onApplyToAllWorkingDays(540, 1020, true)
+                        onApplyToAllWorkingDays(540, 1020, true, firstDayOfWeek)
                         show9to5Confirmation = false
                     },
                     modifier = Modifier.testTag("confirm_apply_9to5_btn")
@@ -271,7 +274,7 @@ fun DefaultScheduleSettingsCard(
         val existing = schedules.find { it.dayOfWeek == dayOfWeek }
             ?: DayDefaultSchedule(dayOfWeek, true, 540, 1020)
 
-        val dayName = OvertimeCalculator.getDayOfWeekName(dayOfWeek)
+        val dayName = DayOfWeekMapper.getDayOfWeekName(dayOfWeek)
         val title = if (isWorkStart) {
             stringResource(R.string.schedule_work_start_title, dayName)
         } else {
@@ -302,7 +305,7 @@ fun DayScheduleCard(
     modifier: Modifier = Modifier
 ) {
     val view = LocalView.current
-    val dayName = OvertimeCalculator.getDayOfWeekName(schedule.dayOfWeek)
+    val dayName = DayOfWeekMapper.getDayOfWeekName(schedule.dayOfWeek)
     var hasBeenModified by remember(schedule.dayOfWeek) { mutableStateOf(false) }
 
     Card(
@@ -408,6 +411,90 @@ fun DayScheduleCard(
                             style = MaterialTheme.typography.labelMedium
                         )
                     }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun FirstDayOfWeekCard(
+    selectedDay: Int, // 0 = System, 1 = Mon, ..., 7 = Sun
+    onDaySelected: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val view = LocalView.current
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .testTag("first_day_of_week_card"),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.WbSunny,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column {
+                        Text(
+                            text = stringResource(R.string.first_day_of_week),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = stringResource(R.string.first_day_of_week_desc),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // System Default Option
+                FilterChip(
+                    selected = selectedDay == 0,
+                    onClick = {
+                        triggerTouchSound(view)
+                        onDaySelected(0)
+                    },
+                    label = { Text(stringResource(R.string.first_day_of_week_system)) },
+                    modifier = Modifier.testTag("day_preset_system")
+                )
+
+                // Monday to Sunday Options
+                (1..7).forEach { dayInt ->
+                    FilterChip(
+                        selected = selectedDay == dayInt,
+                        onClick = {
+                            triggerTouchSound(view)
+                            onDaySelected(dayInt)
+                        },
+                        label = { Text(DayOfWeekMapper.getDayOfWeekName(dayInt)) },
+                        modifier = Modifier.testTag("day_preset_$dayInt")
+                    )
                 }
             }
         }

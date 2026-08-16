@@ -89,6 +89,7 @@ import dev.spectrumgts.shifttracker.ui.BackupImportActivity
 import dev.spectrumgts.shifttracker.ui.components.BufferAfterCard
 import dev.spectrumgts.shifttracker.ui.components.BufferBeforeCard
 import dev.spectrumgts.shifttracker.ui.components.CutoffTimeCard
+import dev.spectrumgts.shifttracker.ui.components.FirstDayOfWeekCard
 import dev.spectrumgts.shifttracker.ui.components.DefaultScheduleSettingsCard
 import dev.spectrumgts.shifttracker.ui.components.InvalidCutoffTimeDialog
 import dev.spectrumgts.shifttracker.ui.components.LunchBreakCard
@@ -108,10 +109,11 @@ fun OnboardingScreen(
         lunchStartMinutes: Int,
         lunchEndMinutes: Int,
         subtractLunchWorkDays: Boolean,
-        subtractLunchOffDays: Boolean
+        subtractLunchOffDays: Boolean,
+        firstDayOfWeek: Int
     ) -> Unit,
     onSaveSchedule: (dayOfWeek: Int, isWorkDay: Boolean, workStart: Int, workEnd: Int) -> Unit,
-    onApplyToAllWorkingDays: (workStart: Int, workEnd: Int, forceMonToFri: Boolean) -> Unit,
+    onApplyToAllWorkingDays: (workStart: Int, workEnd: Int, forcePreset: Boolean, firstDayOfWeek: Int) -> Unit,
     onFinishOnboarding: () -> Unit
 ) {
     val context = LocalContext.current
@@ -128,6 +130,7 @@ fun OnboardingScreen(
     var lunchEnd by remember(appSettings) { mutableIntStateOf(appSettings.lunchEndMinutes) }
     var subtractLunchWorkDays by remember(appSettings) { mutableStateOf(appSettings.subtractLunchWorkDays) }
     var subtractLunchOffDays by remember(appSettings) { mutableStateOf(appSettings.subtractLunchOffDays) }
+    var firstDayOfWeek by remember(appSettings) { mutableIntStateOf(appSettings.firstDayOfWeek) }
 
     var showCutoffTimePicker by remember { mutableStateOf(false) }
     var showLunchStartTimePicker by remember { mutableStateOf(false) }
@@ -163,7 +166,7 @@ fun OnboardingScreen(
     }
 
     // Synchronize settings changes only after user pressed Get Started on welcome screen
-    LaunchedEffect(hasPressedGetStarted, bufferBefore, bufferAfter, cutoffTime, ignoreEarlyClockIns, lunchStart, lunchEnd, subtractLunchWorkDays, subtractLunchOffDays) {
+    LaunchedEffect(hasPressedGetStarted, bufferBefore, bufferAfter, cutoffTime, ignoreEarlyClockIns, lunchStart, lunchEnd, subtractLunchWorkDays, subtractLunchOffDays, firstDayOfWeek) {
         if (hasPressedGetStarted) {
             onSaveSettings(
                 bufferBefore.toInt(),
@@ -173,7 +176,8 @@ fun OnboardingScreen(
                 lunchStart,
                 lunchEnd,
                 subtractLunchWorkDays,
-                subtractLunchOffDays
+                subtractLunchOffDays,
+                firstDayOfWeek
             )
         }
     }
@@ -228,8 +232,12 @@ fun OnboardingScreen(
                             )
                             1 -> OnboardingStep2Schedule(
                                 schedules = defaultSchedules,
+                                firstDayOfWeek = firstDayOfWeek,
+                                onFirstDayOfWeekChange = { firstDayOfWeek = it },
                                 onSaveSchedule = onSaveSchedule,
-                                onApplyToAllWorkingDays = onApplyToAllWorkingDays
+                                onApplyToAllWorkingDays = { start, end, force, firstDay ->
+                                    onApplyToAllWorkingDays(start, end, force, firstDay)
+                                }
                             )
                             2 -> OnboardingStep1Buffer(
                                 bufferBefore = bufferBefore,
@@ -314,8 +322,12 @@ fun OnboardingScreen(
                         )
                         1 -> OnboardingStep2Schedule(
                             schedules = defaultSchedules,
+                            firstDayOfWeek = firstDayOfWeek,
+                            onFirstDayOfWeekChange = { firstDayOfWeek = it },
                             onSaveSchedule = onSaveSchedule,
-                            onApplyToAllWorkingDays = onApplyToAllWorkingDays
+                            onApplyToAllWorkingDays = { start, end, force, firstDay ->
+                                onApplyToAllWorkingDays(start, end, force, firstDay)
+                            }
                         )
                         2 -> OnboardingStep1Buffer(
                             bufferBefore = bufferBefore,
@@ -924,8 +936,10 @@ private fun OnboardingStep1Buffer(
 @Composable
 private fun OnboardingStep2Schedule(
     schedules: List<DayDefaultSchedule>,
+    firstDayOfWeek: Int,
+    onFirstDayOfWeekChange: (Int) -> Unit,
     onSaveSchedule: (dayOfWeek: Int, isWorkDay: Boolean, workStart: Int, workEnd: Int) -> Unit,
-    onApplyToAllWorkingDays: (workStart: Int, workEnd: Int, forceMonToFri: Boolean) -> Unit
+    onApplyToAllWorkingDays: (workStart: Int, workEnd: Int, forcePreset: Boolean, firstDayOfWeek: Int) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -936,13 +950,22 @@ private fun OnboardingStep2Schedule(
             end = 16.dp,
             top = 16.dp,
             bottom = 60.dp
-        )
+        ),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        item {
+            FirstDayOfWeekCard(
+                selectedDay = firstDayOfWeek,
+                onDaySelected = onFirstDayOfWeekChange
+            )
+        }
+
         item {
             DefaultScheduleSettingsCard(
                 schedules = schedules,
                 onSaveSchedule = onSaveSchedule,
                 onApplyToAllWorkingDays = onApplyToAllWorkingDays,
+                firstDayOfWeek = firstDayOfWeek,
                 showTitleHeader = false
             )
         }

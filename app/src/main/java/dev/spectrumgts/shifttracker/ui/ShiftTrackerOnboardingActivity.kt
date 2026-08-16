@@ -37,14 +37,14 @@ class ShiftTrackerOnboardingActivity : ComponentActivity() {
                     appSettings = appSettings,
                     defaultSchedules = defaultSchedules,
                     windowSizeClass = windowSizeClass,
-                    onSaveSettings = { bufferBefore, bufferAfter, cutoffTime, ignoreEarly, lunchStart, lunchEnd, subWork, subOff ->
-                        viewModel.saveAppSettings(bufferBefore, bufferAfter, cutoffTime, ignoreEarly, lunchStart, lunchEnd, subWork, subOff)
+                    onSaveSettings = { bufferBefore, bufferAfter, cutoffTime, ignoreEarly, lunchStart, lunchEnd, subWork, subOff, firstDay ->
+                        viewModel.saveAppSettings(bufferBefore, bufferAfter, cutoffTime, ignoreEarly, lunchStart, lunchEnd, subWork, subOff, firstDay)
                     },
                     onSaveSchedule = { dayOfWeek, isWorkDay, workStart, workEnd ->
                         viewModel.saveDefaultSchedule(dayOfWeek, isWorkDay, workStart, workEnd)
                     },
-                    onApplyToAllWorkingDays = { workStart, workEnd, forceMonToFri ->
-                        viewModel.applyDefaultScheduleToAllWorkingDays(workStart, workEnd, forceMonToFri)
+                    onApplyToAllWorkingDays = { workStart, workEnd, forcePreset, firstDay ->
+                        viewModel.applyDefaultScheduleToAllWorkingDays(workStart, workEnd, forcePreset, firstDay)
                     },
                     onFinishOnboarding = {
                         val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)

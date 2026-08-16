@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.spectrumgts.shifttracker.R
 import dev.spectrumgts.shifttracker.data.model.AppSettings
+import dev.spectrumgts.shifttracker.data.model.DayOfWeekMapper
 import dev.spectrumgts.shifttracker.data.model.OvertimeCalculator
 import dev.spectrumgts.shifttracker.data.model.ShiftLog
 import dev.spectrumgts.shifttracker.ui.theme.WarningDialogBodyStyle
@@ -75,7 +76,7 @@ fun ShiftCard(
         dev.spectrumgts.shifttracker.ui.viewmodel.getDayOfWeekForDate(shift.date)
     } catch (e: Exception) { 1 }
 
-    val dayName = OvertimeCalculator.getDayOfWeekName(dayOfWeekInt)
+    val dayName = DayOfWeekMapper.getDayOfWeekName(dayOfWeekInt)
 
     Card(
         modifier = modifier

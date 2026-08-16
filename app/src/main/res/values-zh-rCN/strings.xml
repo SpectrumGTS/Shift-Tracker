@@ -37,6 +37,11 @@
     <string name="select_lunch_end_title">选择午休结束时间</string>
     <string name="select_cutoff_title">选择通宵截止时间</string>
 
+    <!-- First Day of Week Settings -->
+    <string name="first_day_of_week">每周起始日</string>
+    <string name="first_day_of_week_desc">选择仪表板和工时视图中的周起始日。（默认：系统设置）</string>
+    <string name="first_day_of_week_system">跟随系统设置</string>
+
     <!-- Add/Edit Shift Dialog -->
     <string name="save_shift">保存工时</string>
     <string name="cancel_btn">取消</string>
@@ -147,7 +152,7 @@
     <string name="schedule_info_title">默认每周工时</string>
     <string name="schedule_info_desc">定义每周每天的标准工时时间。记录工时时，这些默认时间将自动预填。</string>
     <string name="schedule_apply_all_title">将时间应用到所有工作日？</string>
-    <string name="schedule_apply_all_desc">您确定要将 %1$s – %2$s 应用到所有默认工作日（周一至周五）吗？现有的工作日时间表将被覆盖。</string>
+    <string name="schedule_apply_all_desc">您确定要将 %1$s – %2$s 应用到所有默认工作日吗？现有的工作日时间表将被覆盖。</string>
     <string name="schedule_apply_overwrite_btn">应用并覆盖</string>
     <string name="schedule_work_start_title">%1$s：默认工作开始</string>
     <string name="schedule_work_end_title">%1$s：默认工作结束</string>
@@ -296,7 +301,7 @@
     <string name="onboarding_feature_privacy_title">数据隐私</string>
     <string name="onboarding_feature_privacy_desc">100% 本地存储及零数据追踪。</string>
     <string name="onboarding_preset_9to5_title">标准朝九晚五工作周</string>
-    <string name="onboarding_preset_9to5_desc">将 09:00 – 17:00 应用到周一至周五。</string>
+    <string name="onboarding_preset_9to5_desc_formatted">将 %1$s – %2$s 应用到 %3$s。</string>
     <string name="onboarding_btn_apply">应用</string>
 
     <!-- Redo Onboarding Warning Dialog -->

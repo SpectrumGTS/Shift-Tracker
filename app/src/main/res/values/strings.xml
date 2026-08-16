@@ -37,6 +37,11 @@
     <string name="select_lunch_end_title">Select Lunch Break End Time</string>
     <string name="select_cutoff_title">Select Overnight Cutoff Time</string>
 
+    <!-- First Day of Week Settings -->
+    <string name="first_day_of_week">First Day of Week</string>
+    <string name="first_day_of_week_desc">Select the start of the week for your dashboard and schedule. (Default: System Locale)</string>
+    <string name="first_day_of_week_system">Follow System Locale</string>
+
     <!-- Add/Edit Shift Dialog -->
     <string name="save_shift">Save Shift</string>
     <string name="cancel_btn">Cancel</string>
@@ -148,7 +153,7 @@
     <string name="schedule_info_title">Default Weekly Working Hours</string>
     <string name="schedule_info_desc">Define standard shift hours for each day of week. When logging a shift, these default times will automatically pre-fill.</string>
     <string name="schedule_apply_all_title">Apply Hours to All Working Days?</string>
-    <string name="schedule_apply_all_desc">Are you sure you want to apply %1$s – %2$s to all default working days (Monday through Friday)? Existing working day schedules will be overwritten.</string>
+    <string name="schedule_apply_all_desc">Are you sure you want to apply %1$s – %2$s to all default working days? Existing working day schedules will be overwritten.</string>
     <string name="schedule_apply_overwrite_btn">Apply &amp; Overwrite</string>
     <string name="schedule_work_start_title">%1$s: Default Work Start</string>
     <string name="schedule_work_end_title">%1$s: Default Work End</string>
@@ -297,7 +302,7 @@
     <string name="onboarding_feature_privacy_title">Data Privacy</string>
     <string name="onboarding_feature_privacy_desc">100% local storage &amp; zero data tracking.</string>
     <string name="onboarding_preset_9to5_title">Standard 9 to 5 Work Week</string>
-    <string name="onboarding_preset_9to5_desc">Apply 09:00 – 17:00 to Monday - Friday.</string>
+    <string name="onboarding_preset_9to5_desc_formatted">Apply %1$s – %2$s to %3$s.</string>
     <string name="onboarding_btn_apply">Apply</string>
 
     <!-- Redo Onboarding Warning Dialog -->

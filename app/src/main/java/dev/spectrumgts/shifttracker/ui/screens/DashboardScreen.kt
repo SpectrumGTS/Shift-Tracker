@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import dev.spectrumgts.shifttracker.R
 import dev.spectrumgts.shifttracker.data.model.AppSettings
 import dev.spectrumgts.shifttracker.data.model.DayDefaultSchedule
+import dev.spectrumgts.shifttracker.data.model.DayOfWeekMapper
 import dev.spectrumgts.shifttracker.data.model.OvertimeCalculator
 import dev.spectrumgts.shifttracker.data.model.ShiftLog
 import dev.spectrumgts.shifttracker.ui.components.ShiftCard
@@ -98,49 +99,16 @@ fun DashboardScreen(
         shifts.filter { it.date.startsWith(currentMonthPrefix) }
     }
 
-    // Calculate total overtime across shifts in current month ONLY
-    val totalOvertimeMinutes = currentMonthShifts.sumOf { shift ->
-        OvertimeCalculator.calculate(
-            workStartMinutes = shift.workStartMinutes,
-            workEndMinutes = shift.workEndMinutes,
-            clockInMinutes = shift.clockInMinutes,
-            clockOutMinutes = shift.clockOutMinutes,
-            bufferBeforeMinutes = shift.bufferBeforeMinutes,
-            bufferAfterMinutes = shift.bufferAfterMinutes,
-            isWorkDay = shift.isWorkDay,
-            cutoffTimeMinutes = appSettings.cutoffTimeMinutes,
-            ignoreEarlyClockIns = appSettings.ignoreEarlyClockIns,
-            lunchStartMinutes = appSettings.lunchStartMinutes,
-            lunchEndMinutes = appSettings.lunchEndMinutes,
-            subtractLunchWorkDays = appSettings.subtractLunchWorkDays,
-            subtractLunchOffDays = appSettings.subtractLunchOffDays
-        ).totalOvertimeMinutes
-    }
-
-    // Calculate total working hours across shifts in current month ONLY
-    val totalWorkedMinutes = currentMonthShifts.sumOf { shift ->
-        OvertimeCalculator.calculate(
-            workStartMinutes = shift.workStartMinutes,
-            workEndMinutes = shift.workEndMinutes,
-            clockInMinutes = shift.clockInMinutes,
-            clockOutMinutes = shift.clockOutMinutes,
-            bufferBeforeMinutes = shift.bufferBeforeMinutes,
-            bufferAfterMinutes = shift.bufferAfterMinutes,
-            isWorkDay = shift.isWorkDay,
-            cutoffTimeMinutes = appSettings.cutoffTimeMinutes,
-            ignoreEarlyClockIns = appSettings.ignoreEarlyClockIns,
-            lunchStartMinutes = appSettings.lunchStartMinutes,
-            lunchEndMinutes = appSettings.lunchEndMinutes,
-            subtractLunchWorkDays = appSettings.subtractLunchWorkDays,
-            subtractLunchOffDays = appSettings.subtractLunchOffDays
-        ).actualWorkedMinutes
+    // Calculate aggregate monthly stats
+    val (totalWorkedMinutes, totalOvertimeMinutes) = remember(currentMonthShifts, appSettings) {
+        OvertimeCalculator.calculateShiftsSummary(currentMonthShifts, appSettings)
     }
 
     val todayDayOfWeek = getDayOfWeekForDate(todayDateStr)
     val todaySchedule = defaultSchedules.find { it.dayOfWeek == todayDayOfWeek }
 
-    val currentWeekShifts = remember(shifts) {
-        val cal = java.util.Calendar.getInstance()
+    val currentWeekShifts = remember(shifts, appSettings.firstDayOfWeek) {
+        val cal = DayOfWeekMapper.getCalendarInstance(appSettings.firstDayOfWeek)
         cal.set(java.util.Calendar.HOUR_OF_DAY, 0)
         cal.set(java.util.Calendar.MINUTE, 0)
         cal.set(java.util.Calendar.SECOND, 0)
@@ -350,7 +318,7 @@ fun DashboardScreen(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = stringResource(R.string.dashboard_today_prefix, OvertimeCalculator.getDayOfWeekName(todayDayOfWeek)),
+                                    text = stringResource(R.string.dashboard_today_prefix, DayOfWeekMapper.getDayOfWeekName(todayDayOfWeek)),
                                     style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.Bold
                                 )

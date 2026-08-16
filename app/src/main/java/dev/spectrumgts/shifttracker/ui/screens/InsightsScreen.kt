@@ -18,9 +18,9 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -57,27 +57,12 @@ fun InsightsScreen(
         shifts.filter { it.date.startsWith(selectedYear) }
     }
 
-    val monthlyData = remember(yearShifts) {
+    val monthlyData = remember(yearShifts, appSettings) {
         val months = (1..12).map { String.format("%s-%02d", selectedYear, it) }
         months.map { monthPrefix ->
             val monthShifts = yearShifts.filter { it.date.startsWith(monthPrefix) }
-            val totalMins = monthShifts.sumOf { shift ->
-                OvertimeCalculator.calculate(
-                    workStartMinutes = shift.workStartMinutes,
-                    workEndMinutes = shift.workEndMinutes,
-                    clockInMinutes = shift.clockInMinutes,
-                    clockOutMinutes = shift.clockOutMinutes,
-                    bufferBeforeMinutes = shift.bufferBeforeMinutes,
-                    bufferAfterMinutes = shift.bufferAfterMinutes,
-                    isWorkDay = shift.isWorkDay,
-                    cutoffTimeMinutes = appSettings.cutoffTimeMinutes,
-                    ignoreEarlyClockIns = appSettings.ignoreEarlyClockIns,
-                    lunchStartMinutes = appSettings.lunchStartMinutes,
-                    lunchEndMinutes = appSettings.lunchEndMinutes,
-                    subtractLunchWorkDays = appSettings.subtractLunchWorkDays,
-                    subtractLunchOffDays = appSettings.subtractLunchOffDays
-                ).actualWorkedMinutes
-            }
+            val (totalWorkedMins, _) = OvertimeCalculator.calculateShiftsSummary(monthShifts, appSettings)
+            
             val monthDisplayName = try {
                 val fmt = SimpleDateFormat("yyyy-MM", Locale.getDefault())
                 val d = fmt.parse(monthPrefix)
@@ -85,7 +70,7 @@ fun InsightsScreen(
             } catch (e: Exception) {
                 monthPrefix
             }
-            monthDisplayName to totalMins
+            monthDisplayName to totalWorkedMins
         }
     }
 
@@ -135,7 +120,7 @@ fun InsightsScreen(
                         color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
                     ) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.TrendingUp,
+                            imageVector = Icons.Default.Timeline,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onPrimaryContainer,
                             modifier = Modifier

@@ -8,15 +8,14 @@ import dev.spectrumgts.shifttracker.R
 import dev.spectrumgts.shifttracker.data.db.AppDatabase
 import dev.spectrumgts.shifttracker.data.model.AppSettings
 import dev.spectrumgts.shifttracker.data.model.DayDefaultSchedule
-import dev.spectrumgts.shifttracker.data.model.OvertimeCalculator
+import dev.spectrumgts.shifttracker.data.model.DayOfWeekMapper
 import dev.spectrumgts.shifttracker.data.model.ShiftLog
-import dev.spectrumgts.shifttracker.data.repository.OvertimeRepository
+import dev.spectrumgts.shifttracker.data.repository.WorkTimeRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -26,7 +25,6 @@ import java.io.InputStreamReader
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 import org.json.JSONArray
 import org.json.JSONObject
@@ -49,16 +47,7 @@ fun getDayOfWeekForDate(dateString: String): Int {
         val date = sdf.parse(dateString) ?: return 1
         val cal = Calendar.getInstance()
         cal.time = date
-        when (cal.get(Calendar.DAY_OF_WEEK)) {
-            Calendar.MONDAY -> 1
-            Calendar.TUESDAY -> 2
-            Calendar.WEDNESDAY -> 3
-            Calendar.THURSDAY -> 4
-            Calendar.FRIDAY -> 5
-            Calendar.SATURDAY -> 6
-            Calendar.SUNDAY -> 7
-            else -> 1
-        }
+        DayOfWeekMapper.fromCalendarDay(cal.get(Calendar.DAY_OF_WEEK))
     } catch (e: Exception) {
         1
     }
@@ -97,11 +86,11 @@ data class BackupPreviewInfo(
 
 class OvertimeViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository: OvertimeRepository
+    private val repository: WorkTimeRepository
 
     init {
         val db = AppDatabase.getDatabase(application)
-        repository = OvertimeRepository(
+        repository = WorkTimeRepository(
             shiftLogDao = db.shiftLogDao(),
             dayDefaultScheduleDao = db.dayDefaultScheduleDao(),
             appSettingsDao = db.appSettingsDao()
@@ -135,7 +124,8 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
                 lunchStartMinutes = 720,
                 lunchEndMinutes = 750,
                 subtractLunchWorkDays = false,
-                subtractLunchOffDays = false
+                subtractLunchOffDays = false,
+                firstDayOfWeek = 0
             )
         )
 
@@ -185,7 +175,10 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
                     rawCurrentMins
                 }
 
-                val defaultClockIn = if (settings.ignoreEarlyClockIns) {
+                val shouldSyncClockIn = schedule.isWorkDay && (finalDate == todayStr) && (rawCurrentMins > cutoffTime) && (rawCurrentMins < schedule.workStartMinutes)
+                val defaultClockIn = if (shouldSyncClockIn) {
+                    rawCurrentMins
+                } else if (settings.ignoreEarlyClockIns) {
                     schedule.workStartMinutes
                 } else {
                     schedule.workStartMinutes - settings.bufferBeforeMinutes
@@ -271,7 +264,10 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
                     rawCurrentMins
                 }
 
-                val defaultClockIn = if (settings.ignoreEarlyClockIns) {
+                val shouldSyncClockIn = schedule.isWorkDay && (newDate == todayStr) && (rawCurrentMins > cutoffTime) && (rawCurrentMins < schedule.workStartMinutes)
+                val defaultClockIn = if (shouldSyncClockIn) {
+                    rawCurrentMins
+                } else if (settings.ignoreEarlyClockIns) {
                     schedule.workStartMinutes
                 } else {
                     schedule.workStartMinutes - settings.bufferBeforeMinutes
@@ -361,13 +357,20 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun applyDefaultScheduleToAllWorkingDays(workStart: Int, workEnd: Int, forceMonToFri: Boolean = false) {
+    fun applyDefaultScheduleToAllWorkingDays(workStart: Int, workEnd: Int, forcePreset: Boolean = false, firstDayOfWeek: Int = 0) {
         viewModelScope.launch {
+            val cal = DayOfWeekMapper.getCalendarInstance(firstDayOfWeek)
+            val firstDayApp = DayOfWeekMapper.fromCalendarDay(cal.firstDayOfWeek)
+
+            val presetDays = (0..4).map { offset ->
+                (firstDayApp + offset - 1) % 7 + 1
+            }.toSet()
+
             (1..7).forEach { dayInt ->
                 val currentSchedule = repository.getDefaultScheduleForDay(dayInt)
-                val shouldBeWorkDay = if (forceMonToFri) dayInt in 1..5 else currentSchedule.isWorkDay
+                val shouldBeWorkDay = if (forcePreset) dayInt in presetDays else currentSchedule.isWorkDay
 
-                if (shouldBeWorkDay || forceMonToFri) {
+                if (shouldBeWorkDay || forcePreset) {
                     repository.saveDefaultSchedule(
                         currentSchedule.copy(
                             isWorkDay = shouldBeWorkDay,
@@ -388,7 +391,8 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
         lunchStart: Int = 720,
         lunchEnd: Int = 750,
         subtractLunchWorkDays: Boolean = false,
-        subtractLunchOffDays: Boolean = false
+        subtractLunchOffDays: Boolean = false,
+        firstDayOfWeek: Int = 0
     ) {
         viewModelScope.launch {
             repository.saveAppSettings(
@@ -401,7 +405,8 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
                     lunchStartMinutes = lunchStart,
                     lunchEndMinutes = lunchEnd,
                     subtractLunchWorkDays = subtractLunchWorkDays,
-                    subtractLunchOffDays = subtractLunchOffDays
+                    subtractLunchOffDays = subtractLunchOffDays,
+                    firstDayOfWeek = firstDayOfWeek
                 )
             )
         }
@@ -541,6 +546,7 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
                         put("lunchEndMinutes", settings.lunchEndMinutes)
                         put("subtractLunchWorkDays", settings.subtractLunchWorkDays)
                         put("subtractLunchOffDays", settings.subtractLunchOffDays)
+                        put("firstDayOfWeek", settings.firstDayOfWeek)
                     }
                     root.put("appSettings", settingsObj)
 
@@ -651,7 +657,8 @@ class OvertimeViewModel(application: Application) : AndroidViewModel(application
                                     lunchStartMinutes = settingsObj.optInt("lunchStartMinutes", currentSettings.lunchStartMinutes),
                                     lunchEndMinutes = settingsObj.optInt("lunchEndMinutes", currentSettings.lunchEndMinutes),
                                     subtractLunchWorkDays = settingsObj.optBoolean("subtractLunchWorkDays", currentSettings.subtractLunchWorkDays),
-                                    subtractLunchOffDays = settingsObj.optBoolean("subtractLunchOffDays", currentSettings.subtractLunchOffDays)
+                                    subtractLunchOffDays = settingsObj.optBoolean("subtractLunchOffDays", currentSettings.subtractLunchOffDays),
+                                    firstDayOfWeek = settingsObj.optInt("firstDayOfWeek", currentSettings.firstDayOfWeek)
                                 )
                                 repository.saveAppSettings(newSettings)
                             }
