@@ -8,20 +8,8 @@ plugins {
 
 android {
   namespace = "dev.spectrumgts.shifttracker"
-  compileSdk { version = release(36) { minorApiLevel = 1 } }
-
-  defaultConfig {
-    applicationId = "dev.spectrumgts.shifttracker"
-    minSdk = 26
-    targetSdk = 36
-    versionCode = (project.findProperty("versionCode")?.toString() ?: "1").toInt()
-    versionName = project.findProperty("versionName")?.toString() ?: "v0.1.0-alpha"
-
-    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-  }
-
-  androidResources {
-    generateLocaleConfig = true
+  compileSdk {
+    version = release(37)
   }
 
   signingConfigs {
@@ -34,6 +22,21 @@ android {
     }
   }
 
+  defaultConfig {
+    applicationId = "dev.spectrumgts.shifttracker"
+    minSdk = 26
+    targetSdk = 36
+    versionCode = (project.findProperty("versionCode")?.toString() ?: "1").toInt()
+    versionName = project.findProperty("versionName")?.toString() ?: "v0.1.0-alpha"
+
+    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    signingConfig = signingConfigs.getByName("release")
+  }
+
+  androidResources {
+    generateLocaleConfig = true
+  }
+
   buildTypes {
     release {
       isMinifyEnabled = true
@@ -42,10 +45,16 @@ android {
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
       signingConfig = signingConfigs.getByName("release")
     }
-    debug { }
+    debug {
+      versionNameSuffix = "-debug"
+      applicationIdSuffix = ".debug"
+      signingConfig = signingConfigs.getByName("debug")
+    }
     create("userdebug") {
       initWith(getByName("debug"))
       matchingFallbacks.add("debug")
+      applicationIdSuffix = ".userdebug"
+      versionNameSuffix = "-userdebug"
     }
   }
   compileOptions {
